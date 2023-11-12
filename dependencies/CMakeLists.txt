@@ -20,17 +20,30 @@ cpmaddpackage(
         NAME spdlog
         GIT_REPOSITORY "git@github.com:gabime/spdlog.git"
         GIT_TAG v1.12.0)
+cpmaddpackage(
+        NAME tl-optional
+        GIT_REPOSITORY "git@github.com:TartanLlama/optional.git"
+        GIT_TAG v1.1.0)
+cpmaddpackage(
+        NAME tl-expected
+        GIT_REPOSITORY "git@github.com:TartanLlama/expected.git"
+        GIT_TAG v1.1.0)
 
-sl_target_link_system_library(${PROJECT_NAME}
+sl_target_link_system_libraries(${PROJECT_NAME}
         PRIVATE
-        dl # for dynamic graphics API loading
+        # dynamic graphics API loading
+        dl
 
         PUBLIC
         # graphics
         glfw
         glad
 
-        # utils
+        # fmt/log
         fmt
         spdlog
+
+        # fp components
+        tl::optional
+        tl::expected
 )
