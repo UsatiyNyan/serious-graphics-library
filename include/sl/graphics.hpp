@@ -4,4 +4,4 @@
 
 #pragma once
 
-
+namespace sl::graphics {} // namespace sl::graphics

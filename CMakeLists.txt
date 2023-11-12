@@ -8,22 +8,36 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(serious-cmake-library)
 
-sl_project_prologue(CXX_STANDARD 20)
+# Project
+
+sl_project_prologue(
+        CXX_STANDARD 20
+        C_STANDARD 17)
+
 project(
         serious-graphics-library
         VERSION 0.0.1
         DESCRIPTION "graphics library"
         HOMEPAGE_URL "TODO"
-        LANGUAGES CXX)
+        LANGUAGES C CXX)
 
-add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE include)
+add_library(${PROJECT_NAME}
+        STATIC
+        src/graphics.cpp)
 
-if(NOT PROJECT_IS_TOP_LEVEL)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+
+add_subdirectory(dependencies)
+
+# Tests and examples
+
+if (NOT PROJECT_IS_TOP_LEVEL)
     return()
-endif()
+endif ()
 
 include(CTest)
 if (BUILD_TESTING)
     add_subdirectory(test)
 endif ()
+
+add_subdirectory(examples)
