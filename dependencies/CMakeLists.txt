@@ -28,6 +28,10 @@ cpmaddpackage(
         NAME tl-expected
         GIT_REPOSITORY "git@github.com:TartanLlama/expected.git"
         GIT_TAG v1.1.0)
+cpmaddpackage(
+        NAME libassert
+        GIT_REPOSITORY "git@github.com:jeremy-rifkin/libassert.git"
+        GIT_TAG v1.2.1)
 
 sl_target_link_system_libraries(${PROJECT_NAME}
         PRIVATE
@@ -46,4 +50,7 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         # fp components
         tl::optional
         tl::expected
+
+        # utils
+        assert
 )

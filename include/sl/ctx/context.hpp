@@ -16,20 +16,14 @@ public:
         int profile;
     };
 
-    static std::unique_ptr<Context> create(Options options);
-    void poll_events(); // TODO(@usatiynyan): return the events
-
 private:
     Context() = default;
 
 public:
+    static std::unique_ptr<Context> create(Options options);
     ~Context() noexcept;
 
-    Context(const Context&) = delete;
-    Context& operator=(const Context&) = delete;
-
-    Context(Context&&) noexcept = delete;
-    Context& operator=(Context&&) noexcept = delete;
+    void poll_events(); // TODO(@usatiynyan): return the events
 };
 
 } // namespace sl::gfx
