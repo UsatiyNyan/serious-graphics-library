@@ -16,14 +16,21 @@ cpmaddpackage(
         NAME fmt
         GIT_REPOSITORY "git@github.com:fmtlib/fmt.git"
         GIT_TAG 10.1.1)
+cpmaddpackage(
+        NAME spdlog
+        GIT_REPOSITORY "git@github.com:gabime/spdlog.git"
+        GIT_TAG v1.12.0)
 
 sl_target_link_system_library(${PROJECT_NAME}
         PRIVATE
-        # graphics
         dl # for dynamic graphics API loading
+
+        PUBLIC
+        # graphics
         glfw
         glad
 
         # utils
         fmt
+        spdlog
 )
