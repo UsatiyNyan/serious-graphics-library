@@ -23,7 +23,7 @@ project(
 
 add_library(${PROJECT_NAME}
         STATIC
-        src/graphics.cpp)
+        src/ctx/context.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
