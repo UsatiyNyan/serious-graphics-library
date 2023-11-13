@@ -32,6 +32,10 @@ cpmaddpackage(
         NAME libassert
         GIT_REPOSITORY "git@github.com:jeremy-rifkin/libassert.git"
         GIT_TAG v1.2.1)
+cpmaddpackage(
+        NAME function2
+        GIT_REPOSITORY "git@github.com:Naios/function2.git"
+        GIT_TAG 4.2.4)
 
 sl_target_link_system_libraries(${PROJECT_NAME}
         PRIVATE
@@ -50,6 +54,7 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         # fp components
         tl::optional
         tl::expected
+        function2
 
         # utils
         assert
