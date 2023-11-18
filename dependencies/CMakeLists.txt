@@ -31,7 +31,7 @@ cpmaddpackage(
 cpmaddpackage(
         NAME libassert
         GIT_REPOSITORY "git@github.com:jeremy-rifkin/libassert.git"
-        GIT_TAG v1.2.1)
+        GIT_TAG main)
 cpmaddpackage(
         NAME function2
         GIT_REPOSITORY "git@github.com:Naios/function2.git"

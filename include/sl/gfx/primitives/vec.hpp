@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "sl/common/vendors.hpp"
+#include "sl/gfx/common/vendors.hpp"
 
 namespace sl::gfx {
 

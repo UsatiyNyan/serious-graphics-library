@@ -2,8 +2,9 @@
 // Created by usatiynyan on 11/12/23.
 //
 
-#include "sl/ctx/window.hpp"
-#include "sl/common/log.hpp"
+#include "sl/gfx/ctx/window.hpp"
+
+#include "sl/gfx/common/log.hpp"
 
 #include <assert.hpp>
 
@@ -48,10 +49,16 @@ void Window::Current::clear(GLbitfield mask) {
     glClear(mask);
 }
 
+void Window::Current::swap_buffers() { glfwSwapBuffers(window_->glfw_window_); }
+
 bool Window::Current::is_key_pressed(int key) const {
     ASSERT(current::get() == window_);
     return glfwGetKey(window_->glfw_window_, key);
 }
+
+bool Window::Current::should_close() const { return glfwWindowShouldClose(window_->glfw_window_); }
+
+void Window::Current::set_should_close(bool value) { glfwSetWindowShouldClose(window_->glfw_window_, value); }
 
 std::unique_ptr<Window> Window::create(const Context&, std::string_view title, Size2I size) {
     log::debug("glfwCreateWindow \"{}\" ({}x{})", title, size.width, size.height);
@@ -77,12 +84,6 @@ Window::Current Window::make_current(Vec2I point, Size2I size, Color4F color) {
     current_window.set_clear_color(color);
     return current_window;
 }
-
-void Window::swap_buffers() { glfwSwapBuffers(glfw_window_); }
-
-bool Window::should_close() const { return glfwWindowShouldClose(glfw_window_); }
-
-void Window::set_should_close(bool value) { glfwSetWindowShouldClose(glfw_window_, value); }
 
 // ew macros
 #define SETUP_WINDOW_CALLBACK(name)                                       \

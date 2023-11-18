@@ -2,9 +2,9 @@
 // Created by usatiynyan on 11/12/23.
 //
 
-#include "sl/ctx/context.hpp"
-#include "sl/common/log.hpp"
-#include "sl/common/vendors.hpp"
+#include "sl/gfx/ctx/context.hpp"
+#include "sl/gfx/common/log.hpp"
+#include "sl/gfx/common/vendors.hpp"
 
 namespace sl::gfx {
 namespace {

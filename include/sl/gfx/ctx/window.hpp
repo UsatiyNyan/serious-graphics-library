@@ -4,13 +4,9 @@
 
 #pragma once
 
-#include "sl/common/vendors.hpp"
-
-#include "sl/ctx/context.hpp"
-
-#include "sl/primitives/color.hpp"
-#include "sl/primitives/size.hpp"
-#include "sl/primitives/vec.hpp"
+#include "sl/gfx/common/vendors.hpp"
+#include "sl/gfx/ctx/context.hpp"
+#include "sl/gfx/primitives.hpp"
 
 #include <memory>
 #include <string_view>
@@ -28,6 +24,10 @@ public:
         void viewport(Vec2I point, Size2I size);
         void set_clear_color(Color4F color);
         void clear(GLbitfield mask);
+        void swap_buffers();
+
+        bool should_close() const;
+        void set_should_close(bool value);
 
         bool is_key_pressed(int key) const;
 
@@ -40,11 +40,6 @@ public:
     ~Window() noexcept;
 
     Current make_current(Vec2I point, Size2I size, Color4F color);
-
-    void swap_buffers();
-
-    bool should_close() const;
-    void set_should_close(bool value);
 
 private:
     explicit Window(GLFWwindow* glfw_window) : glfw_window_{ glfw_window } {}
