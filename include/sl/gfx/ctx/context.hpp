@@ -4,11 +4,13 @@
 
 #pragma once
 
-#include <memory>
+#include "sl/gfx/common/finalizer.hpp"
+
+#include <tl/optional.hpp>
 
 namespace sl::gfx {
 
-class Context {
+class Context: public finalizer<Context> {
 public:
     struct Options {
         int version_major;
@@ -16,14 +18,13 @@ public:
         int profile;
     };
 
-private:
-    Context() = default;
-
 public:
-    static std::unique_ptr<Context> create(Options options);
-    ~Context() noexcept;
+    static tl::optional<Context> create(Options options);
 
     void poll_events(); // TODO(@usatiynyan): return the events
+
+private:
+    Context();
 };
 
 } // namespace sl::gfx

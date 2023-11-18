@@ -16,16 +16,20 @@ void apply_options(const Context::Options& options) {
 }
 } // namespace
 
-std::unique_ptr<Context> Context::create(Context::Options options) {
+tl::optional<Context> Context::create(Context::Options options) {
     if (glfwInit() != GLFW_TRUE) {
         log::error("glfwInit");
-        return nullptr;
+        return tl::nullopt;
     }
     apply_options(options);
-    return std::unique_ptr<Context>{new Context{}};
+    return Context{};
 }
 
-Context::~Context() noexcept { glfwTerminate(); }
-
 void Context::poll_events() { glfwPollEvents(); } // NOLINT(*-convert-member-functions-to-static)
+
+Context::Context()
+    : finalizer{ [](Context&) {
+          log::debug("glfwTerminate");
+          glfwTerminate();
+      } } {}
 } // namespace sl::gfx

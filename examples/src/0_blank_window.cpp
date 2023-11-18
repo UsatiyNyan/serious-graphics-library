@@ -12,7 +12,7 @@ using namespace sl::gfx;
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
-    const auto ctx = ASSERT(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    auto ctx = ASSERT(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
 
     const Size2I window_size{ 800, 600 };
     const auto window = ASSERT(Window::create(*ctx, "blank", window_size));

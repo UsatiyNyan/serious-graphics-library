@@ -20,8 +20,7 @@ void load_gl() {
     static std::once_flag gl_loaded_;
 
     std::call_once(gl_loaded_, [] {
-        const int result = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-        ASSERT(result != 0);
+        ASSERT(gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) != 0);
     });
 }
 } // namespace current
