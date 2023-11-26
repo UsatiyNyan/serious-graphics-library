@@ -43,7 +43,7 @@ public:
     Current make_current(Vec2I point, Size2I size, Color4F color);
 
 private:
-    explicit Window(GLFWwindow* glfw_window) : glfw_window_{ glfw_window } {}
+    explicit Window(GLFWwindow* glfw_window);
     void setup_callbacks();
 
 public:

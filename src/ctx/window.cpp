@@ -84,11 +84,14 @@ Window::Current Window::make_current(Vec2I point, Size2I size, Color4F color) {
     return current_window;
 }
 
-// ew macros
+Window::Window(GLFWwindow* glfw_window) : glfw_window_{ glfw_window } { setup_callbacks(); }
+
 #define SETUP_WINDOW_CALLBACK(name)                                       \
     glfwSet##name##Callback(glfw_window_, [](GLFWwindow*, auto... args) { \
-        if (Window* window = current::get(); window != nullptr) {         \
-            window->name##_cb(args...);                                   \
+        Window* window = current::get();                                  \
+        auto& callback = window->name##_cb;                               \
+        if (window != nullptr && !callback.empty()) {                     \
+            callback(args...);                                            \
         }                                                                 \
     })
 
