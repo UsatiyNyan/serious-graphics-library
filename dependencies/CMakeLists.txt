@@ -36,6 +36,12 @@ cpmaddpackage(
         NAME function2
         GIT_REPOSITORY "git@github.com:Naios/function2.git"
         GIT_TAG 4.2.4)
+# ew boost, oh well...
+cpmaddpackage(
+        NAME Boost
+        GIT_REPOSITORY "git@github.com:boostorg/boost.git"
+        GIT_TAG "boost-1.83.0"
+)
 
 sl_target_link_system_libraries(${PROJECT_NAME}
         PRIVATE
@@ -58,4 +64,5 @@ sl_target_link_system_libraries(${PROJECT_NAME}
 
         # utils
         assert
+        Boost::container
 )

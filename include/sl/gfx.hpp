@@ -7,3 +7,4 @@
 #include "gfx/primitives.hpp"
 #include "gfx/ctx.hpp"
 #include "gfx/shader.hpp"
+#include "gfx/vtx.hpp"

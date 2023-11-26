@@ -26,7 +26,8 @@ add_library(${PROJECT_NAME}
         src/ctx/context.cpp
         src/ctx/window.cpp
         src/shader/shader.cpp
-        src/shader/program.cpp)
+        src/shader/program.cpp
+        src/vtx/vertex_array.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
