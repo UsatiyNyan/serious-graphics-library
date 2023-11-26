@@ -1,1 +1,3 @@
 sl_add_example(${PROJECT_NAME} 0_blank_window)
+sl_add_example(${PROJECT_NAME} 1_triangle)
+sl_target_attach_directory(${PROJECT_NAME}_1_triangle shaders)
