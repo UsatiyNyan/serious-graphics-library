@@ -81,7 +81,7 @@ public:
     }
 
     template <BufferType buffer_type, BufferUsage buffer_usage, typename DataType, std::size_t extent>
-    [[nodiscard]] auto buffer(std::span<DataType, extent> data) {
+    [[nodiscard]] auto buffer(std::span<const DataType, extent> data) {
         Buffer<DataType, buffer_type, buffer_usage> buffer;
         buffer.bind().set_data(data);
         return buffer;

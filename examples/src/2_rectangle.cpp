@@ -1,5 +1,5 @@
 //
-// Created by usatiynyan on 11/18/23.
+// Created by usatiynyan on 11/28/23.
 //
 
 #include "sl/gfx.hpp"
@@ -9,13 +9,20 @@
 
 using namespace sl::gfx;
 
-void debug_unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
+void debug_unbind() {
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
 
-template <typename DataType, std::size_t extent>
-void draw(const ShaderProgram& sp, const VertexArray& va, std::span<DataType, extent> vertices) {
+template <typename DataType>
+void draw(
+    const ShaderProgram& sp,
+    const VertexArray& va,
+    const Buffer<DataType, BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>& eb
+) {
     const auto sp_bind = sp.bind();
     const auto va_bind = va.bind();
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    glDrawElements(GL_TRIANGLES, eb.data_size(), type_map<DataType>::value, nullptr);
 }
 
 int main() {
@@ -30,19 +37,25 @@ int main() {
     auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
 
     const std::array shaders{
-        *ASSERT(Shader::load_from_file(ShaderType::VERTEX, "shaders/1_triangle.vert")),
-        *ASSERT(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/1_triangle.frag")),
+        *ASSERT(Shader::load_from_file(ShaderType::VERTEX, "shaders/2_rectangle.vert")),
+        *ASSERT(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/2_rectangle.frag")),
     };
     const ShaderProgram sp{ std::span{ shaders } };
 
     VertexArrayBuilder va_builder;
     va_builder.attribute<3, float>();
-    constexpr std::array<float, 3 * 3> vertices{
-        -0.5f, -0.5f, 0.0f, //
-        0.5f,  -0.5f, 0.0f, //
-        0.0f,  0.5f,  0.0f, //
+    constexpr std::array<float, 3 * 4> vertices{
+        0.5f,  0.5f,  0.0f, // top right
+        0.5f,  -0.5f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, // bottom left
+        -0.5f, 0.5f,  0.0f // top left
     };
     const auto vb = va_builder.buffer<BufferType::ARRAY, BufferUsage::STATIC_DRAW>(std::span{ vertices });
+    constexpr std::array<unsigned, 3 * 2> indices{
+        0u, 1u, 3u, // first triangle
+        1u, 2u, 3u // second triangle
+    };
+    const auto eb = va_builder.buffer<BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>(std::span{ indices });
     const auto va = std::move(va_builder).submit();
 
     // VVV debug
@@ -55,7 +68,7 @@ int main() {
         }
         current_window.clear(GL_COLOR_BUFFER_BIT);
 
-        draw(sp, va, std::span{ vertices });
+        draw(sp, va, eb);
 
         current_window.swap_buffers();
         ctx.poll_events();
