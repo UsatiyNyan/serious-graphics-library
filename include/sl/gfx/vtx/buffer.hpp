@@ -58,6 +58,7 @@ class Buffer : public finalizer<Buffer<DataType, type_, usage_>> {
         glBindBuffer(static_cast<GLenum>(type_), *buffer);
     }
 
+public:
     class ConstBind {
     public:
         explicit ConstBind(const Buffer& buffer) { bind_impl(buffer); }

@@ -51,13 +51,13 @@ private:
 
 class VertexArray : public finalizer<VertexArray> {
     friend class VertexArrayBuilder;
+    VertexArray();
 
+public:
     class Bind : public finalizer<Bind> {
     public:
         explicit Bind(const VertexArray& va);
     };
-
-    VertexArray();
 
 public:
     [[nodiscard]] GLuint operator*() const { return object_; }

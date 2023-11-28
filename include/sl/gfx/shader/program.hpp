@@ -14,18 +14,16 @@
 
 namespace sl::gfx {
 class ShaderProgram : public finalizer<ShaderProgram> {
+public:
     class Bind {
     public:
         explicit Bind(const ShaderProgram& sp);
 
         template <typename UniformSetter>
-        [[nodiscard]] auto make_uniform_setter(std::string_view uniform_name, UniformSetter&& uniform_setter) const {
+        [[nodiscard]] auto make_uniform_setter(std::string_view uniform_name, UniformSetter uniform_setter) const {
             return get_uniform_location(uniform_name)
-                .map([uniform_setter = std::forward<UniformSetter>(uniform_setter),
-                      sp_object = object_](GLint uniform_location) {
-                    return [uniform_setter = std::forward<UniformSetter>(uniform_setter),
-                            sp_object,
-                            uniform_location](const Bind& sp_bind, auto&&... args) {
+                .map([uniform_setter, sp_object = object_](GLint uniform_location) {
+                    return [uniform_setter, sp_object, uniform_location](const Bind& sp_bind, auto&&... args) {
                         sp_bind.verify_bound(sp_object);
                         return uniform_setter(uniform_location, args...);
                     };
@@ -40,6 +38,7 @@ class ShaderProgram : public finalizer<ShaderProgram> {
         GLuint object_;
     };
 
+private:
     ShaderProgram();
 
 public:
