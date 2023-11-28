@@ -26,6 +26,7 @@ tl::optional<Shader> Shader::load_from_source(ShaderType shader_type, std::strin
     const auto source_length = static_cast<GLint>(shader_source.length());
     glShaderSource(*shader, 1, &source_data, &source_length);
 
+    log::debug("glCompileShader: {}", *shader);
     glCompileShader(*shader);
     if (shader.get_parameter(GL_COMPILE_STATUS) == GL_FALSE) {
         log::error("Object compilation failed {}", shader.get_log());
@@ -36,8 +37,13 @@ tl::optional<Shader> Shader::load_from_source(ShaderType shader_type, std::strin
 }
 
 Shader::Shader(ShaderType shader_type)
-    : finalizer{ [](Shader& self) { glDeleteShader(*self); } },
-      object_{ glCreateShader(static_cast<GLenum>(shader_type)) } {}
+    : finalizer{ [](Shader& self) {
+          log::debug("glDeleteShader: {}", *self);
+          glDeleteShader(*self);
+      } },
+      object_{ glCreateShader(static_cast<GLenum>(shader_type)) } {
+    log::debug("glCreateShader: {}", object_);
+}
 
 GLint Shader::get_parameter(GLenum parameter_name) const {
     return detail::get_parameter(glGetShaderiv, object_, parameter_name);

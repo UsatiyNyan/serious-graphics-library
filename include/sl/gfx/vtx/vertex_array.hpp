@@ -54,9 +54,7 @@ class VertexArray : public finalizer<VertexArray> {
 
     class Bind : public finalizer<Bind> {
     public:
-        explicit Bind(const VertexArray& va) : finalizer{ [](Bind& self) { glBindVertexArray(0); } } {
-            glBindVertexArray(va.object_);
-        }
+        explicit Bind(const VertexArray& va);
     };
 
     VertexArray();

@@ -21,6 +21,15 @@ void VertexArrayAttribute::enable() {
     glEnableVertexAttribArray(index_);
 }
 
+VertexArray::Bind::Bind(const VertexArray& va)
+    : finalizer{ [](Bind& self) {
+          log::debug("glBindVertexArray: {}", 0);
+          glBindVertexArray(0);
+      } } {
+    log::debug("glBindVertexArray: {}", *va);
+    glBindVertexArray(*va);
+}
+
 VertexArray::VertexArray()
     : finalizer{ [](VertexArray& self) {
           // TODO(@usatiynyan): more than one VAO?

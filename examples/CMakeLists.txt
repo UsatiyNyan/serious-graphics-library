@@ -5,3 +5,6 @@ sl_target_attach_directory(${PROJECT_NAME}_1_triangle shaders)
 
 sl_add_example(${PROJECT_NAME} 2_rectangle)
 sl_target_attach_directory(${PROJECT_NAME}_2_rectangle shaders)
+
+sl_add_example(${PROJECT_NAME} 3_two_triangles)
+sl_target_attach_directory(${PROJECT_NAME}_3_two_triangles shaders)

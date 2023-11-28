@@ -11,7 +11,10 @@
 #include <assert.hpp>
 
 namespace sl::gfx {
-ShaderProgram::Bind::Bind(const ShaderProgram& sp) : object_{ *sp } { glUseProgram(object_); }
+ShaderProgram::Bind::Bind(const ShaderProgram& sp) : object_{ *sp } {
+    log::debug("glUseProgram: {}", object_);
+    glUseProgram(object_);
+}
 
 tl::optional<GLint> ShaderProgram::Bind::get_uniform_location(std::string_view uniform_name) const {
     GLint uniform_location = glGetUniformLocation(object_, uniform_name.data());
@@ -19,13 +22,20 @@ tl::optional<GLint> ShaderProgram::Bind::get_uniform_location(std::string_view u
         log::error("uniform {} location not found", uniform_name);
         return tl::nullopt;
     }
+    log::debug("glGetUniformLocation({}, {}): {}", object_, uniform_name, uniform_location);
     return uniform_location;
 }
 
 void ShaderProgram::Bind::verify_bound(GLuint sp_object) const { ASSERT(sp_object == object_); }
 
 ShaderProgram::ShaderProgram()
-    : finalizer{ [](ShaderProgram& self) { glDeleteProgram(self.object_); } }, object_{ glCreateProgram() } {}
+    : finalizer{ [](ShaderProgram& self) {
+          log::debug("glDeleteProgram: {}", *self);
+          glDeleteProgram(*self);
+      } },
+      object_{ glCreateProgram() } {
+    log::debug("glCreateProgram: {}", object_);
+}
 
 GLint ShaderProgram::get_parameter(GLenum parameter_name) const {
     return detail::get_parameter(glGetProgramiv, object_, parameter_name);
