@@ -32,9 +32,9 @@ public:
     [[nodiscard]] GLint get_parameter(GLenum parameter_name) const;
     [[nodiscard]] std::string get_log() const;
 
-    [[nodiscard]] GLuint operator*() const { return shader_; }
+    [[nodiscard]] GLuint operator*() const { return object_; }
 
 private:
-    GLuint shader_;
+    GLuint object_;
 };
 } // namespace sl::gfx

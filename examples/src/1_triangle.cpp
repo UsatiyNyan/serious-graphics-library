@@ -9,9 +9,9 @@
 
 using namespace sl::gfx;
 
-void draw(const ShaderProgram& shader_program, const VertexArray& va) {
-    shader_program.use();
-    const auto va_bound = va.bind();
+void draw(const ShaderProgram& sp, const VertexArray& va) {
+    const auto sp_bind = sp.bind();
+    const auto va_bind = va.bind();
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
@@ -30,7 +30,7 @@ int main() {
         *ASSERT(Shader::load_from_file(ShaderType::VERTEX, "shaders/1_triangle.vert")),
         *ASSERT(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/1_triangle.frag")),
     };
-    ShaderProgram shader_program{ std::span{ shaders } };
+    ShaderProgram sp{ std::span{ shaders } };
 
     VertexArrayBuilder va_builder;
     va_builder.attribute<3, float>();
@@ -48,7 +48,7 @@ int main() {
         }
         current_window.clear(GL_COLOR_BUFFER_BIT);
 
-        draw(shader_program, va);
+        draw(sp, va);
 
         current_window.swap_buffers();
         ctx.poll_events();

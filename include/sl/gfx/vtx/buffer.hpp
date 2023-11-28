@@ -53,9 +53,9 @@ enum class BufferUsage : GLenum {
 // TODO(@usatiynyan): solve unbind?
 template <typename DataType, BufferType type_, BufferUsage usage_>
 class Buffer : public finalizer<Buffer<DataType, type_, usage_>> {
-    class BoundBuffer {
+    class Bind {
     public:
-        explicit BoundBuffer(const Buffer& buffer) {
+        explicit Bind(const Buffer& buffer) {
             log::debug("glBindBuffer: {}", *buffer);
             glBindBuffer(static_cast<GLenum>(type_), *buffer);
         }
@@ -83,9 +83,9 @@ public:
               return buffer;
           }() } {}
 
-    GLuint operator*() const { return object_; }
-    auto bind() { return BoundBuffer{ *this }; }
-    auto bind() const { return BoundBuffer{ *this }; }
+    [[nodiscard]] GLuint operator*() const { return object_; }
+    [[nodiscard]] auto bind() { return Bind{ *this }; }
+    [[nodiscard]] auto bind() const { return Bind{ *this }; }
 
 private:
     GLuint object_;

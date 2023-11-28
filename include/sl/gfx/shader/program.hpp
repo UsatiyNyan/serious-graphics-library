@@ -14,6 +14,32 @@
 
 namespace sl::gfx {
 class ShaderProgram : public finalizer<ShaderProgram> {
+    class Bind {
+    public:
+        explicit Bind(const ShaderProgram& sp);
+
+        template <typename UniformSetter>
+        [[nodiscard]] auto make_uniform_setter(std::string_view uniform_name, UniformSetter&& uniform_setter) const {
+            return get_uniform_location(uniform_name)
+                .map([uniform_setter = std::forward<UniformSetter>(uniform_setter),
+                      sp_object = object_](GLint uniform_location) {
+                    return [uniform_setter = std::forward<UniformSetter>(uniform_setter),
+                            sp_object,
+                            uniform_location](const Bind& sp_bind, auto&&... args) {
+                        sp_bind.verify_bound(sp_object);
+                        return uniform_setter(uniform_location, args...);
+                    };
+                });
+        }
+
+    private:
+        [[nodiscard]] tl::optional<GLint> get_uniform_location(std::string_view uniform_name) const;
+        void verify_bound(GLuint sp_object) const;
+
+    private:
+        GLuint object_;
+    };
+
     ShaderProgram();
 
 public:
@@ -25,29 +51,18 @@ public:
         link();
     }
 
-    void use() const;
+    [[nodiscard]] GLuint operator*() const { return object_; }
+    [[nodiscard]] auto bind() const { return Bind{ *this }; }
 
-    [[nodiscard]] tl::optional<GLint> get_uniform_location(std::string_view uniform_name) const;
     [[nodiscard]] GLint get_parameter(GLenum parameter_name) const;
     [[nodiscard]] std::string get_log() const;
-
-    GLuint operator*() const { return program_; }
-
-    template <typename UniformSetter>
-    auto make_uniform_setter(std::string_view uniform_name, UniformSetter&& uniform_setter) const {
-        return get_uniform_location(uniform_name) //
-            .map([uniform_setter = std::forward<UniformSetter>(uniform_setter)](GLint uniform_location) {
-                return [uniform_setter = std::forward<UniformSetter>(uniform_setter),
-                        uniform_location](auto&&... args) { return uniform_setter(uniform_location, args...); };
-            });
-    }
 
 private:
     void attach(const Shader& shader);
     void link();
 
 private:
-    GLuint program_{};
+    GLuint object_{};
 };
 
 } // namespace sl::gfx

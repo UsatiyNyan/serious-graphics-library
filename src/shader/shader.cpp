@@ -18,7 +18,7 @@ tl::optional<Shader> Shader::load_from_file(ShaderType shader_type, const std::f
 }
 
 tl::optional<Shader> Shader::load_from_source(ShaderType shader_type, std::string_view shader_source) {
-    Shader shader{shader_type};
+    Shader shader{ shader_type };
 
     // only one source is used since it is redundant to send multiple shader sources
     log::debug("glShaderSource: {}", shader_source);
@@ -36,12 +36,12 @@ tl::optional<Shader> Shader::load_from_source(ShaderType shader_type, std::strin
 }
 
 Shader::Shader(ShaderType shader_type)
-    : finalizer{ [](Shader& self) { glDeleteShader(self.shader_); } },
-      shader_{ glCreateShader(static_cast<GLenum>(shader_type)) } {}
+    : finalizer{ [](Shader& self) { glDeleteShader(*self); } },
+      object_{ glCreateShader(static_cast<GLenum>(shader_type)) } {}
 
 GLint Shader::get_parameter(GLenum parameter_name) const {
-    return detail::get_parameter(glGetShaderiv, shader_, parameter_name);
+    return detail::get_parameter(glGetShaderiv, object_, parameter_name);
 }
 
-std::string Shader::get_log() const { return detail::get_log(glGetShaderInfoLog, shader_); }
+std::string Shader::get_log() const { return detail::get_log(glGetShaderInfoLog, object_); }
 } // namespace sl::gfx

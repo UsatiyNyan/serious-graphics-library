@@ -62,8 +62,8 @@ class VertexArray : public finalizer<VertexArray> {
     VertexArray();
 
 public:
-    GLuint operator*() const { return object_; }
-    auto bind() const { return Bind{ *this }; }
+    [[nodiscard]] GLuint operator*() const { return object_; }
+    [[nodiscard]] auto bind() const { return Bind{ *this }; }
 
 private:
     GLuint object_;
