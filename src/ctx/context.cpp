@@ -9,7 +9,7 @@
 namespace sl::gfx {
 namespace {
 void apply_options(const Context::Options& options) {
-    log::debug("glfwInit version: {}.{} profile: {}", options.version_major, options.version_minor, options.profile);
+    LOG_DEBUG("glfwInit version: {}.{} profile: {}", options.version_major, options.version_minor, options.profile);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, options.version_major);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, options.version_minor);
     glfwWindowHint(GLFW_OPENGL_PROFILE, options.profile);
@@ -29,7 +29,7 @@ void Context::poll_events() { glfwPollEvents(); } // NOLINT(*-convert-member-fun
 
 Context::Context()
     : finalizer{ [](Context&) {
-          log::debug("glfwTerminate");
+          LOG_DEBUG("glfwTerminate");
           glfwTerminate();
       } } {}
 } // namespace sl::gfx

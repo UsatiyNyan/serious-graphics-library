@@ -10,23 +10,23 @@
 
 namespace sl::gfx {
 void VertexArrayAttribute::set_pointer(GLsizei accumulated_stride) {
-    log::debug("glVertexAttribPointer: {}", index_);
+    LOG_DEBUG("glVertexAttribPointer: {}", index_);
     glVertexAttribPointer(
         index_, components_size_, type_, normalized_, accumulated_stride, reinterpret_cast<const void*>(offset_)
     );
 }
 
 void VertexArrayAttribute::enable() {
-    log::debug("glEnableVertexAttribArray: {}", index_);
+    LOG_DEBUG("glEnableVertexAttribArray: {}", index_);
     glEnableVertexAttribArray(index_);
 }
 
 VertexArray::Bind::Bind(const VertexArray& va)
     : finalizer{ [](Bind& self) {
-          log::debug("glBindVertexArray: {}", 0);
+          LOG_DEBUG("glBindVertexArray: {}", 0);
           glBindVertexArray(0);
       } } {
-    log::debug("glBindVertexArray: {}", *va);
+    LOG_DEBUG("glBindVertexArray: {}", *va);
     glBindVertexArray(*va);
 }
 
@@ -34,13 +34,13 @@ VertexArray::VertexArray()
     : finalizer{ [](VertexArray& self) {
           // TODO(@usatiynyan): more than one VAO?
           glDeleteVertexArrays(1, &self.object_);
-          log::debug("glDeleteVertexArrays: {}", self.object_);
+          LOG_DEBUG("glDeleteVertexArrays: {}", self.object_);
       } },
       object_{ [] {
           GLuint va_object = 0;
           // TODO(@usatiynyan): more than one VAO?
           glGenVertexArrays(1, &va_object);
-          log::debug("glGenVertexArrays: {}", va_object);
+          LOG_DEBUG("glGenVertexArrays: {}", va_object);
           return va_object;
       }() } {}
 

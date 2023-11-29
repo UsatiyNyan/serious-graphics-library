@@ -60,7 +60,7 @@ bool Window::Current::should_close() const { return glfwWindowShouldClose(window
 void Window::Current::set_should_close(bool value) { glfwSetWindowShouldClose(window_->glfw_window_, value); }
 
 std::unique_ptr<Window> Window::create(const Context&, std::string_view title, Size2I size) {
-    log::debug("glfwCreateWindow \"{}\" ({}x{})", title, size.width, size.height);
+    LOG_DEBUG("glfwCreateWindow \"{}\" ({}x{})", title, size.width, size.height);
     GLFWwindow* const glfw_window = glfwCreateWindow(size.width, size.height, title.data(), nullptr, nullptr);
     if (glfw_window == nullptr) {
         log::error("glfwCreateWindow");
@@ -86,6 +86,9 @@ Window::Current Window::make_current(Vec2I point, Size2I size, Color4F color) {
 
 Window::Window(GLFWwindow* glfw_window) : glfw_window_{ glfw_window } { setup_callbacks(); }
 
+void Window::setup_callbacks() {
+    // ew macros-es
+
 #define SETUP_WINDOW_CALLBACK(name)                                       \
     glfwSet##name##Callback(glfw_window_, [](GLFWwindow*, auto... args) { \
         Window* window = current::get();                                  \
@@ -95,8 +98,6 @@ Window::Window(GLFWwindow* glfw_window) : glfw_window_{ glfw_window } { setup_ca
         }                                                                 \
     })
 
-void Window::setup_callbacks() {
-    // ew macros-es
     SETUP_WINDOW_CALLBACK(WindowPos);
     SETUP_WINDOW_CALLBACK(WindowPos);
     SETUP_WINDOW_CALLBACK(WindowSize);
@@ -115,6 +116,8 @@ void Window::setup_callbacks() {
     SETUP_WINDOW_CALLBACK(CursorEnter);
     SETUP_WINDOW_CALLBACK(Scroll);
     SETUP_WINDOW_CALLBACK(Drop);
+
+#undef SETUP_WINDOW_CALLBACK
 }
 
 } // namespace sl::gfx

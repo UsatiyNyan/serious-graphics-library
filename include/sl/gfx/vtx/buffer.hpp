@@ -54,7 +54,7 @@ enum class BufferUsage : GLenum {
 template <typename DataType, BufferType type_, BufferUsage usage_>
 class Buffer : public finalizer<Buffer<DataType, type_, usage_>> {
     static void bind_impl(const Buffer& buffer) {
-        log::debug("glBindBuffer: {}", *buffer);
+        LOG_DEBUG("glBindBuffer: {}", *buffer);
         glBindBuffer(static_cast<GLenum>(type_), *buffer);
     }
 
@@ -70,7 +70,7 @@ public:
 
         template <std::size_t extent>
         void set_data(std::span<const DataType, extent> data) {
-            log::debug("glBufferData: size={}", data.size());
+            LOG_DEBUG("glBufferData: size={}", data.size());
             glBufferData(
                 static_cast<GLenum>(type_), sizeof(DataType) * data.size(), data.data(), static_cast<GLenum>(usage_)
             );
@@ -86,12 +86,12 @@ public:
         : finalizer<Buffer>{ [](Buffer& self) {
               // TODO(@usatiynyan): more than one buffer?
               glDeleteBuffers(1, &self.object_);
-              log::debug("glDeleteBuffers: {}", self.object_);
+              LOG_DEBUG("glDeleteBuffers: {}", self.object_);
           } },
           object_{ [] {
               GLuint buffer = 0;
               glGenBuffers(1, &buffer);
-              log::debug("glGenBuffers: {}", buffer);
+              LOG_DEBUG("glGenBuffers: {}", buffer);
               return buffer;
           }() } {}
 
