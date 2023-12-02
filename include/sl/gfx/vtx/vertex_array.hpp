@@ -27,6 +27,7 @@ class VertexArrayAttribute {
           offset_{ offset }, stride_{ components_size * type_size } {}
 
 public:
+    // TODO(@usatiynyan): retrieve in configuration glGetIntegerv(GL_MAX_VERTEX_ATTRIBS)
     static constexpr std::size_t MAX_AMOUNT = 16;
 
     template <GLint ComponentCount, typename T>

@@ -5,8 +5,8 @@
 #include "sl/gfx/shader/program.hpp"
 #include "sl/gfx/common/log.hpp"
 
-#include "log_detail.hpp"
-#include "parameter_detail.hpp"
+#include "sl/gfx/detail/log.hpp"
+#include "sl/gfx/detail/parameter.hpp"
 
 #include <assert.hpp>
 
