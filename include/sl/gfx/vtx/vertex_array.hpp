@@ -90,7 +90,7 @@ public:
 
 private:
     tl::optional<VertexArray> va_{ VertexArray{} };
-    tl::optional<VertexArray::Bind> bind_{ VertexArray::Bind{ *va_ } };
+    tl::optional<VertexArray::Bind> bind_{ tl::in_place, *va_ };
     GLsizei accumulated_stride_ = 0;
     boost::container::static_vector<VertexArrayAttribute, VertexArrayAttribute::MAX_AMOUNT> attributes_{};
 };

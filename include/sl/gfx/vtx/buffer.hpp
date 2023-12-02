@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "sl/gfx/common/finalizer.hpp"
 #include "sl/gfx/common/log.hpp"
 #include "sl/gfx/common/vendors.hpp"
@@ -53,20 +52,18 @@ enum class BufferUsage : GLenum {
 // TODO(@usatiynyan): solve unbind?
 template <typename DataType, BufferType type_, BufferUsage usage_>
 class Buffer : public finalizer<Buffer<DataType, type_, usage_>> {
-    static void bind_impl(const Buffer& buffer) {
-        LOG_DEBUG("glBindBuffer: {}", *buffer);
-        glBindBuffer(static_cast<GLenum>(type_), *buffer);
-    }
-
 public:
     class ConstBind {
     public:
-        explicit ConstBind(const Buffer& buffer) { bind_impl(buffer); }
+        explicit ConstBind(const Buffer& buffer) {
+            LOG_DEBUG("glBindBuffer: {}", *buffer);
+            glBindBuffer(static_cast<GLenum>(type_), *buffer);
+        }
     };
 
-    class Bind {
+    class Bind : private ConstBind {
     public:
-        explicit Bind(Buffer& buffer) : buffer_{ buffer } { bind_impl(buffer_); }
+        explicit Bind(Buffer& buffer) : ConstBind{ buffer }, buffer_{ buffer } {}
 
         template <std::size_t extent>
         void set_data(std::span<const DataType, extent> data) {
@@ -96,8 +93,8 @@ public:
           }() } {}
 
     [[nodiscard]] GLuint operator*() const { return object_; }
-    [[nodiscard]] auto bind() { return Bind{ *this }; }
     [[nodiscard]] auto bind() const { return ConstBind{ *this }; }
+    [[nodiscard]] auto bind() { return Bind{ *this }; }
     [[nodiscard]] std::size_t data_size() const { return data_size_; }
 
 private:
