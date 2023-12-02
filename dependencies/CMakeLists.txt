@@ -1,9 +1,4 @@
-# Manually compiled
-
-add_subdirectory(glad)
-
 # CMake packages
-
 cpmaddpackage(
         NAME serious-meta-library
         GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-meta-library.git"
@@ -43,6 +38,10 @@ cpmaddpackage(
         GIT_TAG "boost-1.83.0"
 )
 
+# Manually compiled
+add_subdirectory(glad)
+add_subdirectory(stb)
+
 sl_target_link_system_libraries(${PROJECT_NAME}
         PRIVATE
         # dynamic graphics API loading
@@ -61,8 +60,12 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         tl::optional
         tl::expected
         function2
+        serious-meta-library
 
         # utils
         assert
         Boost::container
+
+        # image
+        stb_image
 )
