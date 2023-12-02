@@ -16,7 +16,6 @@ void debug_unbind() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-template <TextureType... texture_types>
 class Draw {
 public:
     Draw(const ShaderProgram& sp, const VertexArray& va) : sp_bind_{ sp }, va_bind_{ va } {}
@@ -52,7 +51,9 @@ int main() {
         tex_builder.set_max_filter(TextureFilter::NEAREST);
 
         const auto image = *ASSERT(stb::image_load("textures/osaka.jpg", 4));
-        tex_builder.set_image(std::array{ image.width, image.height }, TextureFormat{ GL_RGB, GL_RGBA }, image.data.get());
+        tex_builder.set_image(
+            std::array{ image.width, image.height }, TextureFormat{ GL_RGB, GL_RGBA }, image.data.get()
+        );
         return std::move(tex_builder).submit();
     };
 
@@ -61,9 +62,7 @@ int main() {
             *ASSERT(Shader::load_from_file(ShaderType::VERTEX, "shaders/5_textured_triangle.vert")),
             *ASSERT(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/5_textured_triangle.frag")),
         };
-        ShaderProgram sp{ std::span{ shaders } };
-        auto set_texture_unit = *ASSERT(sp.bind().make_uniform_setter("us_texture", glUniform1i));
-        return std::make_tuple(std::move(sp), std::move(set_texture_unit));
+        return ShaderProgram{ std::span{ shaders } };
     };
 
     using buffers_type = std::tuple<
@@ -104,9 +103,10 @@ int main() {
     constexpr int TEXTURE_UNIT = 0;
 
     {
-        const auto& [tex, shader, buffers] = triangle;
-        const auto& [sp, set_texture_unit] = shader;
+        // NOTE: need to set texture uniforms only once
+        const auto& [tex, sp, buffers] = triangle;
         const auto sp_bind = sp.bind();
+        const auto set_texture_unit = *ASSERT(sp_bind.make_uniform_setter("us_texture", glUniform1i));
         set_texture_unit(sp_bind, TEXTURE_UNIT);
     }
 
@@ -117,8 +117,7 @@ int main() {
         current_window.clear(GL_COLOR_BUFFER_BIT);
 
         {
-            const auto& [tex, shader, buffers] = triangle;
-            const auto& [sp, set_texture_unit] = shader;
+            const auto& [tex, sp, buffers] = triangle;
             const auto& [vb, eb, va] = buffers;
             const auto tex_bind = tex.activate<TEXTURE_UNIT>();
             Draw draw(sp, va);
