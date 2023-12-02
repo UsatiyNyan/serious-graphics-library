@@ -11,3 +11,7 @@ sl_target_attach_directory(${PROJECT_NAME}_3_two_triangles shaders)
 
 sl_add_example(${PROJECT_NAME} 4_colored_triangle)
 sl_target_attach_directory(${PROJECT_NAME}_4_colored_triangle shaders)
+
+sl_add_example(${PROJECT_NAME} 5_textured_triangle)
+sl_target_attach_directory(${PROJECT_NAME}_5_textured_triangle shaders)
+sl_target_attach_directory(${PROJECT_NAME}_5_textured_triangle textures)
