@@ -1,9 +1,5 @@
 # CMake packages
 cpmaddpackage(
-        NAME serious-meta-library
-        GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-meta-library.git"
-        GIT_TAG main)
-cpmaddpackage(
         NAME glfw
         GIT_REPOSITORY "git@github.com:glfw/glfw.git"
         GIT_TAG 3.3.8)
@@ -15,6 +11,10 @@ cpmaddpackage(
         NAME spdlog
         GIT_REPOSITORY "git@github.com:gabime/spdlog.git"
         GIT_TAG v1.12.0)
+cpmaddpackage(
+        NAME serious-meta-library
+        GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-meta-library.git"
+        GIT_TAG main)
 cpmaddpackage(
         NAME tl-optional
         GIT_REPOSITORY "git@github.com:TartanLlama/optional.git"
@@ -31,6 +31,10 @@ cpmaddpackage(
         NAME function2
         GIT_REPOSITORY "git@github.com:Naios/function2.git"
         GIT_TAG 4.2.4)
+cpmaddpackage(
+        NAME range-v3
+        GIT_REPOSITORY "git@github.com:ericniebler/range-v3.git"
+        GIT_TAG 0.12.0)
 # ew boost, oh well...
 cpmaddpackage(
         NAME Boost
@@ -57,10 +61,11 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         spdlog
 
         # fp components
+        serious-meta-library
         tl::optional
         tl::expected
         function2
-        serious-meta-library
+        range-v3::range-v3
 
         # utils
         assert
