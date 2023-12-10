@@ -8,3 +8,4 @@
 #include "gfx/ctx.hpp"
 #include "gfx/shader.hpp"
 #include "gfx/vtx.hpp"
+#include "gfx/render.hpp"

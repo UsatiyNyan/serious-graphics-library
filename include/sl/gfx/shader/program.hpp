@@ -9,6 +9,7 @@
 #include "sl/gfx/common/finalizer.hpp"
 #include "sl/gfx/common/vendors.hpp"
 
+#include <range/v3/view/enumerate.hpp>
 #include <span>
 #include <tl/optional.hpp>
 
@@ -30,9 +31,18 @@ public:
                 });
         }
 
+        template <std::size_t extent>
+        void initialize_tex_units(std::span<std::string_view, extent> tex_uniform_names) {
+            for (const auto& [i, tex_uniform_name] : ranges::views::enumerate(tex_uniform_names)) {
+                initialize_tex_unit(tex_uniform_name, i);
+            }
+        }
+
     private:
         [[nodiscard]] tl::optional<GLint> get_uniform_location(std::string_view uniform_name) const;
         void verify_bound(GLuint sp_object) const;
+
+        void initialize_tex_unit(std::string_view tex_uniform_name, std::size_t tex_unit);
 
     private:
         GLuint object_;

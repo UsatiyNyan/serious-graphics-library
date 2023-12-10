@@ -10,22 +10,6 @@
 
 using namespace sl::gfx;
 
-class Draw {
-public:
-    Draw(const ShaderProgram& sp, const VertexArray& va) : sp_bind_{ sp }, va_bind_{ va } {}
-
-    [[nodiscard]] const auto& get_sp_bind() const { return sp_bind_; }
-
-    template <typename DataType>
-    void elements(const Buffer<DataType, BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>& eb) {
-        glDrawElements(GL_TRIANGLES, eb.data_size(), type_map<DataType>::value, nullptr);
-    }
-
-private:
-    ShaderProgram::Bind sp_bind_;
-    VertexArray::Bind va_bind_;
-};
-
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
@@ -71,8 +55,8 @@ int main() {
         va_builder.attribute<2, float>();
         auto vb = va_builder.buffer<BufferType::ARRAY, BufferUsage::STATIC_DRAW>(vertices_w_tex_coords);
         constexpr std::array<unsigned, 6> indices{
-            0u, 1u, 3u,  // first triangle
-            1u, 2u, 3u   // second triangle
+            0u, 1u, 3u, // first triangle
+            1u, 2u, 3u, // second triangle
         };
         auto eb = va_builder.buffer<BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>(std::span{ indices });
         auto va = std::move(va_builder).submit();
@@ -87,21 +71,13 @@ int main() {
         -0.5f, 0.5f,  0.0f, 0.0f, 1.0f // top left
     };
 
-    constexpr int BG_TEXTURE_UNIT = 0;
-    constexpr int FG_TEXTURE_UNIT = 1;
+    const std::tuple texs{ create_texture("textures/cosmos.jpg"), create_texture("textures/osaka.jpg") };
+    std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
 
-    const auto bg_tex = create_texture("textures/cosmos.jpg");
-    const auto fg_tex = create_texture("textures/osaka.jpg");
     const auto sp = create_shader();
-    const auto buffers = create_buffers(std::span{ vertices_w_tex_coords });
+    sp.bind().initialize_tex_units(std::span{ tex_uniform_names });
 
-    {
-        const auto sp_bind = sp.bind();
-        const auto set_bg_texture_unit = *ASSERT(sp_bind.make_uniform_setter("us_texture_bg", glUniform1i));
-        const auto set_fg_texture_unit = *ASSERT(sp_bind.make_uniform_setter("us_texture_fg", glUniform1i));
-        set_bg_texture_unit(sp_bind, BG_TEXTURE_UNIT);
-        set_fg_texture_unit(sp_bind, FG_TEXTURE_UNIT);
-    }
+    const auto buffers = create_buffers(std::span{ vertices_w_tex_coords });
 
     while (!current_window.should_close()) {
         if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {
@@ -111,11 +87,7 @@ int main() {
 
         {
             const auto& [vb, eb, va] = buffers;
-            const std::tuple texs_bind{
-                bg_tex.activate<BG_TEXTURE_UNIT>(),
-                fg_tex.activate<FG_TEXTURE_UNIT>(),
-            };
-            Draw draw(sp, va);
+            Draw draw(sp, va, texs);
             draw.elements(eb);
         }
 

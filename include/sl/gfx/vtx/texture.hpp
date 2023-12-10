@@ -102,11 +102,11 @@ public:
     [[nodiscard]] GLuint operator*() const { return object_; }
     [[nodiscard]] auto bind() const { return ConstBind{ *this }; }
     [[nodiscard]] auto bind() { return Bind{ *this }; }
-    template <std::size_t texture_unit>
+    template <std::size_t unit_>
     [[nodiscard]] auto activate() const {
         // TODO(@usatiynyan): static_assert(index < GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-        static_assert(texture_unit < 16);
-        glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(texture_unit));
+        static_assert(unit_ < 16, "texture_units can be < 16, if this is incorrect check TODO above");
+        glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(unit_));
         return bind();
     }
 

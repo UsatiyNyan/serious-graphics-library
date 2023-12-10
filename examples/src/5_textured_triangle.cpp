@@ -16,9 +16,9 @@ void debug_unbind() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-class Draw {
+class DrawWIP {
 public:
-    Draw(const ShaderProgram& sp, const VertexArray& va) : sp_bind_{ sp }, va_bind_{ va } {}
+    DrawWIP(const ShaderProgram& sp, const VertexArray& va) : sp_bind_{ sp }, va_bind_{ va } {}
 
     [[nodiscard]] const auto& get_sp_bind() const { return sp_bind_; }
 
@@ -120,7 +120,7 @@ int main() {
             const auto& [tex, sp, buffers] = triangle;
             const auto& [vb, eb, va] = buffers;
             const auto tex_bind = tex.activate<TEXTURE_UNIT>();
-            Draw draw(sp, va);
+            DrawWIP draw(sp, va);
             draw.elements(eb);
         }
 
