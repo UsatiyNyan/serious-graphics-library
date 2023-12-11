@@ -29,7 +29,7 @@ tl::optional<GLint> ShaderProgram::Bind::get_uniform_location(std::string_view u
 void ShaderProgram::Bind::verify_bound(GLuint sp_object) const { ASSERT(sp_object == object_); }
 
 void ShaderProgram::Bind::initialize_tex_unit(std::string_view tex_uniform_name, std::size_t tex_unit) {
-    const auto set_texture_unit = *ASSERT(make_uniform_setter(tex_uniform_name, glUniform1i));
+    const auto set_texture_unit = *ASSERT(make_uniform_setter(glUniform1i, tex_uniform_name));
     set_texture_unit(*this, tex_unit);
 }
 

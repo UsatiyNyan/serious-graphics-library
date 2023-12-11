@@ -106,7 +106,7 @@ int main() {
         // NOTE: need to set texture uniforms only once
         const auto& [tex, sp, buffers] = triangle;
         const auto sp_bind = sp.bind();
-        const auto set_texture_unit = *ASSERT(sp_bind.make_uniform_setter("us_texture", glUniform1i));
+        const auto set_texture_unit = *ASSERT(sp_bind.make_uniform_setter(glUniform1i, "us_texture"));
         set_texture_unit(sp_bind, TEXTURE_UNIT);
     }
 

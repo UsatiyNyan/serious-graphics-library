@@ -48,7 +48,7 @@ int main() {
             *ASSERT(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/4_colored_triangle.frag")),
         };
         ShaderProgram sp{ std::span{ shaders } };
-        auto set_alpha_uniform = *ASSERT(sp.bind().make_uniform_setter("u_alpha", glUniform1f));
+        auto set_alpha_uniform = *ASSERT(sp.bind().make_uniform_setter(glUniform1f, "u_alpha"));
         return std::make_tuple(std::move(sp), std::move(set_alpha_uniform));
     };
 

@@ -21,13 +21,44 @@ public:
         explicit Bind(const ShaderProgram& sp);
 
         template <typename UniformSetter>
-        [[nodiscard]] auto make_uniform_setter(std::string_view uniform_name, UniformSetter uniform_setter) const {
+        [[nodiscard]] auto make_uniform_setter(UniformSetter uniform_setter, std::string_view uniform_name) const {
             return get_uniform_location(uniform_name)
-                .map([uniform_setter, sp_object = object_](GLint uniform_location) {
-                    return [uniform_setter, sp_object, uniform_location](const Bind& sp_bind, auto&&... args) {
+                .map([sp_object = object_, uniform_setter](GLint uniform_location) {
+                    // up to 4 args
+                    return [sp_object, uniform_setter, uniform_location](const Bind& sp_bind, auto&&... args) {
                         sp_bind.verify_bound(sp_object);
                         return uniform_setter(uniform_location, args...);
                     };
+                });
+        }
+
+        template <typename UniformvSetter>
+        [[nodiscard]] auto
+            make_uniform_v_setter(UniformvSetter uniform_v_setter, std::string_view uniform_name, GLsizei count) const {
+            return get_uniform_location(uniform_name)
+                .map([sp_object = object_, uniform_v_setter, count](GLint uniform_location) {
+                    return [sp_object, uniform_v_setter, uniform_location, count] //
+                        (const Bind& sp_bind, const auto* values) {
+                            sp_bind.verify_bound(sp_object);
+                            return uniform_v_setter(uniform_location, count, values);
+                        };
+                });
+        }
+
+        template <typename UniformvMatrixSetter>
+        [[nodiscard]] auto make_uniform_matrix_v_setter(
+            UniformvMatrixSetter uniform_matrix_v_setter,
+            std::string_view uniform_name,
+            GLsizei count,
+            bool transpose
+        ) const {
+            return get_uniform_location(uniform_name)
+                .map([sp_object = object_, uniform_matrix_v_setter, count, transpose](GLint uniform_location) {
+                    return [sp_object, uniform_matrix_v_setter, uniform_location, count, transpose] //
+                        (const Bind& sp_bind, const auto* values) {
+                            sp_bind.verify_bound(sp_object);
+                            return uniform_matrix_v_setter(uniform_location, count, transpose, values);
+                        };
                 });
         }
 
