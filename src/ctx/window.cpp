@@ -52,7 +52,9 @@ void Window::Current::swap_buffers() { glfwSwapBuffers(window_->glfw_window_); }
 
 bool Window::Current::is_key_pressed(int key) const {
     ASSERT(current::get() == window_);
-    return glfwGetKey(window_->glfw_window_, key);
+    // GLFW_RELEASE = 0
+    // GLFW_PRESS = 1
+    return glfwGetKey(window_->glfw_window_, key) == GLFW_PRESS;
 }
 
 bool Window::Current::should_close() const { return glfwWindowShouldClose(window_->glfw_window_); }
