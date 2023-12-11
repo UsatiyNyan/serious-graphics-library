@@ -4,6 +4,10 @@ cpmaddpackage(
         GIT_REPOSITORY "git@github.com:glfw/glfw.git"
         GIT_TAG 3.3.8)
 cpmaddpackage(
+        NAME glm
+        GIT_REPOSITORY "git@github.com:g-truc/glm.git"
+        GIT_TAG 0.9.9.8)
+cpmaddpackage(
         NAME fmt
         GIT_REPOSITORY "git@github.com:fmtlib/fmt.git"
         GIT_TAG 10.1.1)
@@ -55,6 +59,7 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         # graphics
         glfw
         glad
+        glm
 
         # fmt/log
         fmt

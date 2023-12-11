@@ -19,3 +19,7 @@ sl_target_attach_directory(${PROJECT_NAME}_5_textured_triangle textures)
 sl_add_example(${PROJECT_NAME} 6_rectangle_texture_mix)
 sl_target_attach_directory(${PROJECT_NAME}_6_rectangle_texture_mix shaders)
 sl_target_attach_directory(${PROJECT_NAME}_6_rectangle_texture_mix textures)
+
+sl_add_example(${PROJECT_NAME} 7_rectangle_transform)
+sl_target_attach_directory(${PROJECT_NAME}_7_rectangle_transform shaders)
+sl_target_attach_directory(${PROJECT_NAME}_7_rectangle_transform textures)
