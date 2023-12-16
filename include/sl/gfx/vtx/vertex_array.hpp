@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "sl/gfx/common/finalizer.hpp"
+#include "sl/meta/lifetime/finalizer.hpp"
 #include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/primitives/type_map.hpp"
 #include "sl/gfx/vtx/buffer.hpp"

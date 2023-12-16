@@ -62,14 +62,14 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         glm
 
         # fmt/log
-        fmt
-        spdlog
+        fmt::fmt
+        spdlog::spdlog
 
         # fp components
         serious-meta-library
         tl::optional
         tl::expected
-        function2
+        function2::function2
         range-v3::range-v3
 
         # utils
