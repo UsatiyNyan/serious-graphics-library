@@ -12,7 +12,15 @@ namespace sl::gfx {
 namespace {
 
 void vertex_attrib_pointer(const VertexArrayAttribute& attrib, GLsizei accumulated_stride) {
-    LOG_DEBUG("glVertexAttribPointer: {}", attrib.index);
+    LOG_DEBUG(
+        "glVertexAttribPointer: index={} size={} type={} normalized={} stride={} pointer={}",
+        attrib.index,
+        attrib.components_count,
+        attrib.type,
+        attrib.normalized,
+        accumulated_stride,
+        attrib.offset
+    );
     glVertexAttribPointer(
         attrib.index,
         attrib.components_count,

@@ -13,6 +13,12 @@
 
 using namespace sl::gfx;
 
+struct VertWTexCoord {
+    va_attrib_field<3, float> pos;
+    va_attrib_field<2, float> tex_coord;
+    va_attrib_field<3, uint8_t, float> extra; // unused, here for demonstration
+};
+
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
@@ -51,15 +57,14 @@ int main() {
     };
 
     using buffers_type = std::tuple<
-        Buffer<float, BufferType::ARRAY, BufferUsage::STATIC_DRAW>,
+        Buffer<VertWTexCoord, BufferType::ARRAY, BufferUsage::STATIC_DRAW>,
         Buffer<unsigned, BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>,
         VertexArray>;
 
     constexpr auto create_buffers = //
-        [](std::span<const float, 4 * (3 + 2)> vertices_w_tex_coords) -> buffers_type {
+        [](std::span<const VertWTexCoord, 4> vertices_w_tex_coords) -> buffers_type {
         VertexArrayBuilder va_builder;
-        va_builder.attribute<3, float>();
-        va_builder.attribute<2, float>();
+        va_builder.attributes_from<VertWTexCoord>();
         auto vb = va_builder.buffer<BufferType::ARRAY, BufferUsage::STATIC_DRAW>(vertices_w_tex_coords);
         constexpr std::array<unsigned, 6> indices{
             0u, 1u, 3u, // first triangle
@@ -70,12 +75,12 @@ int main() {
         return std::make_tuple(std::move(vb), std::move(eb), std::move(va));
     };
 
-    constexpr std::array<float, 4 * (3 + 2)> vertices_w_tex_coords{
+    constexpr std::array<VertWTexCoord, 4> vertices_w_tex_coords{
         // positions        | texture coords
-        0.5f,  0.5f,  0.0f, 1.0f, 1.0f, // top right
-        0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
-        -0.5f, 0.5f,  0.0f, 0.0f, 1.0f // top left
+        0.5f,  0.5f,  0.0f, 1.0f, 1.0f, '<', '3', ' ', // top right
+        0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, ':', '3', ' ', // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 'u', 'w', 'u', // bottom left
+        -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, 'o', 'w', 'o' // top left
     };
 
     const std::tuple texs{ create_texture("textures/cosmos.jpg"), create_texture("textures/osaka.jpg") };
