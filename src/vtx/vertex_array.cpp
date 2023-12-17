@@ -9,17 +9,26 @@
 #include <assert.hpp>
 
 namespace sl::gfx {
-void VertexArrayAttribute::set_pointer(GLsizei accumulated_stride) {
-    LOG_DEBUG("glVertexAttribPointer: {}", index_);
+namespace {
+
+void vertex_attrib_pointer(const VertexArrayAttribute& attrib, GLsizei accumulated_stride) {
+    LOG_DEBUG("glVertexAttribPointer: {}", attrib.index);
     glVertexAttribPointer(
-        index_, components_size_, type_, normalized_, accumulated_stride, reinterpret_cast<const void*>(offset_)
+        attrib.index,
+        attrib.components_count,
+        attrib.type,
+        attrib.normalized,
+        accumulated_stride,
+        reinterpret_cast<const void*>(attrib.offset)
     );
 }
 
-void VertexArrayAttribute::enable() {
-    LOG_DEBUG("glEnableVertexAttribArray: {}", index_);
-    glEnableVertexAttribArray(index_);
+void enable_vertex_attrib_array(const VertexArrayAttribute& attrib) {
+    LOG_DEBUG("glEnableVertexAttribArray: {}", attrib.index);
+    glEnableVertexAttribArray(attrib.index);
 }
+
+} // namespace
 
 VertexArray::Bind::Bind(const VertexArray& va)
     : finalizer{ [](Bind& self) {
@@ -45,10 +54,10 @@ VertexArray::VertexArray()
       }() } {}
 
 VertexArray VertexArrayBuilder::submit() && {
-    ASSERT(!attributes_.empty());
-    for (VertexArrayAttribute& attribute : attributes_) {
-        attribute.set_pointer(accumulated_stride_);
-        attribute.enable();
+    ASSERT(!attribs_.empty());
+    for (const VertexArrayAttribute& attrib : attribs_) {
+        vertex_attrib_pointer(attrib, accumulated_stride_);
+        enable_vertex_attrib_array(attrib);
     }
     bind_.reset();
     return std::move(va_).value();

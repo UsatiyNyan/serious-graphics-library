@@ -4,50 +4,24 @@
 
 #pragma once
 
-#include "sl/meta/lifetime/finalizer.hpp"
 #include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/primitives/type_map.hpp"
 #include "sl/gfx/vtx/buffer.hpp"
+
+#include "sl/meta/lifetime/finalizer.hpp"
 
 #include <boost/container/static_vector.hpp>
 #include <tl/optional.hpp>
 
 namespace sl::gfx {
 
-class VertexArrayAttribute {
-    constexpr VertexArrayAttribute(
-        GLuint index,
-        GLint components_size,
-        GLenum type,
-        GLsizei type_size,
-        bool normalized,
-        GLsizei offset
-    )
-        : index_{ index }, components_size_{ components_size }, type_{ type }, normalized_{ normalized },
-          offset_{ offset }, stride_{ components_size * type_size } {}
-
-public:
-    // TODO(@usatiynyan): retrieve in configuration glGetIntegerv(GL_MAX_VERTEX_ATTRIBS)
-    static constexpr std::size_t MAX_AMOUNT = 16;
-
-    template <GLint ComponentCount, typename T>
-    static constexpr VertexArrayAttribute make(GLuint index, bool normalized, GLsizei offset) {
-        static_assert(1 <= ComponentCount && ComponentCount <= 4, "components per vertex not in range [1..4]");
-        return VertexArrayAttribute{ index, ComponentCount, type_map<T>::value, sizeof(T), normalized, offset };
-    }
-
-    [[nodiscard]] constexpr GLsizei stride() const { return stride_; }
-
-    void set_pointer(GLsizei accumulated_stride);
-    void enable();
-
-private:
-    GLuint index_;
-    GLint components_size_;
-    GLenum type_;
-    bool normalized_;
-    GLsizei offset_;
-    GLsizei stride_;
+struct VertexArrayAttribute {
+    GLuint index;
+    GLint components_count;
+    GLenum type;
+    GLsizei offset;
+    GLsizei stride;
+    bool normalized;
 };
 
 class VertexArray : public finalizer<VertexArray> {
@@ -69,14 +43,21 @@ private:
 };
 
 class VertexArrayBuilder {
+    // TODO(@usatiynyan): retrieve in configuration glGetIntegerv(GL_MAX_VERTEX_ATTRIBS)
+    static constexpr std::size_t MAX_ATTRIBS = 16;
+
 public:
-    template <GLint ComponentCount, typename T>
-    void attribute(bool normalized = false) {
-        auto attribute =
-            VertexArrayAttribute::make<ComponentCount, T>(attributes_.size(), normalized, accumulated_stride_);
-        const GLsizei attribute_stride = attribute.stride();
-        attributes_.push_back(std::move(attribute));
-        accumulated_stride_ += attribute_stride;
+    template <GLint component_count, typename T, bool normalized = false>
+    void attribute() {
+        static_assert(1 <= component_count && component_count <= 4, "components per vertex not in range [1..4]");
+        attribute(VertexArrayAttribute{
+            .index = attribs_.size(),
+            .components_count = component_count,
+            .type = type_map<T>::value,
+            .offset = accumulated_stride_,
+            .stride = component_count * sizeof(T),
+            .normalized = normalized,
+        });
     }
 
     template <BufferType buffer_type, BufferUsage buffer_usage, typename DataType, std::size_t extent>
@@ -87,12 +68,17 @@ public:
     }
 
     VertexArray submit() &&;
+private:
+    void attribute(VertexArrayAttribute va_attr) {
+        accumulated_stride_ += va_attr.stride;
+        attribs_.push_back(va_attr);
+    }
 
 private:
     tl::optional<VertexArray> va_{ VertexArray{} };
     tl::optional<VertexArray::Bind> bind_{ tl::in_place, *va_ };
     GLsizei accumulated_stride_ = 0;
-    boost::container::static_vector<VertexArrayAttribute, VertexArrayAttribute::MAX_AMOUNT> attributes_{};
+    boost::container::static_vector<VertexArrayAttribute, MAX_ATTRIBS> attribs_{};
 };
 
 } // namespace sl::gfx
