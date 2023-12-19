@@ -100,18 +100,29 @@ int main() {
             const auto& [vb, eb, va] = buffers;
             const auto& [sp, set_transform] = shader;
 
-            const float angle = static_cast<float>(glfwGetTime());
-            const glm::mat4 transform = glm::scale( // first op
-                glm::rotate( // second op
-                    glm::mat4(1.0f),
-                    angle,
-                    glm::vec3(0.0, 0.0, 1.0)
-                ),
-                glm::vec3(1.5, 1.5, 1.5)
-            );
-
             Draw draw(sp, va, texs);
-            set_transform(draw.sp_bind(), glm::value_ptr(transform));
+
+            const float current_time = static_cast<float>(glfwGetTime());
+            const glm::mat4 rotated_osaker = glm::rotate( // first op
+                glm::translate( // second op
+                    glm::mat4(1.0f),
+                    glm::vec3(-0.5f, 0.5f, 0.0f)
+                ),
+                -current_time,
+                glm::vec3(0.0f, 0.0f, 1.0f)
+            );
+            set_transform(draw.sp_bind(), glm::value_ptr(rotated_osaker));
+            draw.elements(eb);
+
+            const float scale_factor = (std::sin(current_time) + 1.0f) / 2.0f;
+            const glm::mat4 scaled_osaker = glm::scale( // first op
+                glm::translate( // second op
+                    glm::mat4(1.0f),
+                    glm::vec3(0.5f, -0.5f, 0.0f)
+                ),
+                glm::vec3(scale_factor, scale_factor, 1.0f)
+            );
+            set_transform(draw.sp_bind(), glm::value_ptr(scaled_osaker));
             draw.elements(eb);
         }
 
