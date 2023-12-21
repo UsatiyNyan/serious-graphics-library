@@ -75,6 +75,8 @@ int main() {
         return std::make_tuple(std::move(vb), std::move(eb), std::move(va));
     };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-braces"
     constexpr std::array<VertWTexCoord, 4> vertices_w_tex_coords{
         // positions        | texture coords
         0.5f,  0.5f,  0.0f, 1.0f, 1.0f, '<', '3', ' ', // top right
@@ -82,6 +84,7 @@ int main() {
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 'u', 'w', 'u', // bottom left
         -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, 'o', 'w', 'o' // top left
     };
+#pragma GCC diagnostic pop
 
     const std::tuple texs{ create_texture("textures/cosmos.jpg"), create_texture("textures/osaka.jpg") };
     std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };

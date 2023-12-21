@@ -13,7 +13,7 @@ void debug_unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
 
 template <typename DataType, std::size_t extent>
 void draw(const ShaderProgram& sp, const VertexArray& va, std::span<DataType, extent> vertices) {
-    const auto sp_bind = sp.bind();
+    [[maybe_unused]] const auto sp_bind = sp.bind();
     const auto va_bind = va.bind();
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 }

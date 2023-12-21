@@ -20,7 +20,7 @@ void draw(
     const VertexArray& va,
     const Buffer<DataType, BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>& eb
 ) {
-    const auto sp_bind = sp.bind();
+    [[maybe_unused]] const auto sp_bind = sp.bind();
     const auto va_bind = va.bind();
     glDrawElements(GL_TRIANGLES, eb.data_size(), type_map<DataType>::value, nullptr);
 }
