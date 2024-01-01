@@ -40,7 +40,8 @@ public:
     static std::unique_ptr<Window> create(const Context&, std::string_view title, Size2I size);
     ~Window() noexcept;
 
-    Current make_current(Vec2I point, Size2I size, Color4F color);
+    [[nodiscard]] Current make_current(Vec2I point, Size2I size, Color4F color);
+    [[nodiscard]] GLFWwindow* glfw_window() const;
 
 private:
     explicit Window(GLFWwindow* glfw_window);

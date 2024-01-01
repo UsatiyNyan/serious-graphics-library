@@ -86,6 +86,8 @@ Window::Current Window::make_current(Vec2I point, Size2I size, Color4F color) {
     return current_window;
 }
 
+GLFWwindow* Window::glfw_window() const { return glfw_window_; }
+
 Window::Window(GLFWwindow* glfw_window) : glfw_window_{ glfw_window } { setup_callbacks(); }
 
 void Window::setup_callbacks() {

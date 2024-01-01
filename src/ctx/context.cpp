@@ -16,7 +16,7 @@ void apply_options(const Context::Options& options) {
 }
 } // namespace
 
-tl::optional<Context> Context::create(Context::Options options) {
+tl::optional<Context> Context::create(const Context::Options& options) {
     if (glfwInit() != GLFW_TRUE) {
         log::error("glfwInit");
         return tl::nullopt;

@@ -19,7 +19,7 @@ public:
     };
 
 public:
-    static tl::optional<Context> create(Options options);
+    static tl::optional<Context> create(const Options& options);
 
     void poll_events(); // TODO(@usatiynyan): return the events
 

@@ -41,6 +41,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/boost.cmake")
 # Manually compiled
 add_subdirectory(glad)
 add_subdirectory(stb)
+add_subdirectory(imgui)
 
 sl_target_link_system_libraries(${PROJECT_NAME}
         PRIVATE
@@ -70,4 +71,7 @@ sl_target_link_system_libraries(${PROJECT_NAME}
 
         # image
         stb_image
+
+        # ui
+        imgui
 )
