@@ -30,6 +30,12 @@ ImGuiContext::ImGuiContext(const Context::Options& ctx_options, const Window& wi
     }
 }
 
+ImGuiContext::~ImGuiContext() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+
 void ImGuiContext::new_frame() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -39,12 +45,6 @@ void ImGuiContext::new_frame() {
 void ImGuiContext::render() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-ImGuiContext::~ImGuiContext() {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
 
 } // namespace sl::gfx

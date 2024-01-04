@@ -28,12 +28,10 @@ public:
     };
 
     ImGuiContext(const Context::Options& ctx_options, const Window& window, Theme theme = Theme::DARK);
+    ~ImGuiContext();
 
     void new_frame();
-
     void render();
-
-    ~ImGuiContext();
 };
 
 } // namespace sl::gfx

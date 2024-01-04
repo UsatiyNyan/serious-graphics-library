@@ -26,6 +26,7 @@ add_library(${PROJECT_NAME}
         src/ctx/context.cpp
         src/ctx/window.cpp
         src/ctx/imgui.cpp
+        src/ctx/implot.cpp
         src/shader/shader.cpp
         src/shader/program.cpp
         src/vtx/vertex_array.cpp)

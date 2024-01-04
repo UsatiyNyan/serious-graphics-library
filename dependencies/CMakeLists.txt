@@ -74,4 +74,5 @@ sl_target_link_system_libraries(${PROJECT_NAME}
 
         # ui
         imgui
+        implot
 )
