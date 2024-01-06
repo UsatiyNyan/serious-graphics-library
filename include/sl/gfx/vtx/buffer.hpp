@@ -4,10 +4,12 @@
 
 #pragma once
 
-#include "sl/meta/lifetime/finalizer.hpp"
 #include "sl/gfx/common/log.hpp"
 #include "sl/gfx/common/vendors.hpp"
 
+#include "sl/meta/lifetime/finalizer.hpp"
+
+#include <assert.hpp>
 #include <span>
 
 namespace sl::gfx {
@@ -49,22 +51,42 @@ enum class BufferUsage : GLenum {
     DYNAMIC_COPY = GL_DYNAMIC_COPY,
 };
 
+enum class BufferAccess : GLenum {
+    READ_ONLY = GL_READ_ONLY,
+    WRITE_ONLY = GL_WRITE_ONLY,
+    READ_WRITE = GL_READ_WRITE,
+};
+
 // TODO(@usatiynyan): solve unbind?
 template <typename DataType, BufferType type_, BufferUsage usage_>
 class Buffer : public meta::finalizer<Buffer<DataType, type_, usage_>> {
 public:
-    class ConstBind {
+    template <BufferAccess access_, std::size_t size_>
+    class Map : public meta::finalizer<Map<access_, size_>> {
+        friend class Buffer::Bind;
+
+        Map()
+            : meta::finalizer<Map<access_, size_>>{ [](Map&) { glUnmapBuffer(static_cast<GLenum>(type_)); } }, //
+              data_{ static_cast<DataType*>(ASSERT(glMapBuffer(static_cast<GLenum>(type_), static_cast<GLenum>(access_))
+                     )),
+                     size_ } {}
+
     public:
-        explicit ConstBind(const Buffer& buffer) {
-            LOG_DEBUG("glBindBuffer: {}", *buffer);
-            glBindBuffer(static_cast<GLenum>(type_), *buffer);
-        }
+        [[nodiscard]] auto data() const { return data_; }
+
+    private:
+        std::span<DataType, size_> data_;
     };
 
-    class Bind : private ConstBind {
-    public:
-        explicit Bind(Buffer& buffer) : ConstBind{ buffer }, buffer_{ buffer } {}
+    class Bind {
+        friend class Buffer;
 
+        explicit Bind(Buffer& buffer) : buffer_{ buffer } {
+            LOG_DEBUG("glBindBuffer: {}", *buffer_);
+            glBindBuffer(static_cast<GLenum>(type_), *buffer_);
+        }
+
+    public:
         template <std::size_t extent>
         void set_data(std::span<const DataType, extent> data) {
             LOG_DEBUG("glBufferData: size={}", data.size());
@@ -72,6 +94,30 @@ public:
                 static_cast<GLenum>(type_), sizeof(DataType) * data.size(), data.data(), static_cast<GLenum>(usage_)
             );
             buffer_.data_size_ = data.size();
+        }
+
+        template <std::size_t size_>
+        void initialize_data() {
+            LOG_DEBUG("glBufferData: size={}, data=nullptr", size_);
+            glBufferData(static_cast<GLenum>(type_), sizeof(DataType) * size_, nullptr, static_cast<GLenum>(usage_));
+            buffer_.data_size_ = size_;
+        }
+
+        template <GLuint index_>
+            requires(type_ == BufferType::SHADER_STORAGE)
+        void base() {
+            LOG_DEBUG("glBindBufferBase: {} index={}", *buffer_, index_);
+            glBindBufferBase(static_cast<GLenum>(type_), index_, *buffer_);
+        }
+
+        template <BufferAccess access_, std::size_t size_>
+        [[nodiscard]] auto map() {
+            return Map<access_, size_>{};
+        }
+
+        template <std::size_t size_>
+        [[nodiscard]] auto map() const {
+            return Map<BufferAccess::READ_ONLY, size_>{};
         }
 
     private:
@@ -93,8 +139,8 @@ public:
           }() } {}
 
     [[nodiscard]] GLuint operator*() const { return object_; }
-    [[nodiscard]] auto bind() const { return ConstBind{ *this }; }
-    [[nodiscard]] auto bind() { return Bind{ *this }; }
+    [[nodiscard]] const Bind bind() const { return Bind{ *this }; }
+    [[nodiscard]] Bind bind() { return Bind{ *this }; }
     [[nodiscard]] std::size_t data_size() const { return data_size_; }
 
 private:
