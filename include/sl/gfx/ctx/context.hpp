@@ -10,7 +10,7 @@
 
 namespace sl::gfx {
 
-class Context: public finalizer<Context> {
+class Context: public meta::finalizer<Context> {
 public:
     struct Options {
         int version_major;

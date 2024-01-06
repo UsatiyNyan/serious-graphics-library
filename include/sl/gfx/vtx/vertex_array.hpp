@@ -16,12 +16,12 @@
 
 namespace sl::gfx {
 
-class VertexArray : public finalizer<VertexArray> {
+class VertexArray : public meta::finalizer<VertexArray> {
     friend class VertexArrayBuilder;
     VertexArray();
 
 public:
-    class Bind : public finalizer<Bind> {
+    class Bind : public meta::finalizer<Bind> {
     public:
         explicit Bind(const VertexArray& va);
     };

@@ -20,7 +20,7 @@ enum class ShaderType : GLenum {
     FRAGMENT = GL_FRAGMENT_SHADER,
 };
 
-class Shader : public finalizer<Shader> {
+class Shader : public meta::finalizer<Shader> {
 public:
     static tl::optional<Shader> load_from_file(ShaderType shader_type, const std::filesystem::path& shader_path);
     static tl::optional<Shader> load_from_source(ShaderType shader_type, std::string_view shader_source);

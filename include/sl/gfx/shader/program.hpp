@@ -14,7 +14,7 @@
 #include <tl/optional.hpp>
 
 namespace sl::gfx {
-class ShaderProgram : public finalizer<ShaderProgram> {
+class ShaderProgram : public meta::finalizer<ShaderProgram> {
 public:
     class Bind {
     public:

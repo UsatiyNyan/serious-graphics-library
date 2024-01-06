@@ -51,7 +51,7 @@ enum class BufferUsage : GLenum {
 
 // TODO(@usatiynyan): solve unbind?
 template <typename DataType, BufferType type_, BufferUsage usage_>
-class Buffer : public finalizer<Buffer<DataType, type_, usage_>> {
+class Buffer : public meta::finalizer<Buffer<DataType, type_, usage_>> {
 public:
     class ConstBind {
     public:
@@ -80,7 +80,7 @@ public:
 
 public:
     Buffer()
-        : finalizer<Buffer>{ [](Buffer& self) {
+        : meta::finalizer<Buffer>{ [](Buffer& self) {
               // TODO(@usatiynyan): more than one buffer?
               glDeleteBuffers(1, &self.object_);
               LOG_DEBUG("glDeleteBuffers: {}", self.object_);

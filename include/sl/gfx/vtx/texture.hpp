@@ -58,12 +58,12 @@ public:
 };
 
 template <TextureType type_>
-class Texture : public finalizer<Texture<type_>> {
+class Texture : public meta::finalizer<Texture<type_>> {
     template <TextureType>
     friend class TextureBuilder;
 
     Texture()
-        : finalizer<Texture>{ [](Texture& self) {
+        : meta::finalizer<Texture>{ [](Texture& self) {
               // TODO(@usatiynyan): more than one texture?
               glDeleteTextures(1, &self.object_);
               LOG_DEBUG("glDeleteTextures: {}", self.object_);
@@ -76,9 +76,9 @@ class Texture : public finalizer<Texture<type_>> {
           }() } {}
 
 public:
-    class ConstBind : public finalizer<ConstBind> {
+    class ConstBind : public meta::finalizer<ConstBind> {
     public:
-        explicit ConstBind(const Texture& tex) : finalizer<ConstBind> {
+        explicit ConstBind(const Texture& tex) : meta::finalizer<ConstBind> {
             [](ConstBind&) {
                 // TODO(@usatiynyan): can be omitted in "optimized" build
                 glBindTexture(static_cast<GLenum>(type_), 0);
