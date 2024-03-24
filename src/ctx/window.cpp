@@ -6,7 +6,7 @@
 
 #include "sl/gfx/common/log.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 
 namespace sl::gfx {
 namespace current {

@@ -63,7 +63,7 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         range-v3::range-v3
 
         # utils
-        assert
+        libassert::assert
         Boost::container
 
         # image

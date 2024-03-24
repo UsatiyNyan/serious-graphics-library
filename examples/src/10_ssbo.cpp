@@ -4,7 +4,7 @@
 
 #include "sl/gfx.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 #include <stb/image.hpp>
 
@@ -20,20 +20,20 @@ struct Vert {
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
-    auto ctx = *ASSERT(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
     const Size2I window_size{ 800, 600 };
-    const auto window = ASSERT(Window::create(ctx, "10_ssbo", window_size));
+    const auto window = ASSERT_VAL(Window::create(ctx, "10_ssbo", window_size));
     auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
 
     constexpr auto create_shader = [] {
         std::array<const Shader, 2> shaders{
-            *ASSERT(Shader::load_from_file(ShaderType::VERTEX, "shaders/10_ssbo.vert")),
-            *ASSERT(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/10_ssbo.frag")),
+            *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/10_ssbo.vert")),
+            *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/10_ssbo.frag")),
         };
         ShaderProgram sp{ std::span{ shaders } };
         auto sp_bind = sp.bind();
-        auto set_transform = *ASSERT(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
-        auto set_window_size = *ASSERT(sp_bind.make_uniform_setter(glUniform2f, "u_window_size"));
+        auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
+        auto set_window_size = *ASSERT_VAL(sp_bind.make_uniform_setter(glUniform2f, "u_window_size"));
         return std::make_tuple(std::move(sp), std::move(set_transform), std::move(set_window_size));
     };
 

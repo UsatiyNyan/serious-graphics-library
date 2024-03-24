@@ -11,7 +11,7 @@ target_include_directories(stb_image
 )
 sl_target_link_system_libraries(stb_image
         PRIVATE
-        assert
+        libassert::assert
 
         PUBLIC
         tl::optional

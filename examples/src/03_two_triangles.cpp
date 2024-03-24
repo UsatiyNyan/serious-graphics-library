@@ -4,7 +4,7 @@
 
 #include "sl/gfx.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 
 using namespace sl::gfx;
@@ -29,9 +29,9 @@ void draw(
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
-    auto ctx = *ASSERT(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
     const Size2I window_size{ 800, 600 };
-    const auto window = ASSERT(Window::create(ctx, "3_two_triangles", window_size));
+    const auto window = ASSERT_VAL(Window::create(ctx, "03_two_triangles", window_size));
     window->FramebufferSize_cb = [&window](GLsizei width, GLsizei height) {
         Window::Current{ *window }.viewport(Vec2I{}, Size2I{ width, height });
     };
@@ -47,8 +47,8 @@ int main() {
             fmt::join(std::array{ color4f.red, color4f.green, color4f.blue, color4f.alpha }, ", ")
         );
         std::array<const Shader, 2> shaders{
-            *ASSERT(Shader::load_from_file(ShaderType::VERTEX, "shaders/3_two_triangles.vert")),
-            *ASSERT(Shader::load_from_source(ShaderType::FRAGMENT, fragment_shader_source)),
+            *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/03_two_triangles.vert")),
+            *ASSERT_VAL(Shader::load_from_source(ShaderType::FRAGMENT, fragment_shader_source)),
         };
         return ShaderProgram{ std::span{ shaders } };
     };

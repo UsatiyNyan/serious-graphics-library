@@ -4,24 +4,25 @@
 
 #include "sl/gfx.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
     const sl::gfx::Context::Options ctx_options{ 4, 6, GLFW_OPENGL_CORE_PROFILE };
-    auto ctx = *ASSERT(sl::gfx::Context::create(ctx_options));
+    auto ctx = *ASSERT_VAL(sl::gfx::Context::create(ctx_options));
     const sl::gfx::Size2I window_size{ 800, 600 };
-    const auto window = ASSERT(sl::gfx::Window::create(ctx, "9_implot", window_size));
+    const auto window = ASSERT_VAL(sl::gfx::Window::create(ctx, "08_imgui", window_size));
     window->FramebufferSize_cb = [&window](GLsizei width, GLsizei height) {
         sl::gfx::Window::Current{ *window }.viewport(sl::gfx::Vec2I{}, sl::gfx::Size2I{ width, height });
     };
     auto current_window =
         window->make_current(sl::gfx::Vec2I{}, window_size, sl::gfx::Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
 
-    sl::gfx::ImGuiContext imgui_context{ctx_options, *window};
-    sl::gfx::ImPlotContext implot_context{imgui_context};
+    sl::gfx::ImGuiContext imgui_context{ ctx_options, *window };
+
+    [[maybe_unused]] ImGuiIO& io = ImGui::GetIO(); // Get the ImGui IO instance
 
     while (!current_window.should_close()) {
         if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {
@@ -30,7 +31,7 @@ int main() {
         current_window.clear(GL_COLOR_BUFFER_BIT);
         imgui_context.new_frame();
 
-        ImPlot::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
 
         imgui_context.render();
         current_window.swap_buffers();

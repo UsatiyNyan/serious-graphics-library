@@ -4,7 +4,7 @@
 
 #include "sl/gfx.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 
 using namespace sl::gfx;
@@ -12,10 +12,10 @@ using namespace sl::gfx;
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
-    auto ctx = ASSERT(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    auto ctx = ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
 
     const Size2I window_size{ 800, 600 };
-    const auto window = ASSERT(Window::create(*ctx, "0_blank_window", window_size));
+    const auto window = ASSERT_VAL(Window::create(*ctx, "00_blank_window", window_size));
 
     window->FramebufferSize_cb = [&window](GLsizei width, GLsizei height) {
         Window::Current{ *window }.viewport(Vec2I{}, Size2I{ width, height });

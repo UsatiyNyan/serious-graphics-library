@@ -4,7 +4,7 @@
 
 #include "sl/gfx.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 #include <stb/image.hpp>
 
@@ -13,9 +13,9 @@ using namespace sl::gfx;
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
-    auto ctx = *ASSERT(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
     const Size2I window_size{ 800, 600 };
-    const auto window = ASSERT(Window::create(ctx, "6_rectangle_texture_mix", window_size));
+    const auto window = ASSERT_VAL(Window::create(ctx, "06_rectangle_texture_mix", window_size));
     window->FramebufferSize_cb = [&window](GLsizei width, GLsizei height) {
         Window::Current{ *window }.viewport(Vec2I{}, Size2I{ width, height });
     };
@@ -28,7 +28,7 @@ int main() {
         tex_builder.set_min_filter(TextureFilter::NEAREST);
         tex_builder.set_max_filter(TextureFilter::NEAREST);
 
-        const auto image = *ASSERT(stb::image_load(image_path, 4));
+        const auto image = *ASSERT_VAL(stb::image_load(image_path, 4));
         tex_builder.set_image(
             std::array{ image.width, image.height }, TextureFormat{ GL_RGB, GL_RGBA }, image.data.get()
         );
@@ -37,8 +37,8 @@ int main() {
 
     constexpr auto create_shader = [] {
         std::array<const Shader, 2> shaders{
-            *ASSERT(Shader::load_from_file(ShaderType::VERTEX, "shaders/6_rectangle_texture_mix.vert")),
-            *ASSERT(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/6_rectangle_texture_mix.frag")),
+            *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/06_rectangle_texture_mix.vert")),
+            *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/06_rectangle_texture_mix.frag")),
         };
         return ShaderProgram{ std::span{ shaders } };
     };

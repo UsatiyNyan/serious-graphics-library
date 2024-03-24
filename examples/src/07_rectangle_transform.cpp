@@ -4,7 +4,7 @@
 
 #include "sl/gfx.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 #include <stb/image.hpp>
 
@@ -22,9 +22,9 @@ struct VertWTexCoord {
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
-    auto ctx = *ASSERT(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
     const Size2I window_size{ 800, 600 };
-    const auto window = ASSERT(Window::create(ctx, "7_rectangle_transform", window_size));
+    const auto window = ASSERT_VAL(Window::create(ctx, "07_rectangle_transform", window_size));
     window->FramebufferSize_cb = [&window](GLsizei width, GLsizei height) {
         Window::Current{ *window }.viewport(Vec2I{}, Size2I{ width, height });
     };
@@ -37,7 +37,7 @@ int main() {
         tex_builder.set_min_filter(TextureFilter::NEAREST);
         tex_builder.set_max_filter(TextureFilter::NEAREST);
 
-        const auto image = *ASSERT(stb::image_load(image_path, 4));
+        const auto image = *ASSERT_VAL(stb::image_load(image_path, 4));
         tex_builder.set_image(
             std::array{ image.width, image.height }, TextureFormat{ GL_RGB, GL_RGBA }, image.data.get()
         );
@@ -46,13 +46,13 @@ int main() {
 
     constexpr auto create_shader = [](std::span<std::string_view, 2> tex_uniform_names) {
         std::array<const Shader, 2> shaders{
-            *ASSERT(Shader::load_from_file(ShaderType::VERTEX, "shaders/7_rectangle_transform.vert")),
-            *ASSERT(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/7_rectangle_transform.frag")),
+            *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/07_rectangle_transform.vert")),
+            *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/07_rectangle_transform.frag")),
         };
         ShaderProgram sp{ std::span{ shaders } };
         auto sp_bind = sp.bind();
         sp_bind.initialize_tex_units(tex_uniform_names);
-        auto set_transform = *ASSERT(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
+        auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
         return std::make_tuple(std::move(sp), std::move(set_transform));
     };
 

@@ -4,7 +4,7 @@
 
 #include "stb/image.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ASSERT(x) ASSERT(x)

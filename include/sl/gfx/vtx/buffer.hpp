@@ -9,7 +9,7 @@
 
 #include "sl/meta/lifetime/finalizer.hpp"
 
-#include <assert.hpp>
+#include <libassert/assert.hpp>
 #include <span>
 
 namespace sl::gfx {
@@ -67,8 +67,9 @@ public:
 
         Map()
             : meta::finalizer<Map<access_, size_>>{ [](Map&) { glUnmapBuffer(static_cast<GLenum>(type_)); } }, //
-              data_{ static_cast<DataType*>(ASSERT(glMapBuffer(static_cast<GLenum>(type_), static_cast<GLenum>(access_))
-                     )),
+              data_{ static_cast<DataType*>(
+                         ASSERT_VAL(glMapBuffer(static_cast<GLenum>(type_), static_cast<GLenum>(access_)))
+                     ),
                      size_ } {}
 
     public:
