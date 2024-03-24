@@ -50,7 +50,7 @@ int main() {
             *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/03_two_triangles.vert")),
             *ASSERT_VAL(Shader::load_from_source(ShaderType::FRAGMENT, fragment_shader_source)),
         };
-        return ShaderProgram{ std::span{ shaders } };
+        return *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
     };
 
     using buffers_type = std::tuple<

@@ -50,10 +50,12 @@ std::string ShaderProgram::get_log() const { return detail::get_log(glGetProgram
 
 void ShaderProgram::attach(const Shader& shader) { glAttachShader(object_, *shader); }
 
-void ShaderProgram::link() {
+bool ShaderProgram::link() {
     glLinkProgram(object_);
-    if (!get_parameter(GL_LINK_STATUS)) {
+    const bool link_status = get_parameter(GL_LINK_STATUS);
+    if (!link_status) {
         log::error("Program link failed {}", get_log());
     }
+    return link_status;
 }
 } // namespace sl::gfx

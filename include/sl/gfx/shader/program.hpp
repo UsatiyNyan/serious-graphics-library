@@ -4,10 +4,10 @@
 
 #pragma once
 
+#include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/shader/shader.hpp"
 
 #include "sl/meta/lifetime/finalizer.hpp"
-#include "sl/gfx/common/vendors.hpp"
 
 #include <range/v3/view/enumerate.hpp>
 #include <span>
@@ -84,11 +84,15 @@ private:
 
 public:
     template <std::size_t extent>
-    explicit ShaderProgram(std::span<const Shader, extent> shaders) : ShaderProgram{} {
+    static tl::optional<ShaderProgram> build(std::span<const Shader, extent> shaders) {
+        ShaderProgram sp;
         for (const Shader& shader : shaders) {
-            attach(shader);
+            sp.attach(shader);
         }
-        link();
+        if (!sp.link()) {
+            return tl::nullopt;
+        }
+        return sp;
     }
 
     [[nodiscard]] GLuint operator*() const { return object_; }
@@ -99,7 +103,7 @@ public:
 
 private:
     void attach(const Shader& shader);
-    void link();
+    bool link();
 
 private:
     GLuint object_{};

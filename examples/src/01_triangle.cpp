@@ -33,7 +33,7 @@ int main() {
         *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/01_triangle.vert")),
         *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/01_triangle.frag")),
     };
-    const ShaderProgram sp{ std::span{ shaders } };
+    const auto sp = *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
 
     VertexArrayBuilder va_builder;
     va_builder.attribute<3, float>();

@@ -49,10 +49,11 @@ int main() {
             *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/07_rectangle_transform.vert")),
             *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/07_rectangle_transform.frag")),
         };
-        ShaderProgram sp{ std::span{ shaders } };
+        auto sp = *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
         auto sp_bind = sp.bind();
         sp_bind.initialize_tex_units(tex_uniform_names);
-        auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
+        auto set_transform =
+            *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
         return std::make_tuple(std::move(sp), std::move(set_transform));
     };
 

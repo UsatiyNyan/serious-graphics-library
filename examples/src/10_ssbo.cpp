@@ -30,9 +30,10 @@ int main() {
             *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/10_ssbo.vert")),
             *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/10_ssbo.frag")),
         };
-        ShaderProgram sp{ std::span{ shaders } };
+        auto sp = *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
         auto sp_bind = sp.bind();
-        auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
+        auto set_transform =
+            *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
         auto set_window_size = *ASSERT_VAL(sp_bind.make_uniform_setter(glUniform2f, "u_window_size"));
         return std::make_tuple(std::move(sp), std::move(set_transform), std::move(set_window_size));
     };

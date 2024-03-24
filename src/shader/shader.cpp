@@ -18,6 +18,11 @@ tl::optional<Shader> Shader::load_from_file(ShaderType shader_type, const std::f
 }
 
 tl::optional<Shader> Shader::load_from_source(ShaderType shader_type, std::string_view shader_source) {
+    if (shader_source.empty()) {
+        log::error("Shader source is empty");
+        return tl::nullopt;
+    }
+
     Shader shader{ shader_type };
 
     // only one source is used since it is redundant to send multiple shader sources

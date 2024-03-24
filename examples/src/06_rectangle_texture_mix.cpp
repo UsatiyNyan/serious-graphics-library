@@ -40,7 +40,7 @@ int main() {
             *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/06_rectangle_texture_mix.vert")),
             *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/06_rectangle_texture_mix.frag")),
         };
-        return ShaderProgram{ std::span{ shaders } };
+        return *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
     };
 
     using buffers_type = std::tuple<

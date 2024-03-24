@@ -62,7 +62,7 @@ int main() {
             *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/05_textured_triangle.vert")),
             *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/05_textured_triangle.frag")),
         };
-        return ShaderProgram{ std::span{ shaders } };
+        return *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
     };
 
     using buffers_type = std::tuple<
