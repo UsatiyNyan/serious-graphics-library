@@ -13,9 +13,9 @@
 
 using namespace sl::gfx;
 
-struct VertWTexCoord {
-    va_attrib_field<3, float> pos;
-    va_attrib_field<2, float> tex_coord;
+struct VT {
+    va_attrib_field<3, float> vert;
+    va_attrib_field<2, float> tex;
 };
 
 int main() {
@@ -57,18 +57,22 @@ int main() {
     };
 
     using buffers_type = std::tuple<
-        Buffer<VertWTexCoord, BufferType::ARRAY, BufferUsage::STATIC_DRAW>,
+        Buffer<VT, BufferType::ARRAY, BufferUsage::STATIC_DRAW>,
         Buffer<unsigned, BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>,
         VertexArray>;
 
     constexpr auto create_buffers = //
-        [](std::span<const VertWTexCoord, 4> vertices_w_tex_coords) -> buffers_type {
+        [](std::span<const VT, 24> vertices_w_tex_coords) -> buffers_type {
         VertexArrayBuilder va_builder;
-        va_builder.attributes_from<VertWTexCoord>();
+        va_builder.attributes_from<VT>();
         auto vb = va_builder.buffer<BufferType::ARRAY, BufferUsage::STATIC_DRAW>(vertices_w_tex_coords);
-        constexpr std::array<unsigned, 6> indices{
-            0u, 1u, 3u, // first triangle
-            1u, 2u, 3u, // second triangle
+        constexpr std::array indices{
+            0u,  1u,  3u,  1u,  2u,  3u, // Front face
+            4u,  5u,  7u,  5u,  6u,  7u, // Right face
+            8u,  9u,  11u, 9u,  10u, 11u, // Back face
+            12u, 13u, 15u, 13u, 14u, 15u, // Left face
+            16u, 17u, 19u, 17u, 18u, 19u, // Top face
+            20u, 21u, 23u, 21u, 22u, 23u, // Bottom face
         };
         auto eb = va_builder.buffer<BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>(std::span{ indices });
         auto va = std::move(va_builder).submit();
@@ -77,12 +81,38 @@ int main() {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-braces"
-    constexpr std::array<VertWTexCoord, 4> vertices_w_tex_coords{
+    constexpr std::array vertices_w_tex_coords{
         // positions      | texture coords
-        0.5f,  0.5f,  0.0f, 1.0f, 1.0f, // top right
-        0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
-        -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, // top left
+        // front face
+        VT{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f }, // top right
+        VT{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f }, // bottom right
+        VT{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f }, // bottom left
+        VT{ -0.5f, 0.5f, 0.5f, 0.0f, 1.0f }, // top left
+        // right face
+        VT{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f }, // top right
+        VT{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f }, // bottom right
+        VT{ 0.5f, -0.5f, -0.5f, 0.0f, 0.0f }, // bottom left
+        VT{ 0.5f, 0.5f, -0.5f, 0.0f, 1.0f }, // top left
+        // back face
+        VT{ 0.5f, 0.5f, -0.5f, 1.0f, 1.0f }, // top right
+        VT{ 0.5f, -0.5f, -0.5f, 1.0f, 0.0f }, // bottom right
+        VT{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f }, // bottom left
+        VT{ -0.5f, 0.5f, -0.5f, 0.0f, 1.0f }, // top left
+        // left face
+        VT{ -0.5f, 0.5f, -0.5f, 1.0f, 1.0f }, // top right
+        VT{ -0.5f, -0.5f, -0.5f, 1.0f, 0.0f }, // bottom right
+        VT{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f }, // bottom left
+        VT{ -0.5f, 0.5f, 0.5f, 0.0f, 1.0f }, // top left
+        // top face
+        VT{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f }, // top right
+        VT{ 0.5f, 0.5f, -0.5f, 1.0f, 0.0f }, // bottom right
+        VT{ -0.5f, 0.5f, -0.5f, 0.0f, 0.0f }, // bottom left
+        VT{ -0.5f, 0.5f, 0.5f, 0.0f, 1.0f }, // top left
+        // bottom face
+        VT{ 0.5f, -0.5f, 0.5f, 1.0f, 1.0f }, // top right
+        VT{ 0.5f, -0.5f, -0.5f, 1.0f, 0.0f }, // bottom right
+        VT{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f }, // bottom left
+        VT{ -0.5f, -0.5f, 0.5f, 0.0f, 1.0f }, // top left
     };
 #pragma GCC diagnostic pop
 
@@ -105,9 +135,12 @@ int main() {
 
             Draw draw(sp, va, texs);
 
-            const glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            const auto time = static_cast<float>(glfwGetTime());
+            const glm::mat4 model =
+                glm::rotate(glm::mat4(1.0f), time * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
             const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-            const glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+            const glm::mat4 projection =
+                glm::perspective(glm::radians(45.0f), aspect_ratio<float>(window_size), 0.1f, 100.0f);
             const glm::mat4 transform = projection * view * model; // leaning osaker
             set_transform(draw.sp_bind(), glm::value_ptr(transform));
             draw.elements(eb);
