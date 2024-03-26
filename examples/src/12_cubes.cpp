@@ -152,7 +152,17 @@ int main() {
 
             constexpr float fov = glm::radians(45.0f);
             const glm::mat4 projection = glm::perspective(fov, aspect_ratio<float>(window_size), 0.1f, 100.0f);
-            const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+
+            const auto time = static_cast<float>(glfwGetTime());
+            constexpr float camera_radius = 10.0f;
+            const glm::vec3 camera_pos{
+                std::sin(time) * camera_radius,
+                0.0f,
+                std::cos(time) * camera_radius,
+            };
+            constexpr glm::vec3 camera_target{ 0.0f, 0.0f, 0.0f };
+            constexpr glm::vec3 up{ 0.0f, 1.0f, 0.0f };
+            const glm::mat4 view = glm::lookAt(camera_pos, camera_target, up);
 
             for (const auto& [index, pos] : ranges::views::enumerate(cube_positions)) {
                 const float angle = 20.0f * (static_cast<float>(index));
