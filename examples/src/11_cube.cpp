@@ -68,10 +68,11 @@ int main() {
     spdlog::set_level(spdlog::level::debug);
 
     auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
-    const Size2I window_size{ 800, 600 };
+    Size2I window_size{ 800, 600 };
     const auto window = ASSERT_VAL(Window::create(ctx, "11_cube", window_size));
-    window->FramebufferSize_cb = [&window](GLsizei width, GLsizei height) {
-        Window::Current{ *window }.viewport(Vec2I{}, Size2I{ width, height });
+    window->FramebufferSize_cb = [&](GLsizei width, GLsizei height) {
+        window_size = Size2I{ width, height };
+        Window::Current{ *window }.viewport(Vec2I{}, window_size);
     };
     auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
 
@@ -137,11 +138,13 @@ int main() {
             Draw draw(sp, va, texs);
 
             const auto time = static_cast<float>(glfwGetTime());
+
+            constexpr float fov = glm::radians(45.0f);
+            const glm::mat4 projection = glm::perspective(fov, aspect_ratio<float>(window_size), 0.1f, 100.0f);
+            const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
             const glm::mat4 model =
                 glm::rotate(glm::mat4(1.0f), time * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-            const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-            const glm::mat4 projection =
-                glm::perspective(glm::radians(45.0f), aspect_ratio<float>(window_size), 0.1f, 100.0f);
+
             const glm::mat4 transform = projection * view * model; // leaning osaker
             set_transform(draw.sp_bind(), glm::value_ptr(transform));
             draw.elements(eb);
