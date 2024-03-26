@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "sl/gfx/shader/program.hpp"
-#include "sl/gfx/vtx/vertex_array.hpp"
 #include "sl/gfx/common/vendors.hpp"
+#include "sl/gfx/shader/program.hpp"
+#include "sl/gfx/vtx/texture.hpp"
+#include "sl/gfx/vtx/vertex_array.hpp"
 
 #include <sl/meta/tuple/for_each_meta_enumerate.hpp>
 
@@ -28,8 +29,7 @@ template <TextureType... tex_types>
 class Draw {
 public:
     Draw(const ShaderProgram& sp, const VertexArray& va, const std::tuple<Texture<tex_types>...>& texs)
-        : sp_bind_{ sp }, va_bind_{ va },
-          tex_binds_{ meta::for_each_meta_enumerate<detail::TextureActivate>(texs) } {}
+        : sp_bind_{ sp }, va_bind_{ va }, tex_binds_{ meta::for_each_meta_enumerate<detail::TextureActivate>(texs) } {}
 
     [[nodiscard]] const auto& sp_bind() const { return sp_bind_; }
     [[nodiscard]] const auto& va_bind() const { return va_bind_; }
@@ -47,4 +47,3 @@ private:
 };
 
 } // namespace sl::gfx
-
