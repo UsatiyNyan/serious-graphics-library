@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "sl/meta/lifetime/finalizer.hpp"
 #include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/ctx/context.hpp"
 #include "sl/gfx/primitives.hpp"
+#include "sl/meta/lifetime/finalizer.hpp"
 
 #include <function2/function2.hpp>
 
@@ -22,6 +22,7 @@ public:
     public:
         explicit Current(Window& window);
 
+        void enable(GLenum cap);
         void viewport(Vec2I point, Size2I size);
         void set_clear_color(Color4F color);
         void clear(GLbitfield mask);

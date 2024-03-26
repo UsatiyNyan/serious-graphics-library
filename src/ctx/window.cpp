@@ -33,6 +33,11 @@ Window::Current::Current(Window& window) : window_{ &window } {
     }
 }
 
+void Window::Current::enable(GLenum cap) {
+    ASSERT(current::get() == window_);
+    glEnable(cap);
+}
+
 void Window::Current::viewport(Vec2I point, Size2I size) {
     ASSERT(current::get() == window_);
     glViewport(point.x, point.y, size.width, size.height);
