@@ -63,7 +63,7 @@ public:
         }
 
         template <std::size_t extent>
-        void initialize_tex_units(std::span<std::string_view, extent> tex_uniform_names) {
+        void initialize_tex_units(std::span<const std::string_view, extent> tex_uniform_names) {
             for (const auto& [i, tex_uniform_name] : ranges::views::enumerate(tex_uniform_names)) {
                 initialize_tex_unit(tex_uniform_name, i);
             }
