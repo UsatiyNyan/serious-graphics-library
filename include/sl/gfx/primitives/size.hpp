@@ -14,12 +14,12 @@ namespace sl::gfx {
 struct Size2I {
     GLsizei width;
     GLsizei height;
-};
 
-template <typename T>
-    requires std::is_arithmetic_v<T>
-T aspect_ratio(const Size2I& size) {
-    return static_cast<T>(size.width) / static_cast<T>(size.height);
-}
+    template <typename T = float>
+        requires std::is_arithmetic_v<T>
+    T aspect_ratio() const {
+        return static_cast<T>(width) / static_cast<T>(height);
+    }
+};
 
 } // namespace sl::gfx

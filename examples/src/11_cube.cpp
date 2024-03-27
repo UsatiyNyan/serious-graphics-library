@@ -140,7 +140,7 @@ int main() {
             const auto time = static_cast<float>(glfwGetTime());
 
             constexpr float fov = glm::radians(45.0f);
-            const glm::mat4 projection = glm::perspective(fov, aspect_ratio<float>(window_size), 0.1f, 100.0f);
+            const glm::mat4 projection = glm::perspective(fov, window_size.aspect_ratio(), 0.1f, 100.0f);
             const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
             const glm::mat4 model =
                 glm::rotate(glm::mat4(1.0f), time * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
