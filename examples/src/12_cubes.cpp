@@ -4,13 +4,14 @@
 
 #include "sl/gfx.hpp"
 
+#include <chrono>
 #include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 #include <stb/image.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <utility>
 using namespace sl::gfx;
 
 struct VT {
@@ -138,11 +139,45 @@ int main() {
 
     current_window.enable(GL_DEPTH_TEST);
 
+    auto prev_update_time = std::chrono::steady_clock::now();
+    auto delta_update_time = std::chrono::steady_clock::duration::zero();
+
+    Camera camera{
+        .tf =
+            Transform{
+                .tr = glm::vec3{ 0.0f, 0.0f, 3.0f },
+                .rot = glm::angleAxis(glm::radians(-90.0f), glm::vec3{ 1.0f, 0.0f, 0.0f }),
+            },
+        .up = glm::vec3{ 0.0f, 1.0f, 0.0f },
+    };
+
+    constexpr auto process_keyboard = [](const Window::Current& cw, Camera& camera, float delta_time) {
+        const float camera_speed = 2.5f * delta_time;
+        if (cw.is_key_pressed(GLFW_KEY_W)) {
+            camera.tf.tr += camera_speed * camera.front();
+        }
+        if (cw.is_key_pressed(GLFW_KEY_S)) {
+            camera.tf.tr -= camera_speed * camera.front();
+        }
+        if (cw.is_key_pressed(GLFW_KEY_A)) {
+            camera.tf.translate(-camera_speed * camera.right());
+        }
+        if (cw.is_key_pressed(GLFW_KEY_D)) {
+            camera.tf.translate(+camera_speed * camera.right());
+        }
+    };
+
     while (!current_window.should_close()) {
         if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {
             current_window.set_should_close(true);
         }
         current_window.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        const auto curr_update_time = std::chrono::steady_clock::now();
+        delta_update_time = curr_update_time - std::exchange(prev_update_time, curr_update_time);
+        const float dt = std::chrono::duration<float>(delta_update_time).count();
+
+        process_keyboard(current_window, camera, dt);
 
         {
             const auto& [vb, eb, va] = buffers;
@@ -151,18 +186,8 @@ int main() {
             Draw draw(sp, va, texs);
 
             constexpr float fov = glm::radians(45.0f);
-            const glm::mat4 projection = glm::perspective(fov, aspect_ratio<float>(window_size), 0.1f, 100.0f);
-
-            const auto time = static_cast<float>(glfwGetTime());
-            constexpr float camera_radius = 10.0f;
-            const glm::vec3 camera_pos{
-                std::sin(time) * camera_radius,
-                0.0f,
-                std::cos(time) * camera_radius,
-            };
-            constexpr glm::vec3 camera_target{ 0.0f, 0.0f, 0.0f };
-            constexpr glm::vec3 up{ 0.0f, 1.0f, 0.0f };
-            const glm::mat4 view = glm::lookAt(camera_pos, camera_target, up);
+            const glm::mat4 projection = glm::perspective(fov, window_size.aspect_ratio(), 0.1f, 100.0f);
+            const glm::mat4 view = camera.view();
 
             for (const auto& [index, pos] : ranges::views::enumerate(cube_positions)) {
                 const float angle = 20.0f * (static_cast<float>(index));

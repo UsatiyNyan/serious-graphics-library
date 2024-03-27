@@ -4,4 +4,5 @@
 
 #pragma once
 
+#include "sl/gfx/render/camera.hpp"
 #include "sl/gfx/render/draw.hpp"
