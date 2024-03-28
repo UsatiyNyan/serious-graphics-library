@@ -15,7 +15,7 @@ struct Transform {
     glm::quat rot;
 
     void translate(const glm::vec3& a_tr) { tr += a_tr; }
-    void rotate(const glm::quat& a_rot) { rot *= a_rot; }
+    void rotate(const glm::quat& a_rot) { rot = a_rot * rot; }
 };
 
 inline Transform translate(const Transform& tf, const glm::vec3& tr) { return { tf.tr + tr, tf.rot }; }
