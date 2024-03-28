@@ -173,6 +173,7 @@ int main() {
         }
     };
 
+    current_window.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     while (!current_window.should_close()) {
         if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {
             current_window.set_should_close(true);

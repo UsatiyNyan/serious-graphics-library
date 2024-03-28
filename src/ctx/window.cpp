@@ -38,6 +38,18 @@ void Window::Current::enable(GLenum cap) {
     glEnable(cap);
 }
 
+void Window::Current::set_input_mode(int mode, int value) {
+    ASSERT(current::get() == window_);
+    glfwSetInputMode(window_->glfw_window_, mode, value);
+}
+
+Vec2D Window::Current::get_cursor_pos() const {
+    ASSERT(current::get() == window_);
+    Vec2D cursor_pos;
+    glfwGetCursorPos(window_->glfw_window_, &cursor_pos.x, &cursor_pos.y);
+    return cursor_pos;
+}
+
 void Window::Current::viewport(Vec2I point, Size2I size) {
     ASSERT(current::get() == window_);
     glViewport(point.x, point.y, size.width, size.height);

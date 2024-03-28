@@ -23,6 +23,9 @@ public:
         explicit Current(Window& window);
 
         void enable(GLenum cap);
+        void set_input_mode(int mode, int value);
+        Vec2D get_cursor_pos() const;
+
         void viewport(Vec2I point, Size2I size);
         void set_clear_color(Color4F color);
         void clear(GLbitfield mask);
