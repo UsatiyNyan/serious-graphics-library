@@ -158,21 +158,22 @@ int main() {
         .world_up = glm::vec3{ 0.0f, 1.0f, 0.0f },
     };
 
-    constexpr auto process_keyboard = [](const Window::Current& cw, Camera& camera, float delta_time) {
-        const float camera_speed = 2.5f * delta_time;
-        if (cw.is_key_pressed(GLFW_KEY_W)) {
-            camera.tf.translate(+camera_speed * camera.front());
-        }
-        if (cw.is_key_pressed(GLFW_KEY_S)) {
-            camera.tf.translate(-camera_speed * camera.front());
-        }
-        if (cw.is_key_pressed(GLFW_KEY_A)) {
-            camera.tf.translate(-camera_speed * camera.right());
-        }
-        if (cw.is_key_pressed(GLFW_KEY_D)) {
-            camera.tf.translate(+camera_speed * camera.right());
-        }
-    };
+    constexpr auto process_keyboard =
+        [](const Window::Current& cw, Camera& camera, const Camera::State& camera_state, float delta_time) {
+            const float camera_speed = 2.5f * delta_time;
+            if (cw.is_key_pressed(GLFW_KEY_W)) {
+                camera.tf.translate(+camera_speed * camera_state.front);
+            }
+            if (cw.is_key_pressed(GLFW_KEY_S)) {
+                camera.tf.translate(-camera_speed * camera_state.front);
+            }
+            if (cw.is_key_pressed(GLFW_KEY_A)) {
+                camera.tf.translate(-camera_speed * camera_state.right);
+            }
+            if (cw.is_key_pressed(GLFW_KEY_D)) {
+                camera.tf.translate(+camera_speed * camera_state.right);
+            }
+        };
 
     current_window.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     std::optional<Vec2D> last_cursor_pos{};
@@ -188,18 +189,23 @@ int main() {
             last_cursor_pos->y - cursor_pos.y,
         };
         last_cursor_pos = cursor_pos;
+
         constexpr float sensitivity = 0.1f;
         const float yaw = static_cast<float>(cursor_offset.x) * sensitivity;
         const float pitch = static_cast<float>(cursor_offset.y) * sensitivity;
-        const glm::quat rotation =
-            glm::angleAxis(glm::radians(yaw), camera.up()) * glm::angleAxis(glm::radians(pitch), camera.right());
+
+        const auto camera_state = camera.state();
+        const glm::quat rotation = glm::angleAxis(glm::radians(yaw), camera_state.up)
+                                   * glm::angleAxis(glm::radians(pitch), camera_state.right);
         camera.tf.rotate(rotation);
-        sl::log::info("yaw: {}, pitch: {}", yaw, pitch);
+
         sl::log::info(
-            "camera.front: {}, camera.right: {}, camera.up: {}",
-            glm::to_string(camera.front()),
-            glm::to_string(camera.right()),
-            glm::to_string(camera.up())
+            "yaw: {}, pitch: {}, front: {}, right: {}, up: {}",
+            yaw,
+            pitch,
+            glm::to_string(camera_state.front),
+            glm::to_string(camera_state.right),
+            glm::to_string(camera_state.up)
         );
     };
 
@@ -213,7 +219,8 @@ int main() {
         delta_update_time = curr_update_time - std::exchange(prev_update_time, curr_update_time);
         const float dt = std::chrono::duration<float>(delta_update_time).count();
 
-        process_keyboard(current_window, camera, dt);
+        const auto camera_state = camera.state();
+        process_keyboard(current_window, camera, camera_state, dt);
 
         {
             const auto& [vb, eb, va] = buffers;
@@ -222,7 +229,7 @@ int main() {
             Draw draw(sp, va, texs);
 
             const glm::mat4 projection_matrix = projection.matrix(window_size);
-            const glm::mat4 view_matrix = camera.view();
+            const glm::mat4 view_matrix = camera_state.view();
 
             for (const auto& [index, pos] : ranges::views::enumerate(cube_positions)) {
                 const float angle = 20.0f * (static_cast<float>(index));
