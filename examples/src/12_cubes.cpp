@@ -142,6 +142,12 @@ int main() {
     auto prev_update_time = std::chrono::steady_clock::now();
     auto delta_update_time = std::chrono::steady_clock::duration::zero();
 
+    Projection<ProjectionType::Perspective> projection{
+        .fov = glm::radians(45.0f),
+        .near = 0.1f,
+        .far = 100.0f,
+    };
+
     Camera camera{
         .tf =
             Transform{
@@ -154,10 +160,10 @@ int main() {
     constexpr auto process_keyboard = [](const Window::Current& cw, Camera& camera, float delta_time) {
         const float camera_speed = 2.5f * delta_time;
         if (cw.is_key_pressed(GLFW_KEY_W)) {
-            camera.tf.tr += camera_speed * camera.front();
+            camera.tf.translate(+camera_speed * camera.front());
         }
         if (cw.is_key_pressed(GLFW_KEY_S)) {
-            camera.tf.tr -= camera_speed * camera.front();
+            camera.tf.translate(-camera_speed * camera.front());
         }
         if (cw.is_key_pressed(GLFW_KEY_A)) {
             camera.tf.translate(-camera_speed * camera.right());
@@ -185,9 +191,8 @@ int main() {
 
             Draw draw(sp, va, texs);
 
-            constexpr float fov = glm::radians(45.0f);
-            const glm::mat4 projection = glm::perspective(fov, window_size.aspect_ratio(), 0.1f, 100.0f);
-            const glm::mat4 view = camera.view();
+            const glm::mat4 projection_matrix = projection.matrix(window_size);
+            const glm::mat4 view_matrix = camera.view();
 
             for (const auto& [index, pos] : ranges::views::enumerate(cube_positions)) {
                 const float angle = 20.0f * (static_cast<float>(index));
@@ -196,7 +201,7 @@ int main() {
                     glm::radians(angle),
                     glm::vec3(1.0f, 0.3f, 0.5f)
                 );
-                const glm::mat4 transform = projection * view * model;
+                const glm::mat4 transform = projection_matrix * view_matrix * model;
                 set_transform(draw.sp_bind(), glm::value_ptr(transform));
                 draw.elements(eb);
             }
