@@ -11,6 +11,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <utility>
 using namespace sl::gfx;
 
@@ -79,7 +80,7 @@ constexpr std::array cube_positions{
 };
 
 int main() {
-    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::info);
 
     auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
     Size2I window_size{ 800, 600 };
@@ -154,7 +155,7 @@ int main() {
                 .tr = glm::vec3{ 0.0f, 0.0f, 3.0f },
                 .rot = glm::angleAxis(glm::radians(-90.0f), glm::vec3{ 1.0f, 0.0f, 0.0f }),
             },
-        .up = glm::vec3{ 0.0f, 1.0f, 0.0f },
+        .world_up = glm::vec3{ 0.0f, 1.0f, 0.0f },
     };
 
     constexpr auto process_keyboard = [](const Window::Current& cw, Camera& camera, float delta_time) {
@@ -174,6 +175,34 @@ int main() {
     };
 
     current_window.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    std::optional<Vec2D> last_cursor_pos{};
+
+    window->CursorPos_cb = [&](double xpos, double ypos) {
+        const Vec2D cursor_pos{ xpos, ypos };
+        if (!last_cursor_pos.has_value()) {
+            last_cursor_pos = cursor_pos;
+            return;
+        }
+        const Vec2D cursor_offset{
+            last_cursor_pos->x - cursor_pos.x,
+            last_cursor_pos->y - cursor_pos.y,
+        };
+        last_cursor_pos = cursor_pos;
+        constexpr float sensitivity = 0.1f;
+        const float yaw = static_cast<float>(cursor_offset.x) * sensitivity;
+        const float pitch = static_cast<float>(cursor_offset.y) * sensitivity;
+        const glm::quat rotation =
+            glm::angleAxis(glm::radians(yaw), camera.up()) * glm::angleAxis(glm::radians(pitch), camera.right());
+        camera.tf.rotate(rotation);
+        sl::log::info("yaw: {}, pitch: {}", yaw, pitch);
+        sl::log::info(
+            "camera.front: {}, camera.right: {}, camera.up: {}",
+            glm::to_string(camera.front()),
+            glm::to_string(camera.right()),
+            glm::to_string(camera.up())
+        );
+    };
+
     while (!current_window.should_close()) {
         if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {
             current_window.set_should_close(true);
