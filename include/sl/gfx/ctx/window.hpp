@@ -7,9 +7,8 @@
 #include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/ctx/context.hpp"
 #include "sl/gfx/primitives.hpp"
-#include "sl/meta/lifetime/finalizer.hpp"
 
-#include <function2/function2.hpp>
+#include "sl/meta/conn/signal.hpp"
 
 #include <memory>
 #include <string_view>
@@ -52,23 +51,23 @@ private:
     void setup_callbacks();
 
 public:
-    fu2::unique_function<void(int, int)> WindowPos_cb;
-    fu2::unique_function<void(int, int)> WindowSize_cb;
-    fu2::unique_function<void()> WindowClose_cb;
-    fu2::unique_function<void()> WindowRefresh_cb;
-    fu2::unique_function<void(int)> WindowFocus_cb;
-    fu2::unique_function<void(int)> WindowIconify_cb;
-    fu2::unique_function<void(int)> WindowMaximize_cb;
-    fu2::unique_function<void(GLsizei, GLsizei)> FramebufferSize_cb;
-    fu2::unique_function<void(float, float)> WindowContentScale_cb;
-    fu2::unique_function<void(int, int, int, int)> Key_cb;
-    fu2::unique_function<void(unsigned int)> Char_cb;
-    fu2::unique_function<void(unsigned int, int)> CharMods_cb;
-    fu2::unique_function<void(int, int, int)> MouseButton_cb;
-    fu2::unique_function<void(double, double)> CursorPos_cb;
-    fu2::unique_function<void(unsigned int)> CursorEnter_cb;
-    fu2::unique_function<void(unsigned int, int)> Scroll_cb;
-    fu2::unique_function<void(int, const char*[])> Drop_cb;
+    meta::signal<int, int> WindowPos_cb;
+    meta::signal<int, int> WindowSize_cb;
+    meta::signal<> WindowClose_cb;
+    meta::signal<> WindowRefresh_cb;
+    meta::signal<int> WindowFocus_cb;
+    meta::signal<int> WindowIconify_cb;
+    meta::signal<int> WindowMaximize_cb;
+    meta::signal<GLsizei, GLsizei> FramebufferSize_cb;
+    meta::signal<float, float> WindowContentScale_cb;
+    meta::signal<int, int, int, int> Key_cb;
+    meta::signal<unsigned int> Char_cb;
+    meta::signal<unsigned int, int> CharMods_cb;
+    meta::signal<int, int, int> MouseButton_cb;
+    meta::signal<double, double> CursorPos_cb;
+    meta::signal<unsigned int> CursorEnter_cb;
+    meta::signal<unsigned int, int> Scroll_cb;
+    meta::signal<int, const char**> Drop_cb;
 
 private:
     GLFWwindow* glfw_window_;

@@ -14,9 +14,9 @@ int main() {
     auto ctx = *ASSERT_VAL(sl::gfx::Context::create(ctx_options));
     const sl::gfx::Size2I window_size{ 800, 600 };
     const auto window = ASSERT_VAL(sl::gfx::Window::create(ctx, "08_imgui", window_size));
-    window->FramebufferSize_cb = [&window](GLsizei width, GLsizei height) {
+    (void)window->FramebufferSize_cb.connect([&window](GLsizei width, GLsizei height) {
         sl::gfx::Window::Current{ *window }.viewport(sl::gfx::Vec2I{}, sl::gfx::Size2I{ width, height });
-    };
+    });
     auto current_window =
         window->make_current(sl::gfx::Vec2I{}, window_size, sl::gfx::Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
 

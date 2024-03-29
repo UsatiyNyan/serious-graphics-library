@@ -17,9 +17,9 @@ int main() {
     const Size2I window_size{ 800, 600 };
     const auto window = ASSERT_VAL(Window::create(*ctx, "00_blank_window", window_size));
 
-    window->FramebufferSize_cb = [&window](GLsizei width, GLsizei height) {
+    (void)window->FramebufferSize_cb.connect([&window](GLsizei width, GLsizei height) {
         Window::Current{ *window }.viewport(Vec2I{}, Size2I{ width, height });
-    };
+    });
 
     auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
 

@@ -77,12 +77,13 @@ int main() {
         set_transform(sp_bind, glm::value_ptr(transform));
         set_window_size(sp.bind(), static_cast<float>(window_size.width), static_cast<float>(window_size.height));
 
-        window->FramebufferSize_cb = [&window,
-                                      sp_ref = std::ref(sp),
-                                      set_window_size_ref = std::ref(set_window_size)](GLsizei width, GLsizei height) {
+        (void)window->FramebufferSize_cb.connect([&window,
+                                                  sp_ref = std::ref(sp),
+                                                  set_window_size_ref =
+                                                      std::ref(set_window_size)](GLsizei width, GLsizei height) {
             Window::Current{ *window }.viewport(Vec2I{}, Size2I{ width, height });
             set_window_size_ref(sp_ref.get().bind(), static_cast<float>(width), static_cast<float>(height));
-        };
+        });
     }
 
     while (!current_window.should_close()) {

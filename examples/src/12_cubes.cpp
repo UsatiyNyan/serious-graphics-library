@@ -85,10 +85,10 @@ int main() {
     auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
     Size2I window_size{ 800, 600 };
     const auto window = ASSERT_VAL(Window::create(ctx, "12_cubes", window_size));
-    window->FramebufferSize_cb = [&](GLsizei width, GLsizei height) {
+    (void)window->FramebufferSize_cb.connect([&](GLsizei width, GLsizei height) {
         window_size = Size2I{ width, height };
         Window::Current{ *window }.viewport(Vec2I{}, window_size);
-    };
+    });
     auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
 
     constexpr auto create_texture = [](const std::filesystem::path& image_path) {
@@ -178,7 +178,7 @@ int main() {
     current_window.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     std::optional<Vec2D> last_cursor_pos{};
 
-    window->CursorPos_cb = [&](double xpos, double ypos) {
+    (void)window->CursorPos_cb.connect([&](double xpos, double ypos) {
         const Vec2D cursor_pos{ xpos, ypos };
         if (!last_cursor_pos.has_value()) {
             last_cursor_pos = cursor_pos;
@@ -207,7 +207,7 @@ int main() {
             glm::to_string(camera_state.right),
             glm::to_string(camera_state.up)
         );
-    };
+    });
 
     while (!current_window.should_close()) {
         if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {

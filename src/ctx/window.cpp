@@ -113,13 +113,11 @@ void Window::setup_callbacks() {
 #define SETUP_WINDOW_CALLBACK(name)                                       \
     glfwSet##name##Callback(glfw_window_, [](GLFWwindow*, auto... args) { \
         Window* window = current::get();                                  \
-        auto& callback = window->name##_cb;                               \
-        if (window != nullptr && !callback.empty()) {                     \
-            callback(args...);                                            \
+        if (window != nullptr) {                                          \
+            window->name##_cb(args...);                                   \
         }                                                                 \
     })
 
-    SETUP_WINDOW_CALLBACK(WindowPos);
     SETUP_WINDOW_CALLBACK(WindowPos);
     SETUP_WINDOW_CALLBACK(WindowSize);
     SETUP_WINDOW_CALLBACK(WindowClose);
