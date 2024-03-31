@@ -15,7 +15,7 @@ struct Transform {
     glm::quat rot;
 
     void translate(const glm::vec3& a_tr) { tr += a_tr; }
-    void rotate(const glm::quat& a_rot) { rot = a_rot * rot; }
+    void rotate(const glm::quat& a_rot) { rot = glm::normalize(a_rot * rot); }
     void normalize() {
         if (glm::length2(tr) > 0.0f) {
             tr = glm::normalize(tr);

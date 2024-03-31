@@ -94,8 +94,8 @@ auto create_texture(const std::filesystem::path& image_path) {
 
 auto create_shader(std::span<const std::string_view, 2> tex_uniform_names) {
     std::array<const Shader, 2> shaders{
-        *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/11_cube.vert")),
-        *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/11_cube.frag")),
+        *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/12_cubes.vert")),
+        *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/12_cubes.frag")),
     };
     auto sp = *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
     auto sp_bind = sp.bind();
