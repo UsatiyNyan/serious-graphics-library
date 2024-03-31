@@ -194,27 +194,26 @@ int main() {
     };
 
     current_window.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    std::optional<Vec2D> last_cursor_pos{};
+    std::optional<glm::vec2> last_cursor_pos{};
 
     (void)window->CursorPos_cb.connect([&](double xpos, double ypos) {
-        const Vec2D cursor_pos{ xpos, ypos };
+        const glm::vec2 cursor_pos{ xpos, ypos };
         if (!last_cursor_pos.has_value()) {
             last_cursor_pos = cursor_pos;
             return;
         }
-        const Vec2D cursor_offset{
-            last_cursor_pos->x - cursor_pos.x,
-            last_cursor_pos->y - cursor_pos.y,
-        };
+        const glm::vec2 cursor_offset = *last_cursor_pos - cursor_pos;
         last_cursor_pos = cursor_pos;
 
         constexpr float sensitivity = 0.1f;
-        const float yaw = static_cast<float>(cursor_offset.x) * sensitivity;
-        const float pitch = -static_cast<float>(cursor_offset.y) * sensitivity;
+        const float yaw = cursor_offset.x * sensitivity;
+        const float pitch = cursor_offset.y * sensitivity;
 
-        const glm::quat rotation =
-            glm::angleAxis(glm::radians(pitch), world.right()) * glm::angleAxis(glm::radians(yaw), world.up());
-        camera.tf.rotate(rotation);
+        const glm::quat rot_x = glm::angleAxis(glm::radians(pitch), world.x);
+        const glm::quat rot_y = glm::angleAxis(glm::radians(yaw), world.y);
+
+        const glm::quat current_rotation = camera.tf.rot;
+        camera.tf.rot = glm::normalize(rot_x * current_rotation * rot_y);
     });
 
     const auto update = [&](float delta_time, const Transform& movement) {
