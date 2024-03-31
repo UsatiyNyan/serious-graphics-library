@@ -207,7 +207,12 @@ int main() {
 
     const auto source_shader = create_source_shader();
     const auto source_buffers = create_buffers(std::span{ cube_vertices });
-    const glm::vec3 source_color{ 1.0f, 1.0f, 1.0f };
+    glm::vec3 source_color{ 1.0f, 1.0f, 1.0f };
+
+    (void)window->Scroll_cb.connect([&](double xoffset [[maybe_unused]], double yoffset) {
+        const float diff = static_cast<float>(yoffset) * 0.1f;
+        source_color.r = glm::clamp(source_color.r + diff, 0.0f, 1.0f);
+    });
 
     current_window.enable(GL_DEPTH_TEST);
 
