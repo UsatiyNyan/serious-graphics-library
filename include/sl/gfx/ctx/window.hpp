@@ -66,7 +66,7 @@ public:
     meta::signal<int, int, int> MouseButton_cb;
     meta::signal<double, double> CursorPos_cb;
     meta::signal<unsigned int> CursorEnter_cb;
-    meta::signal<unsigned int, int> Scroll_cb;
+    meta::signal<double, double> Scroll_cb;
     meta::signal<int, const char**> Drop_cb;
 
 private:

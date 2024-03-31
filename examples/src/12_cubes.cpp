@@ -196,6 +196,21 @@ int main() {
         camera.tf.rotate(rot_x * rot_y);
     });
 
+    (void)window->Scroll_cb.connect([&](double xoffset [[maybe_unused]], double yoffset) {
+        std::visit(
+            [yoffset](auto& x) {
+                if constexpr (std::is_same_v<std::decay_t<decltype(x)>, PerspectiveProjection>) {
+                    constexpr float zoom_sensitivity = 0.1f;
+                    const float zoom = static_cast<float>(yoffset) * zoom_sensitivity;
+                    x.fov = glm::clamp(x.fov - zoom, glm::radians(0.1f), glm::radians(90.0f));
+                    spdlog::info("fov: {}", glm::degrees(x.fov));
+                }
+            },
+            camera.proj
+        );
+    });
+
+
     const auto update = [&](float delta_time, const Transform& movement) {
         constexpr float camera_acc = 2.5f;
         const float camera_speed = camera_acc * delta_time;
