@@ -4,34 +4,36 @@
 
 #pragma once
 
+#include "sl/gfx/render/projection.hpp"
+
+#include "sl/gfx/primitives/basis.hpp"
 #include "sl/gfx/primitives/transform.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace sl::gfx {
 
 struct Camera {
     Transform tf;
-    glm::vec3 world_up;
+    Projection proj;
 
-    struct State {
-        glm::vec3 pos;
-        glm::vec3 front;
-        glm::vec3 right;
-        glm::vec3 up;
-
-        glm::mat4 view() const { return glm::lookAt(pos, pos + front, up); }
-    };
-
-    State state() const {
-        glm::vec3 front = glm::normalize(tf.rot * world_up);
-        glm::vec3 right = glm::normalize(glm::cross(front, world_up));
-        glm::vec3 up = glm::normalize(glm::cross(right, front));
-        return State{
-            .pos = tf.tr,
-            .front = front,
-            .right = right,
-            .up = up,
+    Basis basis(const Basis& world) const {
+        return Basis{
+            .x = tf.rot * world.x,
+            .y = tf.rot * world.y,
+            .z = tf.rot * world.z,
         };
+    }
+
+    glm::mat4 view(const Basis& world) const {
+        const glm::vec3 pos = tf.tr;
+        const glm::vec3 forward = tf.rot * world.forward();
+        const glm::vec3 up = tf.rot * world.up();
+        return glm::lookAt(pos, pos + forward, up);
+    }
+
+    glm::mat4 projection(Size2I window_size) const {
+        return std::visit([window_size](const auto& x) { return x.matrix(window_size); }, proj);
     }
 };
 

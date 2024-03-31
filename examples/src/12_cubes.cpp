@@ -13,6 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <utility>
+
 using namespace sl::gfx;
 
 struct VT {
@@ -137,21 +138,20 @@ int main() {
 
     auto prev_update_time = std::chrono::steady_clock::now();
 
-    Projection<ProjectionType::Perspective> projection{
-        .fov = glm::radians(45.0f),
-        .near = 0.1f,
-        .far = 100.0f,
-    };
-
-    const World world{};
+    const Basis world{};
 
     Camera camera{
         .tf =
             Transform{
                 .tr = glm::vec3{ 0.0f, 0.0f, 3.0f },
-                .rot = glm::angleAxis(glm::radians(-90.0f), glm::vec3{ 1.0f, 0.0f, 0.0f }),
+                .rot = glm::angleAxis(glm::radians(-180.0f), world.up()),
             },
-        .world_up = world.up,
+        .proj =
+            PerspectiveProjection{
+                .fov = glm::radians(45.0f),
+                .near = 0.1f,
+                .far = 100.0f,
+            },
     };
 
     Transform movement;
@@ -174,22 +174,22 @@ int main() {
 
     const auto keyboard_process_input = [&](const Window::Current& cw) {
         if (cw.is_key_pressed(GLFW_KEY_W)) {
-            movement_process_input(world.forward, true);
+            movement_process_input(world.forward(), true);
         }
         if (cw.is_key_pressed(GLFW_KEY_S)) {
-            movement_process_input(-world.forward, true);
+            movement_process_input(-world.forward(), true);
         }
         if (cw.is_key_pressed(GLFW_KEY_D)) {
-            movement_process_input(world.right, true);
+            movement_process_input(world.right(), true);
         }
         if (cw.is_key_pressed(GLFW_KEY_A)) {
-            movement_process_input(-world.right, true);
+            movement_process_input(-world.right(), true);
         }
         if (cw.is_key_pressed(GLFW_KEY_Q)) {
-            movement_process_input(world.up, true);
+            movement_process_input(world.up(), true);
         }
         if (cw.is_key_pressed(GLFW_KEY_E)) {
-            movement_process_input(-world.up, true);
+            movement_process_input(-world.up(), true);
         }
     };
 
@@ -210,18 +210,16 @@ int main() {
 
         constexpr float sensitivity = 0.1f;
         const float yaw = static_cast<float>(cursor_offset.x) * sensitivity;
-        const float pitch = static_cast<float>(cursor_offset.y) * sensitivity;
+        const float pitch = -static_cast<float>(cursor_offset.y) * sensitivity;
 
-        const auto camera_state = camera.state();
-        const glm::quat rotation = glm::angleAxis(glm::radians(yaw), camera_state.up)
-                                   * glm::angleAxis(glm::radians(pitch), camera_state.right);
+        const glm::quat rotation =
+            glm::angleAxis(glm::radians(pitch), world.right()) * glm::angleAxis(glm::radians(yaw), world.up());
         camera.tf.rotate(rotation);
     });
 
     const auto update = [&](float delta_time, const Transform& movement) {
         constexpr float camera_acc = 2.5f;
         const float camera_speed = camera_acc * delta_time;
-        // TODO: movement inverted
         camera.tf.translate(camera_speed * (camera.tf.rot * movement.tr));
     };
 
@@ -262,8 +260,8 @@ int main() {
 
             Draw draw(sp, va, texs);
 
-            const glm::mat4 projection_matrix = projection.matrix(window_size);
-            const glm::mat4 view_matrix = camera.state().view();
+            const glm::mat4 projection = camera.projection(window_size);
+            const glm::mat4 view = camera.view(world);
 
             for (const auto& [index, pos] : ranges::views::enumerate(cube_positions)) {
                 const float angle = 20.0f * (static_cast<float>(index));
@@ -272,7 +270,7 @@ int main() {
                     glm::radians(angle),
                     glm::vec3(1.0f, 0.3f, 0.5f)
                 );
-                const glm::mat4 transform = projection_matrix * view_matrix * model;
+                const glm::mat4 transform = projection * view * model;
                 set_transform(draw.sp_bind(), glm::value_ptr(transform));
                 draw.elements(eb);
             }

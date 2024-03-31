@@ -7,27 +7,24 @@
 #include "sl/gfx/primitives/size.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <variant>
 
 
 namespace sl::gfx {
 
-enum class ProjectionType { Perspective, Orthographic };
-
-template <ProjectionType type>
-struct Projection {
+struct PerspectiveProjection {
     float fov; // radians
     float near;
     float far;
+    glm::mat4 matrix(Size2I window_size) const { return glm::perspective(fov, window_size.aspect_ratio(), near, far); }
+};
 
+struct OrthographicProjection {
     glm::mat4 matrix(Size2I window_size) const {
-        if constexpr (type == ProjectionType::Perspective) {
-            return glm::perspective(fov, window_size.aspect_ratio(), near, far);
-        } else {
-            return glm::ortho(
-                0.0f, static_cast<float>(window_size.width), static_cast<float>(window_size.height), 0.0f
-            );
-        }
+        return glm::ortho(0.0f, static_cast<float>(window_size.width), static_cast<float>(window_size.height), 0.0f);
     }
 };
+
+using Projection = std::variant<PerspectiveProjection, OrthographicProjection>;
 
 } // namespace sl::gfx
