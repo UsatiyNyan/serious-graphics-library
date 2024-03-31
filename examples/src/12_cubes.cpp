@@ -130,15 +130,10 @@ int main() {
     });
 
     auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
-    const auto window_process_input = [&current_window](bool is_esc_pressed) {
-        if (is_esc_pressed) {
-            current_window.set_should_close(true);
-        }
-    };
 
     auto prev_update_time = std::chrono::steady_clock::now();
 
-    const Basis world{};
+    constexpr Basis world{};
 
     Camera camera{
         .tf =
@@ -154,43 +149,27 @@ int main() {
             },
     };
 
-    Transform movement;
-    const auto movement_process_input = [&movement](glm::vec3 world_direction, bool is_pressed) {
-        if (is_pressed) {
-            movement.translate(world_direction);
-        }
-    };
-
-    (void)window->Key_cb.connect([&](int key, int scancode [[maybe_unused]], int action, int mods [[maybe_unused]]) {
-        const bool is_pressed = (action & GLFW_PRESS) != 0;
-        const bool is_released [[maybe_unused]] = (action & GLFW_RELEASE) != 0;
-        const bool is_repeated [[maybe_unused]] = (action & GLFW_REPEAT) != 0;
-        switch (key) {
-        case GLFW_KEY_ESCAPE:
-            window_process_input(is_pressed);
-            break;
-        }
-    });
-
-    const auto keyboard_process_input = [&](const Window::Current& cw) {
+    const auto transform_from_keyboard = [&world](const Window::Current& cw) {
+        Transform movement{};
         if (cw.is_key_pressed(GLFW_KEY_W)) {
-            movement_process_input(world.forward(), true);
+            movement.translate(world.forward());
         }
         if (cw.is_key_pressed(GLFW_KEY_S)) {
-            movement_process_input(-world.forward(), true);
+            movement.translate(-world.forward());
         }
         if (cw.is_key_pressed(GLFW_KEY_D)) {
-            movement_process_input(world.right(), true);
+            movement.translate(world.right());
         }
         if (cw.is_key_pressed(GLFW_KEY_A)) {
-            movement_process_input(-world.right(), true);
+            movement.translate(-world.right());
         }
         if (cw.is_key_pressed(GLFW_KEY_Q)) {
-            movement_process_input(world.up(), true);
+            movement.translate(world.up());
         }
         if (cw.is_key_pressed(GLFW_KEY_E)) {
-            movement_process_input(-world.up(), true);
+            movement.translate(-world.up());
         }
+        return normalize(movement);
     };
 
     current_window.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -205,15 +184,16 @@ int main() {
         const glm::vec2 cursor_offset = *last_cursor_pos - cursor_pos;
         last_cursor_pos = cursor_pos;
 
-        constexpr float sensitivity = 0.1f;
+        constexpr float sensitivity = glm::radians(0.1f);
         const float yaw = cursor_offset.x * sensitivity;
         const float pitch = cursor_offset.y * sensitivity;
 
-        const glm::quat rot_x = glm::angleAxis(glm::radians(pitch), world.x);
-        const glm::quat rot_y = glm::angleAxis(glm::radians(yaw), world.y);
+        const glm::vec3 camera_forward = camera.tf.rot * world.forward();
+        const glm::vec3 camera_right = glm::cross(camera_forward, world.up());
+        const glm::quat rot_x = glm::angleAxis(pitch, camera_right);
+        const glm::quat rot_y = glm::angleAxis(yaw, world.y);
 
-        const glm::quat current_rotation = camera.tf.rot;
-        camera.tf.rot = glm::normalize(rot_x * current_rotation * rot_y);
+        camera.tf.rotate(rot_x * rot_y);
     });
 
     const auto update = [&](float delta_time, const Transform& movement) {
@@ -230,24 +210,25 @@ int main() {
     current_window.enable(GL_DEPTH_TEST);
 
     while (!current_window.should_close()) {
+        // input
+        ctx.poll_events();
+
+        if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {
+            current_window.set_should_close(true);
+        }
+
+        const Transform movement = transform_from_keyboard(current_window);
+
         // time
-        const float delta_time = [&] {
+        const float delta_time = [&prev_update_time] {
             const auto curr_update_time = std::chrono::steady_clock::now();
             const auto delta_update_time = curr_update_time - std::exchange(prev_update_time, curr_update_time);
             return std::chrono::duration<float>(delta_update_time).count();
         }();
 
-        // input
-        const Transform curr_movement = [&] {
-            movement = Transform{};
-            ctx.poll_events();
-            keyboard_process_input(current_window);
-            return normalize(movement);
-        }();
-
         // update
         {
-            update(delta_time, curr_movement); //
+            update(delta_time, movement); //
         }
 
         // render
