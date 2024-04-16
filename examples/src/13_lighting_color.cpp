@@ -22,42 +22,43 @@ using namespace sl::gfx;
 
 struct VT {
     va_attrib_field<3, float> vert;
+    va_attrib_field<3, float> normal;
 };
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-braces"
 constexpr std::array cube_vertices{
-    // positions
+    // verts            | normals
     // front face
-    VT{ 0.5f, 0.5f, 0.5f }, // top right
-    VT{ 0.5f, -0.5f, 0.5f }, // bottom right
-    VT{ -0.5f, -0.5f, 0.5f }, // bottom left
-    VT{ -0.5f, 0.5f, 0.5f }, // top left
+    VT{ +0.5f, +0.5f, +0.5f, +0.0f, +0.0f, +1.0f }, // top right
+    VT{ +0.5f, -0.5f, +0.5f, +0.0f, +0.0f, +1.0f }, // bottom right
+    VT{ -0.5f, -0.5f, +0.5f, +0.0f, +0.0f, +1.0f }, // bottom left
+    VT{ -0.5f, +0.5f, +0.5f, +0.0f, +0.0f, +1.0f }, // top left
     // right face
-    VT{ 0.5f, 0.5f, 0.5f }, // top right
-    VT{ 0.5f, -0.5f, 0.5f }, // bottom right
-    VT{ 0.5f, -0.5f, -0.5f }, // bottom left
-    VT{ 0.5f, 0.5f, -0.5f }, // top left
+    VT{ +0.5f, +0.5f, +0.5f, +1.0f, +0.0f, +0.0f }, // top right
+    VT{ +0.5f, -0.5f, +0.5f, +1.0f, +0.0f, +0.0f }, // bottom right
+    VT{ +0.5f, -0.5f, -0.5f, +1.0f, +0.0f, +0.0f }, // bottom left
+    VT{ +0.5f, +0.5f, -0.5f, +1.0f, +0.0f, +0.0f }, // top left
     // back face
-    VT{ 0.5f, 0.5f, -0.5f }, // top right
-    VT{ 0.5f, -0.5f, -0.5f }, // bottom right
-    VT{ -0.5f, -0.5f, -0.5f }, // bottom left
-    VT{ -0.5f, 0.5f, -0.5f }, // top left
+    VT{ +0.5f, +0.5f, -0.5f, +0.0f, +0.0f, -1.0f }, // top right
+    VT{ +0.5f, -0.5f, -0.5f, +0.0f, +0.0f, -1.0f }, // bottom right
+    VT{ -0.5f, -0.5f, -0.5f, +0.0f, +0.0f, -1.0f }, // bottom left
+    VT{ -0.5f, +0.5f, -0.5f, +0.0f, +0.0f, -1.0f }, // top left
     // left face
-    VT{ -0.5f, 0.5f, -0.5f }, // top right
-    VT{ -0.5f, -0.5f, -0.5f }, // bottom right
-    VT{ -0.5f, -0.5f, 0.5f }, // bottom left
-    VT{ -0.5f, 0.5f, 0.5f }, // top left
+    VT{ -0.5f, +0.5f, -0.5f, -1.0f, +0.0f, +0.0f }, // top right
+    VT{ -0.5f, -0.5f, -0.5f, -1.0f, +0.0f, +0.0f }, // bottom right
+    VT{ -0.5f, -0.5f, +0.5f, -1.0f, +0.0f, +0.0f }, // bottom left
+    VT{ -0.5f, +0.5f, +0.5f, -1.0f, +0.0f, +0.0f }, // top left
     // top face
-    VT{ 0.5f, 0.5f, 0.5f }, // top right
-    VT{ 0.5f, 0.5f, -0.5f }, // bottom right
-    VT{ -0.5f, 0.5f, -0.5f }, // bottom left
-    VT{ -0.5f, 0.5f, 0.5f }, // top left
+    VT{ +0.5f, +0.5f, +0.5f, +0.0f, +1.0f, +0.0f }, // top right
+    VT{ +0.5f, +0.5f, -0.5f, +0.0f, +1.0f, +0.0f }, // bottom right
+    VT{ -0.5f, +0.5f, -0.5f, +0.0f, +1.0f, +0.0f }, // bottom left
+    VT{ -0.5f, +0.5f, +0.5f, +0.0f, +1.0f, +0.0f }, // top left
     // bottom face
-    VT{ 0.5f, -0.5f, 0.5f }, // top right
-    VT{ 0.5f, -0.5f, -0.5f }, // bottom right
-    VT{ -0.5f, -0.5f, -0.5f }, // bottom left
-    VT{ -0.5f, -0.5f, 0.5f }, // top left
+    VT{ +0.5f, -0.5f, +0.5f, +0.0f, -1.0f, +0.0f }, // top right
+    VT{ +0.5f, -0.5f, -0.5f, +0.0f, -1.0f, +0.0f }, // bottom right
+    VT{ -0.5f, -0.5f, -0.5f, +0.0f, -1.0f, +0.0f }, // bottom left
+    VT{ -0.5f, -0.5f, +0.5f, +0.0f, -1.0f, +0.0f }, // top left
 };
 #pragma GCC diagnostic pop
 
@@ -74,10 +75,6 @@ constexpr std::array cube_positions{
     glm::vec3{ 0.0f, 0.0f, 0.0f }, //
 };
 
-constexpr std::array source_positions{
-    glm::vec3{ 2.0f, 2.0f, -3.0f }, //
-};
-
 auto create_object_shader(const std::filesystem::path& root) {
     std::array<const Shader, 2> shaders{
         *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, root / "shaders/13_lighting_object.vert")),
@@ -85,11 +82,18 @@ auto create_object_shader(const std::filesystem::path& root) {
     };
     auto sp = *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
     auto sp_bind = sp.bind();
+    auto set_model = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_model", 1, false));
     auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
     auto set_light_color = *ASSERT_VAL(sp_bind.make_uniform_setter(glUniform3f, "u_light_color"));
+    auto set_light_pos = *ASSERT_VAL(sp_bind.make_uniform_setter(glUniform3f, "u_light_pos"));
     auto set_object_color = *ASSERT_VAL(sp_bind.make_uniform_setter(glUniform3f, "u_object_color"));
     return std::make_tuple(
-        std::move(sp), std::move(set_transform), std::move(set_light_color), std::move(set_object_color)
+        std::move(sp),
+        std::move(set_model),
+        std::move(set_transform),
+        std::move(set_light_color),
+        std::move(set_light_pos),
+        std::move(set_object_color)
     );
 };
 
@@ -231,6 +235,8 @@ int main(int argc [[maybe_unused]], char** argv) {
     const auto object_shader = create_object_shader(root);
     const auto object_buffers = create_buffers(std::span{ cube_vertices });
 
+    // TODO: many lights?
+    glm::vec3 source_position{ 2.0f, 2.0f, -3.0f };
     const auto source_shader = create_source_shader(root);
     const auto source_buffers = create_buffers(std::span{ cube_vertices });
     glm::vec3 source_color{ 1.0f, 1.0f, 1.0f };
@@ -265,15 +271,18 @@ int main(int argc [[maybe_unused]], char** argv) {
         // objects
         {
             const auto& [vb, eb, va] = object_buffers;
-            const auto& [sp, set_transform, set_light_color, set_object_color] = object_shader;
+            const auto& [sp, set_model, set_transform, set_light_color, set_light_pos, set_object_color] =
+                object_shader;
 
             Draw draw(sp, va, {});
 
             set_light_color(draw.sp_bind(), source_color.r, source_color.g, source_color.b);
+            set_light_pos(draw.sp_bind(), source_position.x, source_position.y, source_position.z);
             set_object_color(draw.sp_bind(), 0.61f, 0.08f, 0.90f); // #9c15e6
 
             for (const auto& pos : cube_positions) {
                 const glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+                set_model(draw.sp_bind(), glm::value_ptr(model));
                 const glm::mat4 transform = projection * view * model;
                 set_transform(draw.sp_bind(), glm::value_ptr(transform));
                 draw.elements(eb);
@@ -289,12 +298,10 @@ int main(int argc [[maybe_unused]], char** argv) {
 
             set_light_color(draw.sp_bind(), source_color.r, source_color.g, source_color.b);
 
-            for (const auto& pos : source_positions) {
-                const glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
-                const glm::mat4 transform = projection * view * model;
-                set_transform(draw.sp_bind(), glm::value_ptr(transform));
-                draw.elements(eb);
-            }
+            const glm::mat4 model = glm::translate(glm::mat4(1.0f), source_position);
+            const glm::mat4 transform = projection * view * model;
+            set_transform(draw.sp_bind(), glm::value_ptr(transform));
+            draw.elements(eb);
         }
 
         // imgui
@@ -302,7 +309,8 @@ int main(int argc [[maybe_unused]], char** argv) {
             imgui_context.new_frame();
 
             if (const sl::meta::defer imgui_end{ ImGui::End }; ImGui::Begin("light")) {
-                ImGui::ColorEdit3("source color", glm::value_ptr(source_color));
+                ImGui::SliderFloat3("light pos", glm::value_ptr(source_position), -10.0f, 10.0f);
+                ImGui::ColorEdit3("light color", glm::value_ptr(source_color));
             }
 
             imgui_context.render();
