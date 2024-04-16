@@ -185,15 +185,15 @@ int main(int argc [[maybe_unused]], char** argv) {
 
     std::optional<glm::vec2> last_cursor_pos{};
 
-    const auto window_control_component = [&last_cursor_pos](Window::Current& cw) {
-        if (cw.is_key_pressed(GLFW_KEY_T)) {
-            const int new_input_mode = cw.get_input_mode(GLFW_CURSOR) == GLFW_CURSOR_DISABLED //
+    (void)window->Key_cb.connect([&](int key, int, int action, int) {
+        if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+            const int new_input_mode = current_window.get_input_mode(GLFW_CURSOR) == GLFW_CURSOR_DISABLED //
                                            ? GLFW_CURSOR_NORMAL
                                            : GLFW_CURSOR_DISABLED;
-            cw.set_input_mode(GLFW_CURSOR, new_input_mode);
+            current_window.set_input_mode(GLFW_CURSOR, new_input_mode);
             last_cursor_pos.reset();
         }
-    };
+    });
 
     (void)window->CursorPos_cb.connect([&](double xpos, double ypos) {
         if (current_window.get_input_mode(GLFW_CURSOR) != GLFW_CURSOR_DISABLED) {
@@ -221,7 +221,7 @@ int main(int argc [[maybe_unused]], char** argv) {
         camera.tf.rotate(rot_pitch);
     });
 
-    const auto update = [&](float delta_time, const Transform& movement) {
+    const auto update_camera = [&](float delta_time, const Transform& movement) {
         constexpr float camera_acc = 2.5f;
         const float camera_speed = camera_acc * delta_time;
         camera.tf.translate(camera_speed * (camera.tf.rot * movement.tr));
@@ -253,8 +253,7 @@ int main(int argc [[maybe_unused]], char** argv) {
 
         // update
         {
-            window_control_component(current_window);
-            update(delta_time, movement); //
+            update_camera(delta_time, movement); //
         }
 
         // render
