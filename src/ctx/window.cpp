@@ -43,6 +43,11 @@ void Window::Current::set_input_mode(int mode, int value) {
     glfwSetInputMode(window_->glfw_window_, mode, value);
 }
 
+int Window::Current::get_input_mode(int mode) const {
+    ASSERT(current::get() == window_);
+    return glfwGetInputMode(window_->glfw_window_, mode);
+}
+
 Vec2D Window::Current::get_cursor_pos() const {
     ASSERT(current::get() == window_);
     Vec2D cursor_pos;

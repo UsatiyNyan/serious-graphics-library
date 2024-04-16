@@ -23,6 +23,7 @@ public:
 
         void enable(GLenum cap);
         void set_input_mode(int mode, int value);
+        int get_input_mode(int mode) const;
         Vec2D get_cursor_pos() const;
 
         void viewport(Vec2I point, Size2I size);

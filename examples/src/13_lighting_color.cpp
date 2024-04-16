@@ -4,14 +4,18 @@
 
 #include "sl/gfx.hpp"
 
-#include <chrono>
 #include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
+
 #include <stb/image.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
+
+#include <sl/meta/lifetime/defer.hpp>
+
+#include <chrono>
 #include <utility>
 
 using namespace sl::gfx;
@@ -74,10 +78,10 @@ constexpr std::array source_positions{
     glm::vec3{ 2.0f, 2.0f, -3.0f }, //
 };
 
-auto create_object_shader() {
+auto create_object_shader(const std::filesystem::path& root) {
     std::array<const Shader, 2> shaders{
-        *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/13_lighting_object.vert")),
-        *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/13_lighting_object.frag")),
+        *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, root / "shaders/13_lighting_object.vert")),
+        *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, root / "shaders/13_lighting_object.frag")),
     };
     auto sp = *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
     auto sp_bind = sp.bind();
@@ -89,10 +93,10 @@ auto create_object_shader() {
     );
 };
 
-auto create_source_shader() {
+auto create_source_shader(const std::filesystem::path& root) {
     std::array<const Shader, 2> shaders{
-        *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/13_lighting_source.vert")),
-        *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/13_lighting_source.frag")),
+        *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, root / "shaders/13_lighting_source.vert")),
+        *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, root / "shaders/13_lighting_source.frag")),
     };
     auto sp = *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
     auto sp_bind = sp.bind();
@@ -116,11 +120,14 @@ buffers_type create_buffers(std::span<const VT, extent> vt_coords) {
     return std::make_tuple(std::move(vb), std::move(eb), std::move(va));
 };
 
-int main() {
+int main(int argc [[maybe_unused]], char** argv) {
     spdlog::set_level(spdlog::level::info);
 
-    auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
-    Size2I window_size{ 800, 600 };
+    const auto root = std::filesystem::path{ argv[0] }.parent_path();
+
+    const sl::gfx::Context::Options ctx_options{ 4, 6, GLFW_OPENGL_CORE_PROFILE };
+    auto ctx = *ASSERT_VAL(Context::create(ctx_options));
+    Size2I window_size{ 1280, 720 };
     const auto window = ASSERT_VAL(Window::create(ctx, "13_lighting_color", window_size));
     (void)window->FramebufferSize_cb.connect([&](GLsizei width, GLsizei height) {
         window_size = Size2I{ width, height };
@@ -128,8 +135,14 @@ int main() {
     });
 
     auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.1f, 0.1f, 0.1f, 1.0f });
+    sl::gfx::ImGuiContext imgui_context{ ctx_options, *window };
 
     auto prev_update_time = std::chrono::steady_clock::now();
+    const auto calc_delta_time = [&prev_update_time] {
+        const auto curr_update_time = std::chrono::steady_clock::now();
+        const auto delta_update_time = curr_update_time - std::exchange(prev_update_time, curr_update_time);
+        return std::chrono::duration<float>(delta_update_time);
+    };
 
     constexpr Basis world{};
 
@@ -170,10 +183,23 @@ int main() {
         return normalize(movement);
     };
 
-    current_window.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     std::optional<glm::vec2> last_cursor_pos{};
 
+    const auto window_control_component = [&last_cursor_pos](Window::Current& cw) {
+        if (cw.is_key_pressed(GLFW_KEY_T)) {
+            const int new_input_mode = cw.get_input_mode(GLFW_CURSOR) == GLFW_CURSOR_DISABLED //
+                                           ? GLFW_CURSOR_NORMAL
+                                           : GLFW_CURSOR_DISABLED;
+            cw.set_input_mode(GLFW_CURSOR, new_input_mode);
+            last_cursor_pos.reset();
+        }
+    };
+
     (void)window->CursorPos_cb.connect([&](double xpos, double ypos) {
+        if (current_window.get_input_mode(GLFW_CURSOR) != GLFW_CURSOR_DISABLED) {
+            return;
+        }
+
         const glm::vec2 cursor_pos{ xpos, ypos };
         if (!last_cursor_pos.has_value()) {
             last_cursor_pos = cursor_pos;
@@ -202,17 +228,12 @@ int main() {
     };
 
     // prepare render
-    const auto object_shader = create_object_shader();
+    const auto object_shader = create_object_shader(root);
     const auto object_buffers = create_buffers(std::span{ cube_vertices });
 
-    const auto source_shader = create_source_shader();
+    const auto source_shader = create_source_shader(root);
     const auto source_buffers = create_buffers(std::span{ cube_vertices });
     glm::vec3 source_color{ 1.0f, 1.0f, 1.0f };
-
-    (void)window->Scroll_cb.connect([&](double xoffset [[maybe_unused]], double yoffset) {
-        const float diff = static_cast<float>(yoffset) * 0.1f;
-        source_color.r = glm::clamp(source_color.r + diff, 0.0f, 1.0f);
-    });
 
     current_window.enable(GL_DEPTH_TEST);
 
@@ -228,14 +249,11 @@ int main() {
         const Transform movement = transform_from_keyboard(current_window);
 
         // time
-        const float delta_time = [&prev_update_time] {
-            const auto curr_update_time = std::chrono::steady_clock::now();
-            const auto delta_update_time = curr_update_time - std::exchange(prev_update_time, curr_update_time);
-            return std::chrono::duration<float>(delta_update_time).count();
-        }();
+        const float delta_time = calc_delta_time().count();
 
         // update
         {
+            window_control_component(current_window);
             update(delta_time, movement); //
         }
 
@@ -278,6 +296,17 @@ int main() {
                 set_transform(draw.sp_bind(), glm::value_ptr(transform));
                 draw.elements(eb);
             }
+        }
+
+        // imgui
+        {
+            imgui_context.new_frame();
+
+            if (const sl::meta::defer imgui_end{ ImGui::End }; ImGui::Begin("light")) {
+                ImGui::ColorEdit3("source color", glm::value_ptr(source_color));
+            }
+
+            imgui_context.render();
         }
 
         current_window.swap_buffers();
