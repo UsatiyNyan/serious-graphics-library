@@ -55,6 +55,13 @@ Vec2D Window::Current::get_cursor_pos() const {
     return cursor_pos;
 }
 
+Vec2F Window::Current::get_content_scale() const {
+    ASSERT(current::get() == window_);
+    Vec2F content_scale;
+    glfwGetWindowContentScale(window_->glfw_window_, &content_scale.x, &content_scale.y);
+    return content_scale;
+}
+
 void Window::Current::viewport(Vec2I point, Size2I size) {
     ASSERT(current::get() == window_);
     glViewport(point.x, point.y, size.width, size.height);

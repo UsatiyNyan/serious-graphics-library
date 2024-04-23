@@ -133,12 +133,18 @@ int main(int argc [[maybe_unused]], char** argv) {
     auto ctx = *ASSERT_VAL(Context::create(ctx_options));
     Size2I window_size{ 1280, 720 };
     const auto window = ASSERT_VAL(Window::create(ctx, "13_lighting_color", window_size));
+    auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.1f, 0.1f, 0.1f, 1.0f });
     (void)window->FramebufferSize_cb.connect([&](GLsizei width, GLsizei height) {
         window_size = Size2I{ width, height };
         Window::Current{ *window }.viewport(Vec2I{}, window_size);
     });
+    Vec2F window_content_scale = current_window.get_content_scale();
+    bool window_content_scale_dirty = true;
+    (void)window->WindowContentScale_cb.connect([&](GLfloat xscale, GLfloat yscale) {
+        window_content_scale = Vec2F{xscale, yscale};
+        window_content_scale_dirty = true;
+    });
 
-    auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.1f, 0.1f, 0.1f, 1.0f });
     sl::gfx::ImGuiContext imgui_context{ ctx_options, *window };
 
     auto prev_update_time = std::chrono::steady_clock::now();
@@ -306,6 +312,10 @@ int main(int argc [[maybe_unused]], char** argv) {
 
         // imgui
         {
+            if (std::exchange(window_content_scale_dirty, false)) {
+                ImGui::GetStyle().ScaleAllSizes(window_content_scale.x);
+            }
+
             imgui_context.new_frame();
 
             if (const sl::meta::defer imgui_end{ ImGui::End }; ImGui::Begin("light")) {
