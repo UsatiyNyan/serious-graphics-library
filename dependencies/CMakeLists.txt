@@ -21,11 +21,7 @@ cpmaddpackage(
 cpmaddpackage(
         NAME libassert
         GIT_REPOSITORY "git@github.com:jeremy-rifkin/libassert.git"
-        GIT_TAG main)
-cpmaddpackage(
-        NAME range-v3
-        GIT_REPOSITORY "git@github.com:ericniebler/range-v3.git"
-        GIT_TAG 0.12.0)
+        GIT_TAG v2.0.1)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/boost.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/spdlog.cmake")
