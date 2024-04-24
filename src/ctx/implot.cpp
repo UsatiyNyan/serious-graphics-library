@@ -6,11 +6,11 @@
 
 namespace sl::gfx {
 
-ImPlotContext::ImPlotContext(const ImGuiContext&) {
+implot_context::implot_context(const imgui_context&) {
     ImPlot::CreateContext();
 }
 
-ImPlotContext::~ImPlotContext() {
+implot_context::~implot_context() {
     ImPlot::DestroyContext();
 }
 

@@ -10,10 +10,10 @@
 
 namespace sl::gfx {
 
-class ImPlotContext {
+class implot_context {
 public:
-    explicit ImPlotContext(const ImGuiContext&);
-    ~ImPlotContext();
+    explicit implot_context(const imgui_context&);
+    ~implot_context();
 };
 
 } // namespace sl::gfx

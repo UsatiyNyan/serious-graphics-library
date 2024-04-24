@@ -6,7 +6,6 @@
 
 #include <glm/glm.hpp>
 
-
 namespace sl::gfx {
 
 struct Basis {

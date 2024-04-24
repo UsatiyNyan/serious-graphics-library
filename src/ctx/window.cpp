@@ -6,149 +6,200 @@
 
 #include "sl/gfx/common/log.hpp"
 
+#include <GLFW/glfw3.h>
 #include <libassert/assert.hpp>
 
 namespace sl::gfx {
-namespace current {
-thread_local Window* window_;
+namespace this_thread {
 
-Window* get() { return window_; }
+thread_local window* window_;
 
-void set(Window* window) { window_ = window; }
+window* get_window() { return window_; }
 
-void load_gl() {
-    static std::once_flag gl_loaded_;
+void set_window(window* window) { window_ = window; }
 
-    std::call_once(gl_loaded_, [] {
-        ASSERT(gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) != 0);
-    });
-}
-} // namespace current
+} // namespace this_thread
 
-Window::Current::Current(Window& window) : window_{ &window } {
-    if (current::get() != window_) {
-        current::set(window_);
-        glfwMakeContextCurrent(window_->glfw_window_);
-        current::load_gl();
-    }
-}
-
-void Window::Current::enable(GLenum cap) {
-    ASSERT(current::get() == window_);
-    glEnable(cap);
-}
-
-void Window::Current::set_input_mode(int mode, int value) {
-    ASSERT(current::get() == window_);
-    glfwSetInputMode(window_->glfw_window_, mode, value);
-}
-
-int Window::Current::get_input_mode(int mode) const {
-    ASSERT(current::get() == window_);
-    return glfwGetInputMode(window_->glfw_window_, mode);
-}
-
-Vec2D Window::Current::get_cursor_pos() const {
-    ASSERT(current::get() == window_);
-    Vec2D cursor_pos;
-    glfwGetCursorPos(window_->glfw_window_, &cursor_pos.x, &cursor_pos.y);
-    return cursor_pos;
-}
-
-Vec2F Window::Current::get_content_scale() const {
-    ASSERT(current::get() == window_);
-    Vec2F content_scale;
-    glfwGetWindowContentScale(window_->glfw_window_, &content_scale.x, &content_scale.y);
-    return content_scale;
-}
-
-void Window::Current::viewport(Vec2I point, Size2I size) {
-    ASSERT(current::get() == window_);
-    glViewport(point.x, point.y, size.width, size.height);
-}
-
-void Window::Current::set_clear_color(Color4F color) {
-    ASSERT(current::get() == window_);
-    glClearColor(color.red, color.green, color.blue, color.alpha);
-}
-
-void Window::Current::clear(GLbitfield mask) {
-    ASSERT(current::get() == window_);
-    glClear(mask);
-}
-
-void Window::Current::swap_buffers() { glfwSwapBuffers(window_->glfw_window_); }
-
-bool Window::Current::is_key_pressed(int key) const {
-    ASSERT(current::get() == window_);
-    // GLFW_RELEASE = 0
-    // GLFW_PRESS = 1
-    return glfwGetKey(window_->glfw_window_, key) == GLFW_PRESS;
-}
-
-bool Window::Current::should_close() const { return glfwWindowShouldClose(window_->glfw_window_); }
-
-void Window::Current::set_should_close(bool value) { glfwSetWindowShouldClose(window_->glfw_window_, value); }
-
-std::unique_ptr<Window> Window::create(const Context&, std::string_view title, Size2I size) {
-    LOG_DEBUG("glfwCreateWindow \"{}\" ({}x{})", title, size.width, size.height);
-    GLFWwindow* const glfw_window = glfwCreateWindow(size.width, size.height, title.data(), nullptr, nullptr);
-    if (glfw_window == nullptr) {
+std::unique_ptr<window> window::create(const context&, std::string_view title, glm::ivec2 size) {
+    LOG_DEBUG("glfwCreateWindow \"{}\" ({}x{})", title, size.x, size.y);
+    GLFWwindow* const internal = glfwCreateWindow(size.x, size.y, title.data(), nullptr, nullptr);
+    if (internal == nullptr) {
         log::error("glfwCreateWindow");
         return nullptr;
     }
-
-    return std::unique_ptr<Window>{ new Window{ glfw_window } };
+    return std::unique_ptr<window>{ new window{ internal } };
 }
 
-Window::~Window() noexcept {
-    if (current::get() == this) {
-        current::set(nullptr);
+window::~window() noexcept {
+    if (this_thread::get_window() == this) {
+        this_thread::set_window(nullptr);
     }
-    glfwDestroyWindow(glfw_window_);
+    glfwDestroyWindow(internal_);
 }
 
-Window::Current Window::make_current(Vec2I point, Size2I size, Color4F color) {
-    Current current_window{ *this };
+current_window window::make_current(context& context, glm::ivec2 point, glm::ivec2 size, glm::fvec4 color) {
+    const bool context_needs_load = this_thread::get_window() != this;
+    current_window current_window{ *this };
+    if (context_needs_load) {
+        context.load_gl();
+    }
     current_window.viewport(point, size);
     current_window.set_clear_color(color);
     return current_window;
 }
 
-GLFWwindow* Window::glfw_window() const { return glfw_window_; }
+window::window(GLFWwindow* internal) : internal_{ internal } { setup_callbacks(); }
 
-Window::Window(GLFWwindow* glfw_window) : glfw_window_{ glfw_window } { setup_callbacks(); }
+void window::setup_callbacks() {
+    glfwSetWindowPosCallback(internal_, [](GLFWwindow*, int xpos, int ypos) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->window_pos_cb(glm::ivec2{ xpos, ypos });
+        }
+    });
+    glfwSetWindowSizeCallback(internal_, [](GLFWwindow*, int width, int height) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->window_size_cb(glm::ivec2{ width, height });
+        }
+    });
+    glfwSetWindowCloseCallback(internal_, [](GLFWwindow*) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->window_close_cb();
+        }
+    });
+    glfwSetWindowRefreshCallback(internal_, [](GLFWwindow*) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->window_refresh_cb();
+        }
+    });
+    glfwSetWindowFocusCallback(internal_, [](GLFWwindow*, int focused) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->window_focus_cb(focused == GLFW_TRUE);
+        }
+    });
+    glfwSetWindowIconifyCallback(internal_, [](GLFWwindow*, int iconified) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->window_iconify_cb(iconified == GLFW_TRUE);
+        }
+    });
+    glfwSetWindowMaximizeCallback(internal_, [](GLFWwindow*, int maximized) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->window_maximize_cb(maximized == GLFW_TRUE);
+        }
+    });
+    glfwSetWindowContentScaleCallback(internal_, [](GLFWwindow*, float xscale, float yscale) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->window_content_scale_cb(glm::fvec2{ xscale, yscale });
+        }
+    });
+    glfwSetFramebufferSizeCallback(internal_, [](GLFWwindow*, int width, int height) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->frame_buffer_size_cb(glm::ivec2{ width, height });
+        }
+    });
+    glfwSetKeyCallback(internal_, [](GLFWwindow*, int key, int scancode, int action, int mods) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->key_cb(key, scancode, action, mods);
+        }
+    });
+    glfwSetCharCallback(internal_, [](GLFWwindow*, unsigned int codepoint) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->char_cb(codepoint);
+        }
+    });
+    glfwSetCharModsCallback(internal_, [](GLFWwindow*, unsigned int codepoint, int mods) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->charmods_cb(codepoint, mods);
+        }
+    });
+    glfwSetMouseButtonCallback(internal_, [](GLFWwindow*, int button, int action, int mods) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->mousebutton_cb(button, action, mods);
+        }
+    });
+    glfwSetCursorPosCallback(internal_, [](GLFWwindow*, double xpos, double ypos) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->cursor_pos_cb(glm::dvec2{ xpos, ypos });
+        }
+    });
+    glfwSetCursorEnterCallback(internal_, [](GLFWwindow*, int entered) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->cursor_enter_cb(entered == GLFW_TRUE);
+        }
+    });
+    glfwSetScrollCallback(internal_, [](GLFWwindow*, double xoffset, double yoffset) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->scroll_cb(glm::dvec2{ xoffset, yoffset });
+        }
+    });
+    glfwSetDropCallback(internal_, [](GLFWwindow*, int path_count, const char* paths[]) {
+        if (window* window = this_thread::get_window(); window != nullptr) {
+            window->drop_cb(std::span<const char*>{ paths, static_cast<std::size_t>(path_count) });
+        }
+    });
+}
 
-void Window::setup_callbacks() {
-    // ew macros-es
+current_window::current_window(window& window) : window_{ &window } {
+    if (this_thread::get_window() != window_) {
+        this_thread::set_window(window_);
+        glfwMakeContextCurrent(window_->internal());
+    }
+}
 
-#define SETUP_WINDOW_CALLBACK(name)                                       \
-    glfwSet##name##Callback(glfw_window_, [](GLFWwindow*, auto... args) { \
-        Window* window = current::get();                                  \
-        if (window != nullptr) {                                          \
-            window->name##_cb(args...);                                   \
-        }                                                                 \
-    })
+void current_window::enable(GLenum cap) {
+    ASSERT(this_thread::get_window() == window_);
+    glEnable(cap);
+}
 
-    SETUP_WINDOW_CALLBACK(WindowPos);
-    SETUP_WINDOW_CALLBACK(WindowSize);
-    SETUP_WINDOW_CALLBACK(WindowClose);
-    SETUP_WINDOW_CALLBACK(WindowRefresh);
-    SETUP_WINDOW_CALLBACK(WindowFocus);
-    SETUP_WINDOW_CALLBACK(WindowIconify);
-    SETUP_WINDOW_CALLBACK(WindowMaximize);
-    SETUP_WINDOW_CALLBACK(FramebufferSize);
-    SETUP_WINDOW_CALLBACK(WindowContentScale);
-    SETUP_WINDOW_CALLBACK(Key);
-    SETUP_WINDOW_CALLBACK(Char);
-    SETUP_WINDOW_CALLBACK(CharMods);
-    SETUP_WINDOW_CALLBACK(MouseButton);
-    SETUP_WINDOW_CALLBACK(CursorPos);
-    SETUP_WINDOW_CALLBACK(CursorEnter);
-    SETUP_WINDOW_CALLBACK(Scroll);
-    SETUP_WINDOW_CALLBACK(Drop);
+void current_window::viewport(glm::ivec2 point, glm::ivec2 size) {
+    ASSERT(this_thread::get_window() == window_);
+    glViewport(point.x, point.y, size.x, size.y);
+}
 
-#undef SETUP_WINDOW_CALLBACK
+void current_window::set_clear_color(glm::fvec4 color) {
+    ASSERT(this_thread::get_window() == window_);
+    glClearColor(color.r, color.g, color.b, color.a);
+}
+
+void current_window::clear(GLbitfield mask) {
+    ASSERT(this_thread::get_window() == window_);
+    glClear(mask);
+}
+
+void current_window::swap_buffers() { glfwSwapBuffers(window_->internal()); }
+
+bool current_window::should_close() const { return glfwWindowShouldClose(window_->internal()); }
+
+void current_window::set_should_close(bool value) { glfwSetWindowShouldClose(window_->internal(), value); }
+
+int current_window::get_input_mode(int mode) const {
+    ASSERT(this_thread::get_window() == window_);
+    return glfwGetInputMode(window_->internal(), mode);
+}
+
+void current_window::set_input_mode(int mode, int value) {
+    ASSERT(this_thread::get_window() == window_);
+    glfwSetInputMode(window_->internal(), mode, value);
+}
+
+glm::dvec2 current_window::get_cursor_pos() const {
+    ASSERT(this_thread::get_window() == window_);
+    glm::dvec2 cursor_pos;
+    glfwGetCursorPos(window_->internal(), &cursor_pos.x, &cursor_pos.y);
+    return cursor_pos;
+}
+
+glm::fvec2 current_window::get_content_scale() const {
+    ASSERT(this_thread::get_window() == window_);
+    glm::fvec2 content_scale;
+    glfwGetWindowContentScale(window_->internal(), &content_scale.x, &content_scale.y);
+    return content_scale;
+}
+
+bool current_window::is_key_pressed(int key) const {
+    ASSERT(this_thread::get_window() == window_);
+    // GLFW_RELEASE = 0
+    // GLFW_PRESS = 1
+    return glfwGetKey(window_->internal(), key) == GLFW_PRESS;
 }
 
 } // namespace sl::gfx

@@ -12,16 +12,17 @@ using namespace sl::gfx;
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
-    auto ctx = ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    auto ctx = ASSERT_VAL(context::create(context::options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
 
-    const Size2I window_size{ 800, 600 };
-    const auto window = ASSERT_VAL(Window::create(*ctx, "00_blank_window", window_size));
+    constexpr glm::ivec2 window_size{ 800, 600 };
+    const auto window = ASSERT_VAL(window::create(*ctx, "00_blank_window", window_size));
 
-    (void)window->FramebufferSize_cb.connect([&window](GLsizei width, GLsizei height) {
-        Window::Current{ *window }.viewport(Vec2I{}, Size2I{ width, height });
+    (void)window->frame_buffer_size_cb.connect([&window](glm::ivec2 size) {
+        current_window{ *window }.viewport(glm::ivec2{}, size);
     });
 
-    auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
+    constexpr glm::fvec4 clear_color{ 0.2f, 0.3f, 0.3f, 1.0f };
+    auto current_window = window->make_current(*ctx, glm::ivec2{}, window_size, clear_color);
 
     while (!current_window.should_close()) {
         if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {

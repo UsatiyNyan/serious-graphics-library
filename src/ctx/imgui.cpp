@@ -6,14 +6,14 @@
 
 namespace sl::gfx {
 
-ImGuiContext::ImGuiContext(const Context::Options& ctx_options, const Window& window, Theme theme) {
+imgui_context::imgui_context(const context::options& options, const window& window, Theme theme) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window.glfw_window(), true);
-    const auto glsl_version = fmt::format("#version {}{}0", ctx_options.version_major, ctx_options.version_minor);
+    ImGui_ImplGlfw_InitForOpenGL(window.internal(), true);
+    const auto glsl_version = fmt::format("#version {}{}0", options.version_major, options.version_minor);
     ImGui_ImplOpenGL3_Init(glsl_version.c_str());
 
     // Setup ImGui style
@@ -30,19 +30,19 @@ ImGuiContext::ImGuiContext(const Context::Options& ctx_options, const Window& wi
     }
 }
 
-ImGuiContext::~ImGuiContext() {
+imgui_context::~imgui_context() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void ImGuiContext::new_frame() {
+void imgui_context::new_frame() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void ImGuiContext::render() {
+void imgui_context::render() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

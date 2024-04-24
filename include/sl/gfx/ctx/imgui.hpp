@@ -19,7 +19,7 @@
 
 namespace sl::gfx {
 
-class ImGuiContext {
+class imgui_context {
 public:
     enum class Theme {
         DARK,
@@ -27,8 +27,8 @@ public:
         CLASSIC,
     };
 
-    ImGuiContext(const Context::Options& ctx_options, const Window& window, Theme theme = Theme::DARK);
-    ~ImGuiContext();
+    imgui_context(const context::options& options, const window& window, Theme theme = Theme::DARK);
+    ~imgui_context();
 
     void new_frame();
     void render();

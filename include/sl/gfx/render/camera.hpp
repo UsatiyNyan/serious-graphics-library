@@ -32,7 +32,7 @@ struct Camera {
         return glm::lookAt(pos, pos + forward, up);
     }
 
-    glm::mat4 projection(Size2I window_size) const {
+    glm::mat4 projection(glm::ivec2 window_size) const {
         return std::visit([window_size](const auto& x) { return x.matrix(window_size); }, proj);
     }
 };
