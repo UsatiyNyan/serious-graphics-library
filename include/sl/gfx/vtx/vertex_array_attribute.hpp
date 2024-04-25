@@ -6,16 +6,15 @@
 
 #include "sl/gfx/common/vendors.hpp"
 
-#include "sl/meta/field/alignment.hpp"
-#include "sl/meta/tuple/decay.hpp"
-#include "sl/meta/tuple/tie_as_tuple.hpp"
+#include <sl/meta/field/alignment.hpp>
 
 namespace sl::gfx {
 
-struct VertexArrayAttribute {
-    // TODO(@usatiynyan): retrieve in configuration glGetIntegerv(GL_MAX_VERTEX_ATTRIBS)
-    static constexpr std::size_t MAX_ATTRIBS = 16;
+// TODO(@usatiynyan): retrieve in configuration glGetIntegerv(GL_MAX_VERTEX_ATTRIBS)
+constexpr std::size_t max_vertex_array_attributes = 16;
 
+// vertex array attribute
+struct vertex_array_attribute {
     GLuint index;
     GLint components_count;
     GLenum type;

@@ -11,49 +11,40 @@
 namespace sl::gfx {
 namespace {
 
-void vertex_attrib_pointer(const VertexArrayAttribute& attrib, GLsizei accumulated_stride) {
+void vertex_attrib_pointer(const vertex_array_attribute& attribute, GLsizei accumulated_stride) {
     LOG_DEBUG(
         "glVertexAttribPointer: index={} size={} type={} normalized={} stride={} pointer={}",
-        attrib.index,
-        attrib.components_count,
-        attrib.type,
-        attrib.normalized,
+        attribute.index,
+        attribute.components_count,
+        attribute.type,
+        attribute.normalized,
         accumulated_stride,
-        attrib.offset
+        attribute.offset
     );
     glVertexAttribPointer(
-        attrib.index,
-        attrib.components_count,
-        attrib.type,
-        attrib.normalized,
+        attribute.index,
+        attribute.components_count,
+        attribute.type,
+        attribute.normalized,
         accumulated_stride,
-        reinterpret_cast<const void*>(attrib.offset)
+        reinterpret_cast<const void*>(attribute.offset)
     );
 }
 
-void enable_vertex_attrib_array(const VertexArrayAttribute& attrib) {
+void enable_vertex_attrib_array(const vertex_array_attribute& attrib) {
     LOG_DEBUG("glEnableVertexAttribArray: {}", attrib.index);
     glEnableVertexAttribArray(attrib.index);
 }
 
 } // namespace
 
-VertexArray::Bind::Bind(const VertexArray& va)
-    : finalizer{ [](Bind& self) {
-          LOG_DEBUG("glBindVertexArray: {}", 0);
-          glBindVertexArray(0);
-      } } {
-    LOG_DEBUG("glBindVertexArray: {}", *va);
-    glBindVertexArray(*va);
-}
-
-VertexArray::VertexArray()
-    : finalizer{ [](VertexArray& self) {
+vertex_array::vertex_array()
+    : finalizer{ [](vertex_array& self) {
           // TODO(@usatiynyan): more than one VAO?
-          glDeleteVertexArrays(1, &self.object_);
-          LOG_DEBUG("glDeleteVertexArrays: {}", self.object_);
+          glDeleteVertexArrays(1, &self.internal_);
+          LOG_DEBUG("glDeleteVertexArrays: {}", self.internal_);
       } },
-      object_{ [] {
+      internal_{ [] {
           GLuint va_object = 0;
           // TODO(@usatiynyan): more than one VAO?
           glGenVertexArrays(1, &va_object);
@@ -61,13 +52,28 @@ VertexArray::VertexArray()
           return va_object;
       }() } {}
 
-VertexArray VertexArrayBuilder::submit() && {
-    ASSERT(!attribs_.empty());
-    for (const VertexArrayAttribute& attrib : attribs_) {
-        vertex_attrib_pointer(attrib, accumulated_stride_);
-        enable_vertex_attrib_array(attrib);
+bound_vertex_array::bound_vertex_array(const vertex_array& va)
+    : finalizer{ [](bound_vertex_array&) {
+          LOG_DEBUG("glBindVertexArray: {}", 0);
+          glBindVertexArray(0);
+      } } {
+    LOG_DEBUG("glBindVertexArray: {}", va.internal());
+    glBindVertexArray(va.internal());
+}
+
+void vertex_array_builder::attribute(vertex_array_attribute va_attribute) {
+    accumulated_stride_ += va_attribute.stride;
+    attributes_.push_back(va_attribute);
+}
+
+vertex_array vertex_array_builder::submit() && {
+    ASSERT(!attributes_.empty());
+    for (const vertex_array_attribute& attribute : attributes_) {
+        vertex_attrib_pointer(attribute, accumulated_stride_);
+        enable_vertex_attrib_array(attribute);
     }
-    bind_.reset();
+    bound_.reset();
     return std::move(va_).value();
 }
+
 } // namespace sl::gfx
