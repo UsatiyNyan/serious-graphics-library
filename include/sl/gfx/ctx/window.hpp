@@ -6,7 +6,6 @@
 
 #include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/ctx/context.hpp"
-#include "sl/gfx/primitives.hpp"
 
 #include <sl/meta/conn/signal.hpp>
 

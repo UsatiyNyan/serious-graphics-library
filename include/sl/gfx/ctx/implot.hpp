@@ -6,14 +6,15 @@
 
 #include "sl/gfx/ctx/imgui.hpp"
 
-#include "implot.h"
+#include <implot.h>
+
+#include <sl/meta/lifetime/finalizer.hpp>
 
 namespace sl::gfx {
 
-class implot_context {
+class implot_context : public meta::finalizer<implot_context> {
 public:
     explicit implot_context(const imgui_context&);
-    ~implot_context();
 };
 
 } // namespace sl::gfx

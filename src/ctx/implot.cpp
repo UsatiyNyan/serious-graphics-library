@@ -6,12 +6,8 @@
 
 namespace sl::gfx {
 
-implot_context::implot_context(const imgui_context&) {
+implot_context::implot_context(const imgui_context&) : finalizer{ [](implot_context&) { ImPlot::DestroyContext(); } } {
     ImPlot::CreateContext();
-}
-
-implot_context::~implot_context() {
-    ImPlot::DestroyContext();
 }
 
 } // namespace sl::gfx

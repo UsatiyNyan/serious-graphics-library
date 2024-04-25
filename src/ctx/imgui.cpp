@@ -6,7 +6,13 @@
 
 namespace sl::gfx {
 
-imgui_context::imgui_context(const context::options& options, const window& window, Theme theme) {
+imgui_context::imgui_context(const context::options& options, const window& window, Theme theme)
+    : finalizer{ [](imgui_context&) {
+          ImGui_ImplOpenGL3_Shutdown();
+          ImGui_ImplGlfw_Shutdown();
+          ImGui::DestroyContext();
+      } } {
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -28,12 +34,6 @@ imgui_context::imgui_context(const context::options& options, const window& wind
         ImGui::StyleColorsClassic();
         break;
     }
-}
-
-imgui_context::~imgui_context() {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
 
 void imgui_context::new_frame() {

@@ -8,18 +8,18 @@
 #include "sl/gfx/ctx/context.hpp"
 #include "sl/gfx/ctx/window.hpp"
 
-// clang-format off
-#include "imgui.h"
+#include <imgui.h>
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-// clang-format on
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
-#include "fmt/format.h"
+#include <sl/meta/lifetime/finalizer.hpp>
+
+#include <fmt/format.h>
 
 namespace sl::gfx {
 
-class imgui_context {
+class imgui_context : public meta::finalizer<imgui_context> {
 public:
     enum class Theme {
         DARK,
@@ -28,7 +28,6 @@ public:
     };
 
     imgui_context(const context::options& options, const window& window, Theme theme = Theme::DARK);
-    ~imgui_context();
 
     void new_frame();
     void render();
