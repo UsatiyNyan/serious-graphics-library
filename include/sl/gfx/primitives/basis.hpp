@@ -8,7 +8,7 @@
 
 namespace sl::gfx {
 
-struct Basis {
+struct basis {
     glm::vec3 x{ 1.0f, 0.0f, 0.0f };
     glm::vec3 y{ 0.0f, 1.0f, 0.0f };
     glm::vec3 z{ 0.0f, 0.0f, 1.0f };

@@ -10,7 +10,7 @@
 
 namespace sl::gfx {
 
-struct Transform {
+struct transform {
     glm::vec3 tr;
     glm::quat rot;
 
@@ -24,15 +24,15 @@ struct Transform {
     }
 };
 
-inline Transform translate(Transform tf, const glm::vec3& tr) {
+inline transform translate(transform tf, const glm::vec3& tr) {
     tf.translate(tr);
     return tf;
 }
-inline Transform rotate(Transform tf, const glm::quat& rot) {
+inline transform rotate(transform tf, const glm::quat& rot) {
     tf.rotate(rot);
     return tf;
 }
-inline Transform normalize(Transform tf) {
+inline transform normalize(transform tf) {
     tf.normalize();
     return tf;
 }

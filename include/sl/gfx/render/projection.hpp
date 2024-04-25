@@ -11,7 +11,7 @@
 
 namespace sl::gfx {
 
-struct PerspectiveProjection {
+struct perspective_projection {
     float fov; // radians
     float near;
     float far;
@@ -20,12 +20,12 @@ struct PerspectiveProjection {
     }
 };
 
-struct OrthographicProjection {
+struct orthographic_projection {
     glm::mat4 matrix(glm::ivec2 window_size) const {
         return glm::ortho(0.0f, static_cast<float>(window_size.x), static_cast<float>(window_size.x), 0.0f);
     }
 };
 
-using Projection = std::variant<PerspectiveProjection, OrthographicProjection>;
+using projection = std::variant<perspective_projection, orthographic_projection>;
 
 } // namespace sl::gfx

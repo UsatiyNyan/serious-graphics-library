@@ -13,19 +13,19 @@
 
 namespace sl::gfx {
 
-struct Camera {
-    Transform tf;
-    Projection proj;
+struct camera {
+    transform tf;
+    projection proj;
 
-    Basis basis(const Basis& world) const {
-        return Basis{
+    basis basis(const basis& world) const {
+        return gfx::basis{
             .x = tf.rot * world.x,
             .y = tf.rot * world.y,
             .z = tf.rot * world.z,
         };
     }
 
-    glm::mat4 view(const Basis& world) const {
+    glm::mat4 view(const gfx::basis& world) const {
         const glm::vec3 pos = tf.tr;
         const glm::vec3 forward = tf.rot * world.forward();
         const glm::vec3 up = tf.rot * world.up();
