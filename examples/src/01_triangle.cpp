@@ -12,7 +12,7 @@ namespace gfx = sl::gfx;
 void debug_unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
 
 template <typename T, std::size_t extent>
-void draw(const gfx::ShaderProgram& sp, const gfx::vertex_array& va, std::span<const T, extent> vertices) {
+void draw(const gfx::shader_program& sp, const gfx::vertex_array& va, std::span<const T, extent> vertices) {
     const auto sp_bind [[maybe_unused]] = sp.bind();
     const auto va_bind [[maybe_unused]] = va.bind();
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
@@ -35,10 +35,10 @@ int main(int argc [[maybe_unused]], char** argv) {
     auto current_window = window->make_current(*ctx, glm::ivec2{}, window_size, clear_color);
 
     const std::array shaders{
-        *ASSERT_VAL(gfx::Shader::load_from_file(gfx::ShaderType::VERTEX, root / "shaders/01_triangle.vert")),
-        *ASSERT_VAL(gfx::Shader::load_from_file(gfx::ShaderType::FRAGMENT, root / "shaders/01_triangle.frag")),
+        *ASSERT_VAL(gfx::shader::load_from_file(gfx::shader_type::vertex, root / "shaders/01_triangle.vert")),
+        *ASSERT_VAL(gfx::shader::load_from_file(gfx::shader_type::fragment, root / "shaders/01_triangle.frag")),
     };
-    const auto sp = *ASSERT_VAL(gfx::ShaderProgram::build(std::span{ shaders }));
+    const auto sp = *ASSERT_VAL(gfx::shader_program::build(std::span{ shaders }));
 
     gfx::vertex_array_builder va_builder;
     va_builder.attribute<3, float>();
