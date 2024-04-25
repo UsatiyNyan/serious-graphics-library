@@ -1,3 +1,12 @@
+cpmaddpackage(
+        NAME serious-runtime-library
+        GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-runtime-library.git"
+        GIT_TAG main)
+
+sl_target_link_system_libraries(${PROJECT_NAME}
+        PUBLIC
+        serious-runtime-library)
+
 sl_target_attach_directory(${PROJECT_NAME} shaders)
 sl_target_attach_directory(${PROJECT_NAME} textures)
 

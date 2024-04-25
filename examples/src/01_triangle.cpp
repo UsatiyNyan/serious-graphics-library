@@ -4,10 +4,13 @@
 
 #include "sl/gfx.hpp"
 
+#include <sl/rt.hpp>
+
 #include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 
 namespace gfx = sl::gfx;
+namespace rt = sl::rt;
 
 void debug_unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
 
@@ -18,8 +21,9 @@ void draw(const gfx::shader_program& sp, const gfx::vertex_array& va, std::span<
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 }
 
-int main(int argc [[maybe_unused]], char** argv) {
-    const auto root = std::filesystem::path{ argv[0] }.parent_path();
+int main(int argc, char** argv) {
+    const rt::context rt_ctx{ argc, argv };
+    const auto root = rt_ctx.path().parent_path();
 
     spdlog::set_level(spdlog::level::debug);
 
