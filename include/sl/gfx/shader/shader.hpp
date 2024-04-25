@@ -5,7 +5,8 @@
 #pragma once
 
 #include "sl/gfx/common/vendors.hpp"
-#include "sl/meta/lifetime/finalizer.hpp"
+
+#include <sl/meta/lifetime/finalizer.hpp>
 
 #include <tl/optional.hpp>
 

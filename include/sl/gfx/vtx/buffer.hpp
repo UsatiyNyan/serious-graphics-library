@@ -7,7 +7,8 @@
 #include "sl/gfx/common/log.hpp"
 #include "sl/gfx/common/vendors.hpp"
 
-#include "sl/meta/lifetime/finalizer.hpp"
+#include <sl/meta/lifetime/finalizer.hpp>
+#include <sl/meta/lifetime/unique.hpp>
 
 #include <span>
 #include <tl/optional.hpp>
@@ -92,8 +93,9 @@ private:
     std::size_t data_size_ = 0;
 };
 
+// we don't unbind here, since this could lead to unbinding in vertex_array
 template <typename T, buffer_type type, buffer_usage usage>
-class bound_buffer {
+class bound_buffer : public meta::unique {
 public:
     explicit bound_buffer(buffer<T, type, usage>& buffer) : buffer_{ buffer } {
         LOG_DEBUG("glBindBuffer: {}", *buffer_);

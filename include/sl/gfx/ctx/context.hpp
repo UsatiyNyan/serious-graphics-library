@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "sl/meta/lifetime/finalizer.hpp"
+#include <sl/meta/lifetime/finalizer.hpp>
 
 #include <atomic>
 #include <memory>

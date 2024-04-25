@@ -9,7 +9,7 @@
 #include "sl/gfx/vtx/buffer.hpp"
 #include "sl/gfx/vtx/vertex_array_attribute.hpp"
 
-#include "sl/meta/lifetime/finalizer.hpp"
+#include <sl/meta/lifetime/finalizer.hpp>
 
 #include <boost/container/static_vector.hpp>
 #include <tl/optional.hpp>

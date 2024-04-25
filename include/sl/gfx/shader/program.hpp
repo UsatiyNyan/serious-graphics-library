@@ -7,7 +7,7 @@
 #include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/shader/shader.hpp"
 
-#include "sl/meta/lifetime/finalizer.hpp"
+#include <sl/meta/lifetime/finalizer.hpp>
 
 #include <range/v3/view/enumerate.hpp>
 #include <span>
