@@ -11,28 +11,30 @@
 #include <fstream>
 
 namespace sl::gfx {
-tl::optional<Shader> Shader::load_from_file(ShaderType shader_type, const std::filesystem::path& shader_path) {
-    std::ifstream shader_file{ shader_path };
-    const std::string shader_source{ std::istreambuf_iterator<char>{ shader_file }, std::istreambuf_iterator<char>{} };
-    return load_from_source(shader_type, std::string_view{ shader_source });
+
+tl::optional<shader> shader::load_from_file(shader_type type, const std::filesystem::path& path) {
+    std::ifstream file{ path };
+    using istream_it = std::istreambuf_iterator<char>;
+    const std::string source{ istream_it{ file }, istream_it{} };
+    return load_from_source(type, std::string_view{ source });
 }
 
-tl::optional<Shader> Shader::load_from_source(ShaderType shader_type, std::string_view shader_source) {
-    if (shader_source.empty()) {
+tl::optional<shader> shader::load_from_source(shader_type type, std::string_view source) {
+    if (source.empty()) {
         log::error("Shader source is empty");
         return tl::nullopt;
     }
 
-    Shader shader{ shader_type };
+    shader shader{ type };
 
     // only one source is used since it is redundant to send multiple shader sources
-    LOG_DEBUG("glShaderSource: {}", shader_source);
-    const char* source_data = shader_source.data();
-    const auto source_length = static_cast<GLint>(shader_source.length());
-    glShaderSource(*shader, 1, &source_data, &source_length);
+    LOG_DEBUG("glShaderSource: {}", source);
+    const char* source_data = source.data();
+    const auto source_length = static_cast<GLint>(source.length());
+    glShaderSource(shader.internal(), 1, &source_data, &source_length);
 
-    LOG_DEBUG("glCompileShader: {}", *shader);
-    glCompileShader(*shader);
+    LOG_DEBUG("glCompileShader: {}", shader.internal());
+    glCompileShader(shader.internal());
     if (shader.get_parameter(GL_COMPILE_STATUS) == GL_FALSE) {
         log::error("Object compilation failed {}", shader.get_log());
         return tl::nullopt;
@@ -41,18 +43,19 @@ tl::optional<Shader> Shader::load_from_source(ShaderType shader_type, std::strin
     return shader;
 }
 
-Shader::Shader(ShaderType shader_type)
-    : finalizer{ [](Shader& self) {
-          LOG_DEBUG("glDeleteShader: {}", *self);
-          glDeleteShader(*self);
+shader::shader(shader_type type)
+    : finalizer{ [](shader& self) {
+          LOG_DEBUG("glDeleteShader: {}", self.internal_);
+          glDeleteShader(self.internal_);
       } },
-      object_{ glCreateShader(static_cast<GLenum>(shader_type)) } {
-    LOG_DEBUG("glCreateShader: {}", object_);
+      internal_{ glCreateShader(static_cast<GLenum>(type)) } {
+    LOG_DEBUG("glCreateShader: {}", internal_);
 }
 
-GLint Shader::get_parameter(GLenum parameter_name) const {
-    return detail::get_parameter(glGetShaderiv, object_, parameter_name);
+GLint shader::get_parameter(GLenum parameter_name) const {
+    return detail::get_parameter(glGetShaderiv, internal_, parameter_name);
 }
 
-std::string Shader::get_log() const { return detail::get_log(glGetShaderInfoLog, object_); }
+std::string shader::get_log() const { return detail::get_log(glGetShaderInfoLog, internal_); }
+
 } // namespace sl::gfx

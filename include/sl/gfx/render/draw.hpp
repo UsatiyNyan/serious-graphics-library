@@ -5,6 +5,7 @@
 #pragma once
 
 #include "sl/gfx/common/vendors.hpp"
+#include "sl/gfx/primitives/gl_type_map.hpp"
 #include "sl/gfx/shader/program.hpp"
 #include "sl/gfx/vtx/texture.hpp"
 #include "sl/gfx/vtx/vertex_array.hpp"
@@ -13,37 +14,33 @@
 
 namespace sl::gfx {
 
-namespace detail {
+template <texture_type... tex_types>
+class draw {
+    template <std::size_t unit>
+    struct activate_texture_unit {
+        template <texture_type type>
+        [[nodiscard]] constexpr auto operator()(const texture<type>& tex) {
+            return tex.template activate<unit>();
+        }
+    };
 
-template <std::size_t unit_>
-struct TextureActivate {
-    template <TextureType type_>
-    [[nodiscard]] constexpr auto operator()(const Texture<type_>& tex) {
-        return tex.template activate<unit_>();
-    }
-};
-
-} // namespace detail
-
-template <TextureType... tex_types>
-class Draw {
 public:
-    Draw(const ShaderProgram& sp, const VertexArray& va, const std::tuple<Texture<tex_types>...>& texs)
-        : sp_bind_{ sp }, va_bind_{ va }, tex_binds_{ meta::for_each_meta_enumerate<detail::TextureActivate>(texs) } {}
+    draw(const shader_program& sp, const vertex_array& va, const std::tuple<texture<tex_types>...>& texs)
+        : bound_sp_{ sp }, bound_va_{ va }, bound_texs_{ meta::for_each_meta_enumerate<activate_texture_unit>(texs) } {}
 
-    [[nodiscard]] const auto& sp_bind() const { return sp_bind_; }
-    [[nodiscard]] const auto& va_bind() const { return va_bind_; }
-    [[nodiscard]] const auto& tex_binds() const { return tex_binds_; }
+    [[nodiscard]] const auto& sp() const { return bound_sp_; }
+    [[nodiscard]] const auto& va() const { return bound_va_; }
+    [[nodiscard]] const auto& texs() const { return bound_texs_; }
 
-    template <typename DataType>
-    void elements(const Buffer<DataType, BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>& eb) {
-        glDrawElements(GL_TRIANGLES, eb.data_size(), type_map<DataType>::value, nullptr);
+    template <typename T, buffer_usage usage>
+    void elements(const buffer<T, buffer_type::element_array, usage>& eb) {
+        glDrawElements(GL_TRIANGLES, eb.data_size(), gl_type_query<T>, nullptr);
     }
 
 private:
-    ShaderProgram::Bind sp_bind_;
-    VertexArray::Bind va_bind_;
-    std::tuple<typename Texture<tex_types>::ConstBind...> tex_binds_;
+    bound_shader_program bound_sp_;
+    bound_vertex_array bound_va_;
+    std::tuple<bound_texture<tex_types>...> bound_texs_;
 };
 
 } // namespace sl::gfx

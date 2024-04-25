@@ -14,28 +14,28 @@
 #include <string_view>
 
 namespace sl::gfx {
-enum class ShaderType : GLenum {
-    COMPUTE = GL_COMPUTE_SHADER,
-    VERTEX = GL_VERTEX_SHADER,
-    GEOMETRY = GL_GEOMETRY_SHADER,
-    FRAGMENT = GL_FRAGMENT_SHADER,
+enum class shader_type : GLenum {
+    compute = GL_COMPUTE_SHADER,
+    vertex = GL_VERTEX_SHADER,
+    geometry = GL_GEOMETRY_SHADER,
+    fragment = GL_FRAGMENT_SHADER,
 };
 
-class Shader : public meta::finalizer<Shader> {
+class shader : public meta::finalizer<shader> {
 public:
-    static tl::optional<Shader> load_from_file(ShaderType shader_type, const std::filesystem::path& shader_path);
-    static tl::optional<Shader> load_from_source(ShaderType shader_type, std::string_view shader_source);
+    static tl::optional<shader> load_from_file(shader_type type, const std::filesystem::path& path);
+    static tl::optional<shader> load_from_source(shader_type type, std::string_view source);
 
 private:
-    explicit Shader(ShaderType shader_type);
+    explicit shader(shader_type type);
 
 public:
     [[nodiscard]] GLint get_parameter(GLenum parameter_name) const;
     [[nodiscard]] std::string get_log() const;
 
-    [[nodiscard]] GLuint operator*() const { return object_; }
+    [[nodiscard]] GLuint internal() const { return internal_; }
 
 private:
-    GLuint object_;
+    GLuint internal_;
 };
 } // namespace sl::gfx
