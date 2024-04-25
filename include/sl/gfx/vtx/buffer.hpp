@@ -71,8 +71,8 @@ class buffer : public meta::finalizer<buffer<T, type, usage>> {
 public:
     buffer()
         : meta::finalizer<buffer>{ [](buffer& self) {
-              glDeleteBuffers(1, &self.object_);
-              LOG_DEBUG("glDeleteBuffers: {}", self.object_);
+              glDeleteBuffers(1, &self.internal_);
+              LOG_DEBUG("glDeleteBuffers: {}", self.internal_);
           } },
           internal_{ [] {
               GLuint buffer = 0;
@@ -98,8 +98,8 @@ template <typename T, buffer_type type, buffer_usage usage>
 class bound_buffer : public meta::unique {
 public:
     explicit bound_buffer(buffer<T, type, usage>& buffer) : buffer_{ buffer } {
-        LOG_DEBUG("glBindBuffer: {}", *buffer_);
-        glBindBuffer(static_cast<GLenum>(type), *buffer_);
+        LOG_DEBUG("glBindBuffer: {}", buffer_.internal());
+        glBindBuffer(static_cast<GLenum>(type), buffer_.internal());
     }
 
     template <std::size_t size>
@@ -118,8 +118,8 @@ public:
     template <GLuint index>
         requires(type == buffer_type::shader_storage)
     void bind_base() {
-        LOG_DEBUG("glBindBufferBase: {} index={}", *buffer_, index);
-        glBindBufferBase(static_cast<GLenum>(type), index, *buffer_);
+        LOG_DEBUG("glBindBufferBase: {} index={}", buffer_.internal(), index);
+        glBindBufferBase(static_cast<GLenum>(type), index, buffer_.internal());
     }
 
     template <buffer_access access, std::size_t size>
