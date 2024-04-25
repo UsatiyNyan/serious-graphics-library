@@ -52,6 +52,8 @@ vertex_array::vertex_array()
           return va_object;
       }() } {}
 
+bound_vertex_array vertex_array::bind() const { return bound_vertex_array{ *this }; }
+
 bound_vertex_array::bound_vertex_array(const vertex_array& va)
     : finalizer{ [](bound_vertex_array&) {
           LOG_DEBUG("glBindVertexArray: {}", 0);

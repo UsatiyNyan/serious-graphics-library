@@ -38,7 +38,6 @@ public:
 };
 
 class vertex_array_builder {
-private:
     template <typename = void>
     struct extract_attribute;
 
