@@ -10,6 +10,7 @@
 #include "sl/gfx/vtx/vertex_array_attribute.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
+#include <sl/meta/lifetime/unique.hpp>
 #include <sl/meta/tuple/decay.hpp>
 #include <sl/meta/tuple/tie_as_tuple.hpp>
 
@@ -37,7 +38,7 @@ public:
     explicit bound_vertex_array(const vertex_array& va);
 };
 
-class vertex_array_builder {
+class vertex_array_builder : public meta::unique {
     template <typename = void>
     struct extract_attribute;
 
