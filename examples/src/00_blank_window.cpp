@@ -7,18 +7,18 @@
 #include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
 
-using namespace sl::gfx;
+namespace gfx = sl::gfx;
 
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
-    auto ctx = ASSERT_VAL(context::create(context::options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    auto ctx = ASSERT_VAL(gfx::context::create(gfx::context::options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
 
     constexpr glm::ivec2 window_size{ 800, 600 };
-    const auto window = ASSERT_VAL(window::create(*ctx, "00_blank_window", window_size));
+    const auto window = ASSERT_VAL(gfx::window::create(*ctx, "00_blank_window", window_size));
 
     (void)window->frame_buffer_size_cb.connect([&window](glm::ivec2 size) {
-        current_window{ *window }.viewport(glm::ivec2{}, size);
+        gfx::current_window{ *window }.viewport(glm::ivec2{}, size);
     });
 
     constexpr glm::fvec4 clear_color{ 0.2f, 0.3f, 0.3f, 1.0f };
