@@ -34,7 +34,6 @@ using buffers_type = std::tuple<
     element_buffer<unsigned>,
     gfx::vertex_array>;
 
-
 auto create_triangle_buffers(std::span<const float, 3 * 3> vertices) -> buffers_type {
     gfx::vertex_array_builder va_builder;
     va_builder.attribute<3, float>();
@@ -50,6 +49,7 @@ constexpr std::array left_triangle_vertices{
     -1.0f, -0.5f, 0.0f, // bottom left
     -1.0f, +0.5f, 0.0f, // top left
 };
+
 constexpr std::array right_triangle_vertices{
     +1.0f, -0.5f, 0.0f, // bottom right
     +0.0f, -0.5f, 0.0f, // bottom left
@@ -68,7 +68,6 @@ void draw(const gfx::shader_program& sp, const gfx::vertex_array& va, const elem
     const auto va_bind = va.bind();
     glDrawElements(GL_TRIANGLES, eb.data_size(), gfx::gl_type_query<T>, nullptr);
 }
-
 
 int main(int argc, char** argv) {
     const rt::context rt_ctx{ argc, argv };
