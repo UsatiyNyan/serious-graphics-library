@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 
         {
             const auto& [vb, eb, va] = buffers;
-            gfx::draw draw(sp, va, texs);
+            gfx::draw draw{ sp, va, texs };
             draw.elements(eb);
         }
 
