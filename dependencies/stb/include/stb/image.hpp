@@ -13,8 +13,7 @@ struct Image {
     using Deleter = void (*)(uint8_t *);
 
     std::unique_ptr<uint8_t, Deleter> data;
-    int width;
-    int height;
+    std::array<int, 2> dimensions;
     int channels;
 };
 

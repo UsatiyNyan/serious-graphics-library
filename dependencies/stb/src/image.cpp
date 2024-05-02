@@ -28,6 +28,6 @@ tl::optional<Image> image_load(const std::filesystem::path& path, int desired_ch
     if (!data) {
         return tl::nullopt;
     }
-    return Image{ std::move(data), width, height, channels };
+    return Image{ std::move(data), { width, height }, channels };
 }
 } // namespace stb

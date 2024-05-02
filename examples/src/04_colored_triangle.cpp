@@ -41,7 +41,6 @@ buffers_type create_triangle_buffers(std::span<const float, 3 * (3 + 3)> vertice
     return std::make_tuple(std::move(vb), std::move(eb), std::move(va));
 };
 
-
 void debug_unbind() {
     glUseProgram(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

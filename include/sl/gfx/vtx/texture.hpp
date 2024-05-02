@@ -60,10 +60,15 @@ public:
 };
 
 template <texture_type type>
+class texture_builder;
+
+template <texture_type type>
 class bound_texture;
 
 template <texture_type type>
 class texture : public meta::finalizer<texture<type>> {
+    friend class texture_builder<type>;
+
     texture()
         : meta::finalizer<texture>{ [](texture& self) {
               // TODO(@usatiynyan): more than one texture?
