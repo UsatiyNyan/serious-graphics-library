@@ -4,6 +4,9 @@
 
 #include "sl/gfx.hpp"
 
+#include <sl/meta/match/pmatch.hpp>
+#include <sl/rt.hpp>
+
 #include <chrono>
 #include <libassert/assert.hpp>
 #include <spdlog/spdlog.h>
@@ -14,11 +17,45 @@
 #include <glm/gtx/string_cast.hpp>
 #include <utility>
 
-using namespace sl::gfx;
+namespace gfx = sl::gfx;
+namespace rt = sl::rt;
+
+auto create_texture(const std::filesystem::path& image_path) {
+    gfx::texture_builder<gfx::texture_type::texture_2d> tex_builder;
+    tex_builder.set_wrap_s(gfx::texture_wrap::repeat);
+    tex_builder.set_wrap_t(gfx::texture_wrap::repeat);
+    tex_builder.set_min_filter(gfx::texture_filter::nearest);
+    tex_builder.set_max_filter(gfx::texture_filter::nearest);
+
+    const auto image = *ASSERT_VAL(stb::image_load(image_path, 4));
+    tex_builder.set_image(std::span{ image.dimensions }, gfx::texture_format{ GL_RGB, GL_RGBA }, image.data.get());
+    return std::move(tex_builder).submit();
+};
+
+auto create_shader(const std::filesystem::path& root, std::span<const std::string_view, 2> tex_uniform_names) {
+    const std::array<gfx::shader, 2> shaders{
+        *ASSERT_VAL(gfx::shader::load_from_file(gfx::shader_type::vertex, root / "shaders/12_cubes.vert")),
+        *ASSERT_VAL(gfx::shader::load_from_file(gfx::shader_type::fragment, root / "shaders/12_cubes.frag")),
+    };
+    auto sp = *ASSERT_VAL(gfx::shader_program::build(std::span{ shaders }));
+    auto sp_bind = sp.bind();
+    sp_bind.initialize_tex_units(tex_uniform_names);
+    auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
+    return std::make_tuple(std::move(sp), std::move(set_transform));
+};
 
 struct VT {
-    va_attrib_field<3, float> vert;
-    va_attrib_field<2, float> tex;
+    gfx::va_attrib_field<3, float> vert;
+    gfx::va_attrib_field<2, float> tex;
+};
+
+auto create_buffers(std::span<const VT, 24> vertices_w_tex_coords, std::span<const unsigned, 36> indices) {
+    gfx::vertex_array_builder va_builder;
+    va_builder.attributes_from<VT>();
+    auto vb = va_builder.buffer<gfx::buffer_type::array, gfx::buffer_usage::static_draw>(vertices_w_tex_coords);
+    auto eb = va_builder.buffer<gfx::buffer_type::element_array, gfx::buffer_usage::static_draw>(std::span{ indices });
+    auto va = std::move(va_builder).submit();
+    return std::make_tuple(std::move(vb), std::move(eb), std::move(va));
 };
 
 #pragma GCC diagnostic push
@@ -80,77 +117,43 @@ constexpr std::array cube_positions{
     glm::vec3{ -1.3f, 1.0f, -1.5f }, //
 };
 
-auto create_texture(const std::filesystem::path& image_path) {
-    TextureBuilder<TextureType::TEXTURE_2D> tex_builder;
-    tex_builder.set_wrap_s(TextureWrap::REPEAT);
-    tex_builder.set_wrap_t(TextureWrap::REPEAT);
-    tex_builder.set_min_filter(TextureFilter::NEAREST);
-    tex_builder.set_max_filter(TextureFilter::NEAREST);
+int main(int argc, char** argv) {
+    const rt::context rt_ctx{ argc, argv };
+    const auto root = rt_ctx.path().parent_path();
 
-    const auto image = *ASSERT_VAL(stb::image_load(image_path, 4));
-    tex_builder.set_image(std::array{ image.width, image.height }, TextureFormat{ GL_RGB, GL_RGBA }, image.data.get());
-    return std::move(tex_builder).submit();
-};
+    spdlog::set_level(spdlog::level::debug);
 
-auto create_shader(std::span<const std::string_view, 2> tex_uniform_names) {
-    std::array<const Shader, 2> shaders{
-        *ASSERT_VAL(Shader::load_from_file(ShaderType::VERTEX, "shaders/12_cubes.vert")),
-        *ASSERT_VAL(Shader::load_from_file(ShaderType::FRAGMENT, "shaders/12_cubes.frag")),
-    };
-    auto sp = *ASSERT_VAL(ShaderProgram::build(std::span{ shaders }));
-    auto sp_bind = sp.bind();
-    sp_bind.initialize_tex_units(tex_uniform_names);
-    auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
-    return std::make_tuple(std::move(sp), std::move(set_transform));
-};
+    auto ctx = ASSERT_VAL(gfx::context::create(gfx::context::options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
+    constexpr glm::ivec2 window_size{ 800, 600 };
+    const auto window = ASSERT_VAL(gfx::window::create(*ctx, "12_cubes", window_size));
 
-using buffers_type = std::tuple<
-    Buffer<VT, BufferType::ARRAY, BufferUsage::STATIC_DRAW>,
-    Buffer<unsigned, BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>,
-    VertexArray>;
-
-buffers_type create_buffers(std::span<const VT, 24> vt_coords) {
-    VertexArrayBuilder va_builder;
-    va_builder.attributes_from<VT>();
-    auto vb = va_builder.buffer<BufferType::ARRAY, BufferUsage::STATIC_DRAW>(vt_coords);
-    auto eb = va_builder.buffer<BufferType::ELEMENT_ARRAY, BufferUsage::STATIC_DRAW>(std::span{ indices });
-    auto va = std::move(va_builder).submit();
-    return std::make_tuple(std::move(vb), std::move(eb), std::move(va));
-};
-
-int main() {
-    spdlog::set_level(spdlog::level::info);
-
-    auto ctx = *ASSERT_VAL(Context::create(Context::Options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
-    Size2I window_size{ 800, 600 };
-    const auto window = ASSERT_VAL(Window::create(ctx, "12_cubes", window_size));
-    (void)window->FramebufferSize_cb.connect([&](GLsizei width, GLsizei height) {
-        window_size = Size2I{ width, height };
-        Window::Current{ *window }.viewport(Vec2I{}, window_size);
+    (void)window->frame_buffer_size_cb.connect([&window](glm::ivec2 size) {
+        gfx::current_window{ *window }.viewport(glm::ivec2{}, size);
     });
 
-    auto current_window = window->make_current(Vec2I{}, window_size, Color4F{ 0.2f, 0.3f, 0.3f, 1.0f });
+    constexpr glm::fvec4 clear_color{ 0.2f, 0.3f, 0.3f, 1.0f };
+    auto current_window = window->make_current(*ctx, glm::ivec2{}, window_size, clear_color);
 
     auto prev_update_time = std::chrono::steady_clock::now();
 
-    constexpr Basis world{};
+    constexpr gfx::basis world{};
 
-    Camera camera{
+    gfx::camera camera{
         .tf =
-            Transform{
+            gfx::transform{
                 .tr = glm::vec3{ 0.0f, 0.0f, 3.0f },
                 .rot = glm::angleAxis(glm::radians(-180.0f), world.up()),
             },
         .proj =
-            PerspectiveProjection{
+            gfx::perspective_projection{
                 .fov = glm::radians(45.0f),
                 .near = 0.1f,
                 .far = 100.0f,
             },
     };
 
-    const auto transform_from_keyboard = [&world](const Window::Current& cw) {
-        Transform movement{};
+    const auto transform_from_keyboard = [&world](const gfx::current_window& cw) {
+        gfx::transform movement{};
         if (cw.is_key_pressed(GLFW_KEY_W)) {
             movement.translate(world.forward());
         }
@@ -173,10 +176,9 @@ int main() {
     };
 
     current_window.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    std::optional<glm::vec2> last_cursor_pos{};
+    std::optional<glm::dvec2> last_cursor_pos{};
 
-    (void)window->CursorPos_cb.connect([&](double xpos, double ypos) {
-        const glm::vec2 cursor_pos{ xpos, ypos };
+    (void)window->cursor_pos_cb.connect([&](glm::dvec2 cursor_pos) {
         if (!last_cursor_pos.has_value()) {
             last_cursor_pos = cursor_pos;
             return;
@@ -196,43 +198,41 @@ int main() {
         camera.tf.rotate(rot_x * rot_y);
     });
 
-    (void)window->Scroll_cb.connect([&](double xoffset [[maybe_unused]], double yoffset) {
-        std::visit(
-            [yoffset](auto& x) {
-                if constexpr (std::is_same_v<std::decay_t<decltype(x)>, PerspectiveProjection>) {
-                    constexpr float zoom_sensitivity = 0.1f;
-                    const float zoom = static_cast<float>(yoffset) * zoom_sensitivity;
-                    x.fov = glm::clamp(x.fov - zoom, glm::radians(0.1f), glm::radians(90.0f));
-                    spdlog::info("fov: {}", glm::degrees(x.fov));
-                }
-            },
-            camera.proj
-        );
+    (void)window->scroll_cb.connect([&](glm::dvec2 scroll_offset) {
+        camera.proj
+            | sl::meta::pmatch{
+                  [yoffset = static_cast<float>(scroll_offset.y)](gfx::perspective_projection& x) {
+                      constexpr float zoom_sensitivity = 0.1f;
+                      const float zoom = yoffset * zoom_sensitivity;
+                      x.fov = glm::clamp(x.fov - zoom, glm::radians(0.1f), glm::radians(90.0f));
+                      spdlog::info("fov: {}", glm::degrees(x.fov));
+                  },
+                  [](auto&) {} // skip ortho
+              };
     });
 
-
-    const auto update = [&](float delta_time, const Transform& movement) {
+    const auto update = [&](float delta_time, const gfx::transform& movement) {
         constexpr float camera_acc = 2.5f;
         const float camera_speed = camera_acc * delta_time;
         camera.tf.translate(camera_speed * (camera.tf.rot * movement.tr));
     };
 
     // prepare render
-    const std::tuple texs{ create_texture("textures/cosmos.jpg"), create_texture("textures/osaka.jpg") };
+    const std::tuple texs{ create_texture(root / "textures/cosmos.jpg"), create_texture(root / "textures/osaka.jpg") };
     const std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
-    const auto shader = create_shader(std::span{ tex_uniform_names });
-    const auto buffers = create_buffers(std::span{ vertices_w_tex_coords });
+    const auto shader = create_shader(root, std::span{ tex_uniform_names });
+    const auto buffers = create_buffers(std::span{ vertices_w_tex_coords }, std::span{ indices });
     current_window.enable(GL_DEPTH_TEST);
 
     while (!current_window.should_close()) {
         // input
-        ctx.poll_events();
+        ctx->poll_events();
 
         if (current_window.is_key_pressed(GLFW_KEY_ESCAPE)) {
             current_window.set_should_close(true);
         }
 
-        const Transform movement = transform_from_keyboard(current_window);
+        const gfx::transform movement = transform_from_keyboard(current_window);
 
         // time
         const float delta_time = [&prev_update_time] {
@@ -253,7 +253,7 @@ int main() {
             const auto& [vb, eb, va] = buffers;
             const auto& [sp, set_transform] = shader;
 
-            Draw draw(sp, va, texs);
+            gfx::draw draw{ sp, va, texs };
 
             const glm::mat4 projection = camera.projection(window_size);
             const glm::mat4 view = camera.view(world);
@@ -266,7 +266,7 @@ int main() {
                     glm::vec3(1.0f, 0.3f, 0.5f)
                 );
                 const glm::mat4 transform = projection * view * model;
-                set_transform(draw.sp_bind(), glm::value_ptr(transform));
+                set_transform(draw.sp(), glm::value_ptr(transform));
                 draw.elements(eb);
             }
 
