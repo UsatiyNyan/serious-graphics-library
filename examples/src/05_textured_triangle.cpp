@@ -34,19 +34,16 @@ auto create_triangle_shader(const std::filesystem::path& root) {
     return *ASSERT_VAL(gfx::shader_program::build(std::span{ shaders }));
 };
 
-template <typename T>
-using element_buffer = gfx::buffer<T, gfx::buffer_type::element_array, gfx::buffer_usage::static_draw>;
-
 using buffers_type = std::tuple<
     gfx::buffer<float, gfx::buffer_type::array, gfx::buffer_usage::static_draw>,
-    element_buffer<unsigned>,
+    gfx::buffer<unsigned, gfx::buffer_type::element_array, gfx::buffer_usage::static_draw>,
     gfx::vertex_array>;
 
-buffers_type create_triangle_buffers(std::span<const float, 3 * (3 + 2)> vertices_w_colors) {
+buffers_type create_triangle_buffers(std::span<const float, 3 * (3 + 2)> vertices_w_tex_coords) {
     gfx::vertex_array_builder va_builder;
     va_builder.attribute<3, float>();
     va_builder.attribute<2, float>();
-    auto vb = va_builder.buffer<gfx::buffer_type::array, gfx::buffer_usage::static_draw>(vertices_w_colors);
+    auto vb = va_builder.buffer<gfx::buffer_type::array, gfx::buffer_usage::static_draw>(vertices_w_tex_coords);
     constexpr std::array<unsigned, 3> indices{ 0u, 1u, 2u };
     auto eb = va_builder.buffer<gfx::buffer_type::element_array, gfx::buffer_usage::static_draw>(std::span{ indices });
     auto va = std::move(va_builder).submit();
