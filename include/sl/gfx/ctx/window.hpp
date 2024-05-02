@@ -8,6 +8,7 @@
 #include "sl/gfx/ctx/context.hpp"
 
 #include <sl/meta/conn/signal.hpp>
+#include <sl/meta/lifetime/unique.hpp>
 
 #include <glm/glm.hpp>
 
@@ -19,7 +20,7 @@ namespace sl::gfx {
 
 class current_window;
 
-class window {
+class window : public meta::unique {
 public:
     static std::unique_ptr<window> create(const context&, std::string_view title, glm::ivec2 size);
     ~window() noexcept;
@@ -54,7 +55,7 @@ private:
     GLFWwindow* internal_;
 };
 
-class current_window {
+class current_window : public meta::unique {
 public:
     explicit current_window(window& window);
 
