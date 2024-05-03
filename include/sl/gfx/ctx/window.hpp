@@ -44,7 +44,6 @@ public:
     meta::signal<glm::ivec2> frame_buffer_size_cb;
     meta::signal<int, int, int, int> key_cb;
     meta::signal<unsigned int> char_cb;
-    meta::signal<unsigned int, int> charmods_cb;
     meta::signal<int, int, int> mousebutton_cb;
     meta::signal<glm::dvec2> cursor_pos_cb;
     meta::signal<bool> cursor_enter_cb;

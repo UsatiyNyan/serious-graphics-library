@@ -106,11 +106,6 @@ void window::setup_callbacks() {
             window->char_cb(codepoint);
         }
     });
-    glfwSetCharModsCallback(internal_, [](GLFWwindow*, unsigned int codepoint, int mods) {
-        if (window* window = this_thread::get_window(); window != nullptr) {
-            window->charmods_cb(codepoint, mods);
-        }
-    });
     glfwSetMouseButtonCallback(internal_, [](GLFWwindow*, int button, int action, int mods) {
         if (window* window = this_thread::get_window(); window != nullptr) {
             window->mousebutton_cb(button, action, mods);
