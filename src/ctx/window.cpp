@@ -108,7 +108,7 @@ void window::setup_callbacks() {
     });
     glfwSetMouseButtonCallback(internal_, [](GLFWwindow*, int button, int action, int mods) {
         if (window* window = this_thread::get_window(); window != nullptr) {
-            window->mousebutton_cb(button, action, mods);
+            window->mouse_button_cb(button, action, mods);
         }
     });
     glfwSetCursorPosCallback(internal_, [](GLFWwindow*, double xpos, double ypos) {
