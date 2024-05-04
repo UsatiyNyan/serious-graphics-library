@@ -36,9 +36,9 @@ imgui_context::imgui_context(const context::options& options, const window& wind
     }
 }
 
-imgui_frame imgui_context::new_frame() const { return imgui_frame{ *this }; }
+imgui_frame imgui_context::new_frame() { return imgui_frame{ *this }; }
 
-imgui_frame::imgui_frame(const imgui_context&)
+imgui_frame::imgui_frame(imgui_context&)
     : finalizer{ [](imgui_frame&) {
           ImGui::Render();
           ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

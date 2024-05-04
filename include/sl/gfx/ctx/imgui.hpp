@@ -32,14 +32,14 @@ public:
 
     imgui_context(const context::options& options, const window& window, Theme theme = Theme::DARK);
 
-    imgui_frame new_frame() const;
+    imgui_frame new_frame();
 };
 
 class imgui_window;
 
 class imgui_frame : public meta::finalizer<imgui_frame> {
 public:
-    explicit imgui_frame(const imgui_context&);
+    explicit imgui_frame(imgui_context&);
 
     imgui_window begin(const char* name);
 };
