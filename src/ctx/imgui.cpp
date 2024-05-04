@@ -36,15 +36,21 @@ imgui_context::imgui_context(const context::options& options, const window& wind
     }
 }
 
-void imgui_context::new_frame() {
+imgui_frame imgui_context::new_frame() const { return imgui_frame{ *this }; }
+
+imgui_frame::imgui_frame(const imgui_context&)
+    : finalizer{ [](imgui_frame&) {
+          ImGui::Render();
+          ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+      } } {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void imgui_context::render() {
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
+imgui_window imgui_frame::begin(const char* name) { return imgui_window{ *this, name }; }
+
+imgui_window::imgui_window(imgui_frame&, const char* name)
+    : finalizer{ [](imgui_window&) { ImGui::End(); } }, is_begun_{ ImGui::Begin(name) } {}
 
 } // namespace sl::gfx

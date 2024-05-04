@@ -36,11 +36,12 @@ int main() {
         }
 
         current_window.clear(GL_COLOR_BUFFER_BIT);
-        imgui_context.new_frame();
 
-        ImGui::ShowDemoWindow();
+        {
+            auto imgui_frame = imgui_context.new_frame();
+            ImGui::ShowDemoWindow();
+        }
 
-        imgui_context.render();
         current_window.swap_buffers();
     }
 

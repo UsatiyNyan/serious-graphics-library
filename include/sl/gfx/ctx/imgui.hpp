@@ -12,12 +12,15 @@
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#undef IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 
 #include <sl/meta/lifetime/finalizer.hpp>
 
 #include <fmt/format.h>
 
 namespace sl::gfx {
+
+class imgui_frame;
 
 class imgui_context : public meta::finalizer<imgui_context> {
 public:
@@ -29,8 +32,26 @@ public:
 
     imgui_context(const context::options& options, const window& window, Theme theme = Theme::DARK);
 
-    void new_frame();
-    void render();
+    imgui_frame new_frame() const;
+};
+
+class imgui_window;
+
+class imgui_frame : public meta::finalizer<imgui_frame> {
+public:
+    explicit imgui_frame(const imgui_context&);
+
+    imgui_window begin(const char* name);
+};
+
+class imgui_window : public meta::finalizer<imgui_window> {
+public:
+    explicit imgui_window(imgui_frame&, const char* name);
+
+    [[nodiscard]] operator bool() const { return is_begun_; }
+
+private:
+    bool is_begun_;
 };
 
 } // namespace sl::gfx

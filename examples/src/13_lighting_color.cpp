@@ -318,14 +318,11 @@ int main(int argc, char** argv) {
                 ImGui::GetStyle().ScaleAllSizes(window_content_scale.x);
             }
 
-            imgui_context.new_frame();
-
-            if (const sl::meta::defer imgui_end{ ImGui::End }; ImGui::Begin("light")) {
+            auto imgui_frame = imgui_context.new_frame();
+            if (const auto imgui_window = imgui_frame.begin("light")) {
                 ImGui::SliderFloat3("light pos", glm::value_ptr(source_position), -10.0f, 10.0f);
                 ImGui::ColorEdit3("light color", glm::value_ptr(source_color));
             }
-
-            imgui_context.render();
         }
 
         current_window.swap_buffers();
