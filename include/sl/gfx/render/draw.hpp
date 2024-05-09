@@ -25,8 +25,9 @@ class draw {
     };
 
 public:
-    draw(const shader_program& sp, const vertex_array& va, const std::tuple<texture<tex_types>...>& texs)
-        : bound_sp_{ sp }, bound_va_{ va }, bound_texs_{ meta::for_each_meta_enumerate<activate_texture_unit>(texs) } {}
+    draw(bound_shader_program bound_sp, const vertex_array& va, std::tuple<const texture<tex_types>&...> texs)
+        : bound_sp_{ std::move(bound_sp) }, bound_va_{ va },
+          bound_texs_{ meta::for_each_meta_enumerate<activate_texture_unit>(texs) } {}
 
     [[nodiscard]] const auto& sp() const { return bound_sp_; }
     [[nodiscard]] const auto& va() const { return bound_va_; }
