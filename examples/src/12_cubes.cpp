@@ -32,14 +32,15 @@ auto create_texture(const std::filesystem::path& image_path) {
     return std::move(tex_builder).submit();
 };
 
-auto create_shader(const std::filesystem::path& root, std::span<const std::string_view, 2> tex_uniform_names) {
+auto create_shader(const std::filesystem::path& root) {
     const std::array<gfx::shader, 2> shaders{
         *ASSERT_VAL(gfx::shader::load_from_file(gfx::shader_type::vertex, root / "shaders/12_cubes.vert")),
         *ASSERT_VAL(gfx::shader::load_from_file(gfx::shader_type::fragment, root / "shaders/12_cubes.frag")),
     };
     auto sp = *ASSERT_VAL(gfx::shader_program::build(std::span{ shaders }));
     auto sp_bind = sp.bind();
-    sp_bind.initialize_tex_units(tex_uniform_names);
+    constexpr std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
+    sp_bind.initialize_tex_units(std::span{ tex_uniform_names });
     auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
     return std::make_tuple(std::move(sp), std::move(set_transform));
 };
@@ -63,35 +64,35 @@ auto create_buffers(std::span<const VT, 24> vertices_w_tex_coords, std::span<con
 constexpr std::array vertices_w_tex_coords{
     // positions      | texture coords
     // front face
-    VT{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f }, // top right
-    VT{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f }, // bottom right
-    VT{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f }, // bottom left
-    VT{ -0.5f, 0.5f, 0.5f, 0.0f, 1.0f }, // top left
+    VT{ +0.5f, +0.5f, +0.5f, +1.0f, +1.0f }, // top right
+    VT{ +0.5f, -0.5f, +0.5f, +1.0f, +0.0f }, // bottom right
+    VT{ -0.5f, -0.5f, +0.5f, +0.0f, +0.0f }, // bottom left
+    VT{ -0.5f, +0.5f, +0.5f, +0.0f, +1.0f }, // top left
     // right face
-    VT{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f }, // top right
-    VT{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f }, // bottom right
-    VT{ 0.5f, -0.5f, -0.5f, 0.0f, 0.0f }, // bottom left
-    VT{ 0.5f, 0.5f, -0.5f, 0.0f, 1.0f }, // top left
+    VT{ +0.5f, +0.5f, +0.5f, +1.0f, +1.0f }, // top right
+    VT{ +0.5f, -0.5f, +0.5f, +1.0f, +0.0f }, // bottom right
+    VT{ +0.5f, -0.5f, -0.5f, +0.0f, +0.0f }, // bottom left
+    VT{ +0.5f, +0.5f, -0.5f, +0.0f, +1.0f }, // top left
     // back face
-    VT{ 0.5f, 0.5f, -0.5f, 1.0f, 1.0f }, // top right
-    VT{ 0.5f, -0.5f, -0.5f, 1.0f, 0.0f }, // bottom right
-    VT{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f }, // bottom left
-    VT{ -0.5f, 0.5f, -0.5f, 0.0f, 1.0f }, // top left
+    VT{ +0.5f, +0.5f, -0.5f, +1.0f, +1.0f }, // top right
+    VT{ +0.5f, -0.5f, -0.5f, +1.0f, +0.0f }, // bottom right
+    VT{ -0.5f, -0.5f, -0.5f, +0.0f, +0.0f }, // bottom left
+    VT{ -0.5f, +0.5f, -0.5f, +0.0f, +1.0f }, // top left
     // left face
-    VT{ -0.5f, 0.5f, -0.5f, 1.0f, 1.0f }, // top right
-    VT{ -0.5f, -0.5f, -0.5f, 1.0f, 0.0f }, // bottom right
-    VT{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f }, // bottom left
-    VT{ -0.5f, 0.5f, 0.5f, 0.0f, 1.0f }, // top left
+    VT{ -0.5f, +0.5f, -0.5f, +1.0f, +1.0f }, // top right
+    VT{ -0.5f, -0.5f, -0.5f, +1.0f, +0.0f }, // bottom right
+    VT{ -0.5f, -0.5f, +0.5f, +0.0f, +0.0f }, // bottom left
+    VT{ -0.5f, +0.5f, +0.5f, +0.0f, +1.0f }, // top left
     // top face
-    VT{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f }, // top right
-    VT{ 0.5f, 0.5f, -0.5f, 1.0f, 0.0f }, // bottom right
-    VT{ -0.5f, 0.5f, -0.5f, 0.0f, 0.0f }, // bottom left
-    VT{ -0.5f, 0.5f, 0.5f, 0.0f, 1.0f }, // top left
+    VT{ +0.5f, +0.5f, +0.5f, +1.0f, +1.0f }, // top right
+    VT{ +0.5f, +0.5f, -0.5f, +1.0f, +0.0f }, // bottom right
+    VT{ -0.5f, +0.5f, -0.5f, +0.0f, +0.0f }, // bottom left
+    VT{ -0.5f, +0.5f, +0.5f, +0.0f, +1.0f }, // top left
     // bottom face
-    VT{ 0.5f, -0.5f, 0.5f, 1.0f, 1.0f }, // top right
-    VT{ 0.5f, -0.5f, -0.5f, 1.0f, 0.0f }, // bottom right
-    VT{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f }, // bottom left
-    VT{ -0.5f, -0.5f, 0.5f, 0.0f, 1.0f }, // top left
+    VT{ +0.5f, -0.5f, +0.5f, +1.0f, +1.0f }, // top right
+    VT{ +0.5f, -0.5f, -0.5f, +1.0f, +0.0f }, // bottom right
+    VT{ -0.5f, -0.5f, -0.5f, +0.0f, +0.0f }, // bottom left
+    VT{ -0.5f, -0.5f, +0.5f, +0.0f, +1.0f }, // top left
 };
 #pragma GCC diagnostic pop
 
@@ -218,9 +219,9 @@ int main(int argc, char** argv) {
     };
 
     // prepare render
-    const std::tuple texs{ create_texture(root / "textures/cosmos.jpg"), create_texture(root / "textures/osaka.jpg") };
-    const std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
-    const auto shader = create_shader(root, std::span{ tex_uniform_names });
+    const auto cosmos_texture = create_texture(root / "textures/cosmos.jpg");
+    const auto osaka_texture = create_texture(root / "textures/osaka.jpg");
+    const auto shader = create_shader(root);
     const auto buffers = create_buffers(std::span{ vertices_w_tex_coords }, std::span{ indices });
     current_window.enable(GL_DEPTH_TEST);
 
@@ -253,7 +254,7 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto& [sp, set_transform] = shader;
 
-            gfx::draw draw{ sp, va, texs };
+            gfx::draw draw{ sp.bind(), va, cosmos_texture, osaka_texture };
 
             const glm::mat4 projection = camera.projection(window_size);
             const glm::mat4 view = camera.view(world);

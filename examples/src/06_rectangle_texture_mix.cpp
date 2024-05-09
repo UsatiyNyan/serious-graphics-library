@@ -81,10 +81,11 @@ int main(int argc, char** argv) {
         -0.5f, 0.5f,  0.0f, 0.0f, 1.0f // top left
     };
 
-    const std::tuple texs{ create_texture(root / "textures/cosmos.jpg"), create_texture(root / "textures/osaka.jpg") };
-    const std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
+    const auto cosmos_texture = create_texture(root / "textures/cosmos.jpg");
+    const auto osaka_texture = create_texture(root / "textures/osaka.jpg");
 
     const auto sp = create_shader(root);
+    const std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
     sp.bind().initialize_tex_units(std::span{ tex_uniform_names });
 
     const auto buffers = create_buffers(std::span{ vertices_w_tex_coords });
@@ -99,7 +100,7 @@ int main(int argc, char** argv) {
 
         {
             const auto& [vb, eb, va] = buffers;
-            gfx::draw draw{ sp, va, texs };
+            gfx::draw draw{ sp.bind(), va, cosmos_texture, osaka_texture };
             draw.elements(eb);
         }
 

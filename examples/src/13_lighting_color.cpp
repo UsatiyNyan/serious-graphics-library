@@ -281,7 +281,7 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = source_buffers;
             const auto& [sp, set_transform, set_light_color] = source_shader;
 
-            gfx::draw draw{ sp, va, {} };
+            gfx::draw draw{ sp.bind(), va };
 
             set_light_color(draw.sp(), source_color.r, source_color.g, source_color.b);
 
@@ -297,7 +297,7 @@ int main(int argc, char** argv) {
             const auto& [sp, set_model, set_transform, set_light_color, set_light_pos, set_object_color] =
                 object_shader;
 
-            gfx::draw draw{ sp, va, {} };
+            gfx::draw draw{ sp.bind(), va };
 
             set_light_color(draw.sp(), source_color.r, source_color.g, source_color.b);
             set_light_pos(draw.sp(), source_position.x, source_position.y, source_position.z);

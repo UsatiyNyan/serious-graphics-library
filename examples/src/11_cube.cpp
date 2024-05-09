@@ -28,14 +28,15 @@ auto create_texture(const std::filesystem::path& image_path) {
     return std::move(tex_builder).submit();
 };
 
-auto create_shader(const std::filesystem::path& root, std::span<const std::string_view, 2> tex_uniform_names) {
+auto create_shader(const std::filesystem::path& root) {
     const std::array<gfx::shader, 2> shaders{
         *ASSERT_VAL(gfx::shader::load_from_file(gfx::shader_type::vertex, root / "shaders/11_cube.vert")),
         *ASSERT_VAL(gfx::shader::load_from_file(gfx::shader_type::fragment, root / "shaders/11_cube.frag")),
     };
     auto sp = *ASSERT_VAL(gfx::shader_program::build(std::span{ shaders }));
     auto sp_bind = sp.bind();
-    sp_bind.initialize_tex_units(tex_uniform_names);
+    constexpr std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
+    sp_bind.initialize_tex_units(std::span{ tex_uniform_names });
     auto set_transform = *ASSERT_VAL(sp_bind.make_uniform_matrix_v_setter(glUniformMatrix4fv, "u_transform", 1, false));
     return std::make_tuple(std::move(sp), std::move(set_transform));
 };
@@ -117,9 +118,9 @@ int main(int argc, char** argv) {
     constexpr glm::fvec4 clear_color{ 0.2f, 0.3f, 0.3f, 1.0f };
     auto current_window = window->make_current(*ctx, glm::ivec2{}, window_size, clear_color);
 
-    const std::tuple texs{ create_texture(root / "textures/cosmos.jpg"), create_texture(root / "textures/osaka.jpg") };
-    const std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
-    const auto shader = create_shader(root, std::span{ tex_uniform_names });
+    const auto cosmos_texture = create_texture(root / "textures/cosmos.jpg");
+    const auto osaka_texture = create_texture(root / "textures/osaka.jpg");
+    const auto shader = create_shader(root);
     const auto buffers = create_buffers(std::span{ vertices_w_tex_coords }, std::span{ indices });
 
     current_window.enable(GL_DEPTH_TEST);
@@ -136,7 +137,7 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto& [sp, set_transform] = shader;
 
-            gfx::draw draw{ sp, va, texs };
+            gfx::draw draw{ sp.bind(), va, cosmos_texture, osaka_texture };
 
             const auto time = static_cast<float>(glfwGetTime());
 
