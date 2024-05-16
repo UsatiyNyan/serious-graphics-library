@@ -254,7 +254,7 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto& [sp, set_transform] = shader;
 
-            gfx::draw draw{ sp.bind(), va, cosmos_texture, osaka_texture };
+            gfx::draw draw{ sp.bind(), va.bind(), cosmos_texture, osaka_texture };
 
             const glm::mat4 projection = camera.projection(window_size);
             const glm::mat4 view = camera.view(world);

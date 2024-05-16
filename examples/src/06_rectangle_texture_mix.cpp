@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
 
         {
             const auto& [vb, eb, va] = buffers;
-            gfx::draw draw{ sp.bind(), va, cosmos_texture, osaka_texture };
+            gfx::draw draw{ sp.bind(), va.bind(), cosmos_texture, osaka_texture };
             draw.elements(eb);
         }
 

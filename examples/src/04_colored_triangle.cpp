@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
             const auto& [shader, buffers] = triangle;
             const auto& [sp, set_alpha_uniform] = shader;
             const auto& [vb, eb, va] = buffers;
-            gfx::draw draw{ sp.bind(), va };
+            gfx::draw draw{ sp.bind(), va.bind() };
             set_alpha_uniform(draw.sp(), alpha);
             draw.elements(eb);
         }

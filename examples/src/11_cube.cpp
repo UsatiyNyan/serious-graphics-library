@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto& [sp, set_transform] = shader;
 
-            gfx::draw draw{ sp.bind(), va, cosmos_texture, osaka_texture };
+            gfx::draw draw{ sp.bind(), va.bind(), cosmos_texture, osaka_texture };
 
             const auto time = static_cast<float>(glfwGetTime());
 
