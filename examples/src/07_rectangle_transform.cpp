@@ -115,7 +115,8 @@ int main(int argc, char** argv) {
             const auto& [sp, set_transform] = shader;
 
             const auto bound_sp = sp.bind();
-            gfx::draw draw{ bound_sp, va, cosmos_texture, osaka_texture };
+            const auto bound_va = va.bind();
+            gfx::draw draw{ bound_sp, bound_va, cosmos_texture, osaka_texture };
 
             const float current_time = static_cast<float>(glfwGetTime());
             const glm::mat4 rotated_osaker = glm::rotate( // first op

@@ -95,9 +95,9 @@ int main(int argc, char** argv) {
             const auto& [sp, set_alpha_uniform] = shader;
             const auto& [vb, eb, va] = buffers;
             const auto bound_sp = sp.bind();
-            gfx::draw draw{ bound_sp, va };
+            const auto bound_va = va.bind();
             set_alpha_uniform(bound_sp, alpha);
-            draw.elements(eb);
+            gfx::draw{ bound_sp, bound_va }.elements(eb);
         }
 
         current_window.swap_buffers();

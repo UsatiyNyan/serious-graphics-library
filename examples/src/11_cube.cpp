@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
             const auto& [sp, set_transform] = shader;
 
             const auto bound_sp = sp.bind();
-            gfx::draw draw{ bound_sp, va, cosmos_texture, osaka_texture };
+            const auto bound_va = va.bind();
 
             const auto time = static_cast<float>(glfwGetTime());
 
@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
 
             const glm::mat4 transform = projection * view * model; // leaning osaker
             set_transform(bound_sp, glm::value_ptr(transform));
-            draw.elements(eb);
+            gfx::draw{ bound_sp, bound_va, cosmos_texture, osaka_texture }.elements(eb);
         }
         current_window.swap_buffers();
     }

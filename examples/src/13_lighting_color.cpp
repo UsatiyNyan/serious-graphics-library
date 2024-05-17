@@ -282,14 +282,14 @@ int main(int argc, char** argv) {
             const auto& [sp, set_transform, set_light_color] = source_shader;
 
             const auto bound_sp = sp.bind();
-            gfx::draw draw{ bound_sp, va };
+            const auto bound_va = va.bind();
 
             set_light_color(bound_sp, source_color.r, source_color.g, source_color.b);
 
             const glm::mat4 model = glm::translate(glm::mat4(1.0f), source_position);
             const glm::mat4 transform = projection * view * model;
             set_transform(bound_sp, glm::value_ptr(transform));
-            draw.elements(eb);
+            gfx::draw{ bound_sp, bound_va }.elements(eb);
         }
 
         // objects
@@ -299,11 +299,13 @@ int main(int argc, char** argv) {
                 object_shader;
 
             const auto bound_sp = sp.bind();
-            gfx::draw draw{ bound_sp, va };
+            const auto bound_va = va.bind();
 
             set_light_color(bound_sp, source_color.r, source_color.g, source_color.b);
             set_light_pos(bound_sp, source_position.x, source_position.y, source_position.z);
             set_object_color(bound_sp, 0.61f, 0.08f, 0.90f); // #9c15e6
+
+            gfx::draw draw{ bound_sp, bound_va };
 
             for (const auto& pos : cube_positions) {
                 const glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);

@@ -113,8 +113,8 @@ int main(int argc, char** argv) {
             const auto& [tex, sp, buffers] = triangle;
             const auto& [vb, eb, va] = buffers;
             const auto bound_sp = sp.bind();
-            gfx::draw draw{ bound_sp, va, tex };
-            draw.elements(eb);
+            const auto bound_va = va.bind();
+            gfx::draw{ bound_sp, bound_va, tex }.elements(eb);
         }
 
         current_window.swap_buffers();

@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
 
         {
             const auto bound_sp = sp.bind();
-            gfx::draw draw{ bound_sp, va };
+            const auto bound_va = va.bind();
             {
                 auto mapped_ssbo = *ASSERT_VAL((ssbo.bind().map<gfx::buffer_access::write_only, 1024>()));
                 auto mapped_ssbo_data = mapped_ssbo.data();
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
                     mapped_ssbo_data[i] = std::sin(current_time - angle);
                 }
             }
-            draw.elements(eb);
+            gfx::draw{ bound_sp, bound_va }.elements(eb);
         }
 
         current_window.swap_buffers();
