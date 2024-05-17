@@ -25,13 +25,12 @@ class draw {
     };
 
 public:
-    draw(bound_shader_program bound_sp, bound_vertex_array bound_va, const texture<tex_types>&... texs)
-        : bound_sp_{ std::move(bound_sp) }, bound_va_{ std::move(bound_va) },
+    draw(const bound_shader_program& bound_sp, const vertex_array& va, const texture<tex_types>&... texs)
+        : bound_sp_{ bound_sp }, bound_va_{ va }, //
           bound_texs_{ meta::for_each_meta_enumerate<activate_texture_unit>(
               std::tuple<const texture<tex_types>&...>{ texs... } //
           ) } {}
 
-    [[nodiscard]] const auto& sp() const { return bound_sp_; }
     [[nodiscard]] const auto& va() const { return bound_va_; }
     [[nodiscard]] const auto& texs() const { return bound_texs_; }
 
@@ -41,7 +40,7 @@ public:
     }
 
 private:
-    bound_shader_program bound_sp_;
+    const bound_shader_program& bound_sp_;
     bound_vertex_array bound_va_;
     std::tuple<bound_texture<tex_types>...> bound_texs_;
 };

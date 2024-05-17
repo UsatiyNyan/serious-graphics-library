@@ -254,7 +254,8 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto& [sp, set_transform] = shader;
 
-            gfx::draw draw{ sp.bind(), va.bind(), cosmos_texture, osaka_texture };
+            const auto bound_sp = sp.bind();
+            gfx::draw draw{ bound_sp, va, cosmos_texture, osaka_texture };
 
             const glm::mat4 projection = camera.projection(window_size);
             const glm::mat4 view = camera.view(world);
@@ -267,7 +268,7 @@ int main(int argc, char** argv) {
                     glm::vec3(1.0f, 0.3f, 0.5f)
                 );
                 const glm::mat4 transform = projection * view * model;
-                set_transform(draw.sp(), glm::value_ptr(transform));
+                set_transform(bound_sp, glm::value_ptr(transform));
                 draw.elements(eb);
             }
 

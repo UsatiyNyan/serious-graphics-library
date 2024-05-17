@@ -114,7 +114,8 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto& [sp, set_transform] = shader;
 
-            gfx::draw draw{ sp.bind(), va.bind(), cosmos_texture, osaka_texture };
+            const auto bound_sp = sp.bind();
+            gfx::draw draw{ bound_sp, va, cosmos_texture, osaka_texture };
 
             const float current_time = static_cast<float>(glfwGetTime());
             const glm::mat4 rotated_osaker = glm::rotate( // first op
@@ -125,7 +126,7 @@ int main(int argc, char** argv) {
                 -current_time,
                 glm::vec3(0.0f, 0.0f, 1.0f)
             );
-            set_transform(draw.sp(), glm::value_ptr(rotated_osaker));
+            set_transform(bound_sp, glm::value_ptr(rotated_osaker));
             draw.elements(eb);
 
             const float scale_factor = (std::sin(current_time) + 1.0f) / 2.0f;
@@ -136,7 +137,7 @@ int main(int argc, char** argv) {
                 ),
                 glm::vec3(scale_factor, scale_factor, 1.0f)
             );
-            set_transform(draw.sp(), glm::value_ptr(scaled_osaker));
+            set_transform(bound_sp, glm::value_ptr(scaled_osaker));
             draw.elements(eb);
         }
 

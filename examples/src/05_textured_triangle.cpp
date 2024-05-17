@@ -112,8 +112,8 @@ int main(int argc, char** argv) {
         {
             const auto& [tex, sp, buffers] = triangle;
             const auto& [vb, eb, va] = buffers;
-            const auto tex_bind = tex.activate<TEXTURE_UNIT>();
-            gfx::draw draw{ sp.bind(), va.bind() };
+            const auto bound_sp = sp.bind();
+            gfx::draw draw{ bound_sp, va, tex };
             draw.elements(eb);
         }
 

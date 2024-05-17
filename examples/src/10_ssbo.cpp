@@ -100,7 +100,8 @@ int main(int argc, char** argv) {
         current_window.clear(GL_COLOR_BUFFER_BIT);
 
         {
-            gfx::draw draw{ sp.bind(), va.bind() };
+            const auto bound_sp = sp.bind();
+            gfx::draw draw{ bound_sp, va };
             {
                 auto mapped_ssbo = *ASSERT_VAL((ssbo.bind().map<gfx::buffer_access::write_only, 1024>()));
                 auto mapped_ssbo_data = mapped_ssbo.data();
