@@ -14,7 +14,7 @@ namespace gfx = sl::gfx;
 namespace rt = sl::rt;
 
 auto create_triangle_texture(const std::filesystem::path& root) {
-    gfx::texture_builder<gfx::texture_type::texture_2d> tex_builder;
+    gfx::texture_builder tex_builder{ gfx::texture_type::texture_2d };
     tex_builder.set_wrap_s(gfx::texture_wrap::repeat);
     tex_builder.set_wrap_t(gfx::texture_wrap::repeat);
     tex_builder.set_min_filter(gfx::texture_filter::nearest);
@@ -114,7 +114,8 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto bound_sp = sp.bind();
             const auto bound_va = va.bind();
-            gfx::draw{ bound_sp, bound_va, tex }.elements(eb);
+            const auto bound_tex = tex.activate(0);
+            gfx::draw{ bound_sp, bound_va }.elements(eb);
         }
 
         current_window.swap_buffers();

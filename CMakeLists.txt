@@ -29,7 +29,8 @@ add_library(${PROJECT_NAME}
         src/ctx/implot.cpp
         src/shader/shader.cpp
         src/shader/program.cpp
-        src/vtx/vertex_array.cpp)
+        src/vtx/vertex_array.cpp
+        src/vtx/texture.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 

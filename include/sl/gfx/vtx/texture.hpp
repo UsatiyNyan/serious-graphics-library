@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "sl/gfx/common/log.hpp"
 #include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/primitives/gl_type_map.hpp"
 
@@ -15,6 +14,9 @@
 #include <tl/optional.hpp>
 
 namespace sl::gfx {
+
+// TODO(@usatiynyan): GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
+constexpr std::size_t max_texture_units = 16;
 
 enum class texture_type : GLenum {
     texture_1d = GL_TEXTURE_1D,
@@ -59,98 +61,55 @@ public:
     GLenum input;
 };
 
-template <texture_type type>
 class texture_builder;
 
-template <texture_type type>
 class bound_texture;
 
-template <texture_type type>
-class texture : public meta::finalizer<texture<type>> {
-    friend class texture_builder<type>;
+class texture : public meta::finalizer<texture> {
+    friend class texture_builder;
 
-    texture()
-        : meta::finalizer<texture>{ [](texture& self) {
-              // TODO(@usatiynyan): more than one texture?
-              glDeleteTextures(1, &self.internal_);
-              LOG_DEBUG("glDeleteTextures: {}", self.internal_);
-          } },
-          internal_{ [] {
-              GLuint texture;
-              glGenTextures(1, &texture);
-              LOG_DEBUG("glGenTextures: {}", texture);
-              return texture;
-          }() } {}
+    explicit texture(texture_type type);
 
 public:
-    [[nodiscard]] bound_texture<type> bind();
-    [[nodiscard]] const bound_texture<type> bind() const;
-    template <std::size_t unit>
-    [[nodiscard]] const bound_texture<type> activate() const;
+    [[nodiscard]] bound_texture bind();
+    [[nodiscard]] const bound_texture bind() const;
+    [[nodiscard]] const bound_texture activate(std::size_t unit) const;
 
+    [[nodiscard]] texture_type type() const { return type_; }
     [[nodiscard]] GLuint internal() const { return internal_; }
 
 private:
+    texture_type type_;
     GLuint internal_;
 };
 
-template <texture_type type>
 class bound_texture
     : public
 #ifdef NDEBUG
       meta::unique
 #else
-      meta::finalizer<bound_texture<type>>
+      meta::finalizer<bound_texture>
 #endif
 {
 public:
-    explicit bound_texture(const texture<type>& texture)
-#ifndef NDEBUG
-        : meta::finalizer<bound_texture>{ [](bound_texture&) {
-              glBindTexture(static_cast<GLenum>(type), 0);
-              LOG_DEBUG("glBindTexture({}): 0", static_cast<GLenum>(type));
-          } }
-#endif
-    {
-        glBindTexture(static_cast<GLenum>(type), texture.internal());
-        LOG_DEBUG("glBindTexture({}): {}", static_cast<GLenum>(type), texture.internal());
-    }
+    explicit bound_texture(const texture& texture);
 
-    void set_parameter(GLenum key, GLint value) { glTexParameteri(static_cast<GLenum>(type), key, value); }
+    void set_parameter(GLenum key, GLint value);
+
+private:
+    texture_type type_;
 };
 
-template <texture_type type>
-bound_texture<type> texture<type>::bind() {
-    return bound_texture{ *this };
-}
-
-template <texture_type type>
-const bound_texture<type> texture<type>::bind() const {
-    return bound_texture{ *this };
-}
-
-template <texture_type type>
-template <std::size_t unit>
-const bound_texture<type> texture<type>::activate() const {
-    // TODO(@usatiynyan): static_assert(index < GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-    static_assert(unit < 16, "texture_units can be < 16, if this is incorrect check TODO above");
-    glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(unit));
-    return bind();
-}
-
-template <texture_type type>
 class texture_builder : public meta::unique {
 public:
-    void set_wrap_s(texture_wrap wrap) { bound_->set_parameter(GL_TEXTURE_WRAP_S, static_cast<GLint>(wrap)); }
-    void set_wrap_t(texture_wrap wrap) { bound_->set_parameter(GL_TEXTURE_WRAP_T, static_cast<GLint>(wrap)); }
-    void set_wrap_r(texture_wrap wrap) { bound_->set_parameter(GL_TEXTURE_WRAP_R, static_cast<GLint>(wrap)); }
+    explicit texture_builder(texture_type type);
 
-    void set_min_filter(texture_filter filter) {
-        bound_->set_parameter(GL_TEXTURE_MIN_FILTER, static_cast<GLint>(filter));
-    }
-    void set_max_filter(texture_filter filter) {
-        bound_->set_parameter(GL_TEXTURE_MAG_FILTER, static_cast<GLint>(filter));
-    }
+    void set_wrap_s(texture_wrap wrap);
+    void set_wrap_t(texture_wrap wrap);
+    void set_wrap_r(texture_wrap wrap);
+
+    void set_min_filter(texture_filter filter);
+    void set_max_filter(texture_filter filter);
 
     template <std::size_t dimensions_extent, typename T>
     void set_image(
@@ -158,52 +117,38 @@ public:
         texture_format format,
         const T* data,
         GLint lod = 0
-    ) {
-        if constexpr (dimensions_extent == 1ul) {
-            glTexImage1D(
-                static_cast<GLenum>(type), lod, format.internal, dimensions[0], 0, format.input, gl_type_query<T>, data
-            );
-        } else if constexpr (dimensions_extent == 2ul) {
-            glTexImage2D(
-                static_cast<GLenum>(type),
-                lod,
-                format.internal,
-                dimensions[0],
-                dimensions[1],
-                0,
-                format.input,
-                gl_type_query<T>,
-                data
-            );
-        } else if constexpr (dimensions_extent == 3ul) {
-            glTexImage3D(
-                static_cast<GLenum>(type),
-                lod,
-                format.internal,
-                dimensions[0],
-                dimensions[1],
-                dimensions[2],
-                0,
-                format.input,
-                gl_type_query<T>,
-                data
-            );
-        } else {
-            static_assert(dimensions_extent <= 3ul, "only up to 3 dimensions");
-        }
-    }
+    );
 
-    texture<type> submit(bool generate_mipmap = true) && {
-        if (generate_mipmap) {
-            glGenerateMipmap(static_cast<GLenum>(type));
-        }
-        bound_.reset();
-        return std::move(tex_).value();
-    }
+    texture submit(bool generate_mipmap = true) &&;
 
 private:
-    tl::optional<texture<type>> tex_{ texture<type>{} };
-    tl::optional<bound_texture<type>> bound_{ tl::in_place, *tex_ };
+    tl::optional<texture> tex_;
+    tl::optional<bound_texture> bound_;
 };
+
+template <std::size_t dimensions_extent, typename T>
+void texture_builder::set_image(
+    std::span<const GLsizei, dimensions_extent> dimensions,
+    texture_format format,
+    const T* data,
+    GLint lod
+) {
+    const GLenum tex_type = static_cast<GLenum>(tex_->type());
+    if constexpr (dimensions_extent == 1ul) {
+        const GLsizei x = dimensions[0];
+        glTexImage1D(tex_type, lod, format.internal, x, 0, format.input, gl_type_query<T>, data);
+    } else if constexpr (dimensions_extent == 2ul) {
+        const GLsizei x = dimensions[0];
+        const GLsizei y = dimensions[1];
+        glTexImage2D(tex_type, lod, format.internal, x, y, 0, format.input, gl_type_query<T>, data);
+    } else if constexpr (dimensions_extent == 3ul) {
+        const GLsizei x = dimensions[0];
+        const GLsizei y = dimensions[1];
+        const GLsizei z = dimensions[2];
+        glTexImage3D(tex_type, lod, format.internal, x, y, z, 0, format.input, gl_type_query<T>, data);
+    } else {
+        static_assert(dimensions_extent <= 3ul, "only up to 3 dimensions");
+    }
+}
 
 } // namespace sl::gfx

@@ -14,7 +14,7 @@ namespace gfx = sl::gfx;
 namespace rt = sl::rt;
 
 auto create_texture(const std::filesystem::path& image_path) {
-    gfx::texture_builder<gfx::texture_type::texture_2d> tex_builder;
+    gfx::texture_builder tex_builder{ gfx::texture_type::texture_2d };
     tex_builder.set_wrap_s(gfx::texture_wrap::repeat);
     tex_builder.set_wrap_t(gfx::texture_wrap::repeat);
     tex_builder.set_min_filter(gfx::texture_filter::nearest);
@@ -81,8 +81,10 @@ int main(int argc, char** argv) {
         -0.5f, 0.5f,  0.0f, 0.0f, 1.0f // top left
     };
 
-    const auto cosmos_texture = create_texture(root / "textures/cosmos.jpg");
-    const auto osaka_texture = create_texture(root / "textures/osaka.jpg");
+    const std::array<gfx::texture, 2> textures{
+        create_texture(root / "textures/cosmos.jpg"),
+        create_texture(root / "textures/osaka.jpg"),
+    };
 
     const auto sp = create_shader(root);
     const std::array<std::string_view, 2> tex_uniform_names{ "us_texture_bg", "us_texture_fg" };
@@ -102,7 +104,7 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto bound_sp = sp.bind();
             const auto bound_va = va.bind();
-            gfx::draw{ bound_sp, bound_va, cosmos_texture, osaka_texture }.elements(eb);
+            gfx::draw{ bound_sp, bound_va, std::span{ textures } }.elements(eb);
         }
 
         current_window.swap_buffers();

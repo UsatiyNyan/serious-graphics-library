@@ -21,7 +21,7 @@ namespace gfx = sl::gfx;
 namespace rt = sl::rt;
 
 auto create_texture(const std::filesystem::path& image_path) {
-    gfx::texture_builder<gfx::texture_type::texture_2d> tex_builder;
+    gfx::texture_builder tex_builder{ gfx::texture_type::texture_2d };
     tex_builder.set_wrap_s(gfx::texture_wrap::repeat);
     tex_builder.set_wrap_t(gfx::texture_wrap::repeat);
     tex_builder.set_min_filter(gfx::texture_filter::nearest);
@@ -219,8 +219,10 @@ int main(int argc, char** argv) {
     };
 
     // prepare render
-    const auto cosmos_texture = create_texture(root / "textures/cosmos.jpg");
-    const auto osaka_texture = create_texture(root / "textures/osaka.jpg");
+    const std::array<gfx::texture, 2> textures{
+        create_texture(root / "textures/cosmos.jpg"),
+        create_texture(root / "textures/osaka.jpg"),
+    };
     const auto shader = create_shader(root);
     const auto buffers = create_buffers(std::span{ vertices_w_tex_coords }, std::span{ indices });
     current_window.enable(GL_DEPTH_TEST);
@@ -256,7 +258,7 @@ int main(int argc, char** argv) {
 
             const auto bound_sp = sp.bind();
             const auto bound_va = va.bind();
-            gfx::draw draw{ bound_sp, bound_va, cosmos_texture, osaka_texture };
+            gfx::draw draw{ bound_sp, bound_va, std::span{ textures } };
 
             const glm::mat4 projection = camera.projection(window_size);
             const glm::mat4 view = camera.view(world);

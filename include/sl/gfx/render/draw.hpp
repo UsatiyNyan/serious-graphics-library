@@ -10,27 +10,30 @@
 #include "sl/gfx/vtx/texture.hpp"
 #include "sl/gfx/vtx/vertex_array.hpp"
 
-#include <sl/meta/tuple/for_each_meta_enumerate.hpp>
+#include <boost/container/small_vector.hpp>
+#include <range/v3/view/enumerate.hpp>
 
 namespace sl::gfx {
 
-template <texture_type... tex_types>
 class draw {
-    template <std::size_t unit>
-    struct activate_texture_unit {
-        template <texture_type type>
-        [[nodiscard]] constexpr auto operator()(const texture<type>& tex) {
-            return tex.template activate<unit>();
-        }
-    };
+    using bound_textures_container = boost::container::small_vector<bound_texture, max_texture_units>;
 
 public:
-    draw(const bound_shader_program&, const bound_vertex_array&, const texture<tex_types>&... texs)
-        : bound_texs_{ meta::for_each_meta_enumerate<activate_texture_unit>(
-              std::tuple<const texture<tex_types>&...>{ texs... } //
-          ) } {}
+    template <std::size_t textures_extent = 0>
+    draw(
+        const bound_shader_program&,
+        const bound_vertex_array&,
+        std::span<const texture, textures_extent> textures = {}
+    )
+        : bound_textures_{ [textures] {
+              bound_textures_container bound_textures;
+              for (const auto& [unit, texture] : ranges::views::enumerate(textures)) {
+                  bound_textures.push_back(texture.activate(unit));
+              }
+              return bound_textures;
+          }() } {}
 
-    [[nodiscard]] const auto& texs() const { return bound_texs_; }
+    [[nodiscard]] const auto& texs() const { return bound_textures_; }
 
     template <typename T, buffer_usage usage>
     void elements(const buffer<T, buffer_type::element_array, usage>& eb) {
@@ -38,7 +41,7 @@ public:
     }
 
 private:
-    std::tuple<bound_texture<tex_types>...> bound_texs_;
+    bound_textures_container bound_textures_;
 };
 
 } // namespace sl::gfx
