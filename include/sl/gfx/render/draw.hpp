@@ -12,6 +12,7 @@
 
 #include <boost/container/small_vector.hpp>
 #include <range/v3/view/enumerate.hpp>
+#include <sl/meta/lifetime/lazy_eval.hpp>
 
 namespace sl::gfx {
 
@@ -28,7 +29,7 @@ public:
         : bound_textures_{ [textures] {
               bound_textures_container bound_textures;
               for (const auto& [unit, texture] : ranges::views::enumerate(textures)) {
-                  bound_textures.push_back(texture.activate(unit));
+                  bound_textures.emplace_back(meta::lazy_eval{ [&u = unit, &t = texture] { return t.activate(u); } });
               }
               return bound_textures;
           }() } {}

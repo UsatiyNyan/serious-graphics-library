@@ -15,8 +15,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include <sl/meta/lifetime/defer.hpp>
-
 #include <chrono>
 #include <utility>
 
