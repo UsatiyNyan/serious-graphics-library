@@ -104,7 +104,8 @@ int main(int argc, char** argv) {
             const auto& [vb, eb, va] = buffers;
             const auto bound_sp = sp.bind();
             const auto bound_va = va.bind();
-            gfx::draw{ bound_sp, bound_va, std::span{ textures } }.elements(eb);
+            const auto bound_texs = gfx::activate_textures(textures);
+            gfx::draw{ bound_sp, bound_va, bound_texs }.elements(eb);
         }
 
         current_window.swap_buffers();

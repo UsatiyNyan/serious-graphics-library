@@ -141,6 +141,7 @@ int main(int argc, char** argv) {
 
             const auto bound_sp = sp.bind();
             const auto bound_va = va.bind();
+            const auto bound_texs = gfx::activate_textures(textures);
 
             const auto time = static_cast<float>(glfwGetTime());
 
@@ -152,7 +153,8 @@ int main(int argc, char** argv) {
 
             const glm::mat4 transform = projection * view * model; // leaning osaker
             set_transform(bound_sp, glm::value_ptr(transform));
-            gfx::draw{ bound_sp, bound_va, std::span{ textures } }.elements(eb);
+
+            gfx::draw{ bound_sp, bound_va, bound_texs }.elements(eb);
         }
         current_window.swap_buffers();
     }

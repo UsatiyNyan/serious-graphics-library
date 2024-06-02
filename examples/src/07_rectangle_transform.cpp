@@ -118,7 +118,8 @@ int main(int argc, char** argv) {
 
             const auto bound_sp = sp.bind();
             const auto bound_va = va.bind();
-            gfx::draw draw{ bound_sp, bound_va, std::span{ textures } };
+            const auto bound_texs = gfx::activate_textures(textures);
+            gfx::draw draw{ bound_sp, bound_va, bound_texs };
 
             const float current_time = static_cast<float>(glfwGetTime());
             const glm::mat4 rotated_osaker = glm::rotate( // first op

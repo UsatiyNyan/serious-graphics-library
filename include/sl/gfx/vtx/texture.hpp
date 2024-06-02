@@ -8,8 +8,11 @@
 #include "sl/gfx/primitives/gl_type_map.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
+#include <sl/meta/lifetime/lazy_eval.hpp>
 #include <sl/meta/lifetime/unique.hpp>
 
+#include <boost/container/small_vector.hpp>
+#include <range/v3/view/enumerate.hpp>
 #include <span>
 #include <tl/optional.hpp>
 
@@ -149,6 +152,17 @@ void texture_builder::set_image(
     } else {
         static_assert(dimensions_extent <= 3ul, "only up to 3 dimensions");
     }
+}
+
+using bound_textures = boost::container::small_vector<bound_texture, max_texture_units>;
+
+template <typename texture_range>
+bound_textures activate_textures(texture_range&& textures) {
+    bound_textures bound_textures;
+    for (const auto& [unit, texture] : ranges::views::enumerate(std::forward<texture_range>(textures))) {
+        bound_textures.emplace_back(meta::lazy_eval{ [&u = unit, &t = texture] { return t.activate(u); } });
+    }
+    return bound_textures;
 }
 
 } // namespace sl::gfx
