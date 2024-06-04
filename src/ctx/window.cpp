@@ -21,7 +21,7 @@ void set_window(window* window) { window_ = window; }
 } // namespace this_thread
 
 std::unique_ptr<window> window::create(const context&, std::string_view title, glm::ivec2 size) {
-    LOG_DEBUG("glfwCreateWindow \"{}\" ({}x{})", title, size.x, size.y);
+    log::trace("glfwCreateWindow \"{}\" ({}x{})", title, size.x, size.y);
     GLFWwindow* const internal = glfwCreateWindow(size.x, size.y, title.data(), nullptr, nullptr);
     if (internal == nullptr) {
         log::error("glfwCreateWindow");

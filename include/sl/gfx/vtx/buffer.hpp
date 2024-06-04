@@ -72,13 +72,13 @@ public:
     buffer()
         : meta::finalizer<buffer>{ [](buffer& self) {
               glDeleteBuffers(1, &self.internal_);
-              LOG_DEBUG("glDeleteBuffers: {}", self.internal_);
+              log::trace("glDeleteBuffers: {}", self.internal_);
           } },
           internal_{ [] {
               GLuint buffer = 0;
               // TODO(@usatiynyan): more than one buffer?
               glGenBuffers(1, &buffer);
-              LOG_DEBUG("glGenBuffers: {}", buffer);
+              log::trace("glGenBuffers: {}", buffer);
               return buffer;
           }() } {}
 
@@ -98,19 +98,19 @@ template <typename T, buffer_type type, buffer_usage usage>
 class bound_buffer : public meta::unique {
 public:
     explicit bound_buffer(buffer<T, type, usage>& buffer) : buffer_{ buffer } {
-        LOG_DEBUG("glBindBuffer: {}", buffer_.internal());
+        log::trace("glBindBuffer: {}", buffer_.internal());
         glBindBuffer(static_cast<GLenum>(type), buffer_.internal());
     }
 
     template <std::size_t size>
     void initialize_data() {
-        LOG_DEBUG("glBufferData: size={}, data=nullptr", size);
+        log::trace("glBufferData: size={}, data=nullptr", size);
         glBufferData(static_cast<GLenum>(type), sizeof(T) * size, nullptr, static_cast<GLenum>(usage));
         buffer_.data_size_ = size;
     }
     template <std::size_t extent>
     void set_data(std::span<const T, extent> data) {
-        LOG_DEBUG("glBufferData: size={}", data.size());
+        log::trace("glBufferData: size={}", data.size());
         glBufferData(static_cast<GLenum>(type), sizeof(T) * data.size(), data.data(), static_cast<GLenum>(usage));
         buffer_.data_size_ = data.size();
     }
@@ -118,7 +118,7 @@ public:
     template <GLuint index>
         requires(type == buffer_type::shader_storage)
     void bind_base() {
-        LOG_DEBUG("glBindBufferBase: {} index={}", buffer_.internal(), index);
+        log::trace("glBindBufferBase: {} index={}", buffer_.internal(), index);
         glBindBufferBase(static_cast<GLenum>(type), index, buffer_.internal());
     }
 

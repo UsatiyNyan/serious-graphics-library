@@ -28,12 +28,12 @@ tl::optional<shader> shader::load_from_source(shader_type type, std::string_view
     shader shader{ type };
 
     // only one source is used since it is redundant to send multiple shader sources
-    LOG_DEBUG("glShaderSource: {}", source);
+    log::trace("glShaderSource: {}", source);
     const char* source_data = source.data();
     const auto source_length = static_cast<GLint>(source.length());
     glShaderSource(shader.internal(), 1, &source_data, &source_length);
 
-    LOG_DEBUG("glCompileShader: {}", shader.internal());
+    log::trace("glCompileShader: {}", shader.internal());
     glCompileShader(shader.internal());
     if (shader.get_parameter(GL_COMPILE_STATUS) == GL_FALSE) {
         log::error("Object compilation failed {}", shader.get_log());
@@ -45,11 +45,11 @@ tl::optional<shader> shader::load_from_source(shader_type type, std::string_view
 
 shader::shader(shader_type type)
     : finalizer{ [](shader& self) {
-          LOG_DEBUG("glDeleteShader: {}", self.internal_);
+          log::trace("glDeleteShader: {}", self.internal_);
           glDeleteShader(self.internal_);
       } },
       internal_{ glCreateShader(static_cast<GLenum>(type)) } {
-    LOG_DEBUG("glCreateShader: {}", internal_);
+    log::trace("glCreateShader: {}", internal_);
 }
 
 GLint shader::get_parameter(GLenum parameter_name) const {

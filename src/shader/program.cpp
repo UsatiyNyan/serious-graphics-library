@@ -13,11 +13,11 @@
 namespace sl::gfx {
 shader_program::shader_program()
     : finalizer{ [](shader_program& self) {
-          LOG_DEBUG("glDeleteProgram: {}", self.internal_);
+          log::trace("glDeleteProgram: {}", self.internal_);
           glDeleteProgram(self.internal_);
       } },
       internal_{ glCreateProgram() } {
-    LOG_DEBUG("glCreateProgram: {}", internal_);
+    log::trace("glCreateProgram: {}", internal_);
 }
 
 bound_shader_program shader_program::bind() const { return bound_shader_program{ *this }; }
@@ -40,7 +40,7 @@ bool shader_program::link() {
 }
 
 bound_shader_program::bound_shader_program(const shader_program& sp) : sp_{ sp } {
-    LOG_DEBUG("glUseProgram: {}", sp_.internal());
+    log::trace("glUseProgram: {}", sp_.internal());
     glUseProgram(sp_.internal());
 }
 
@@ -50,7 +50,7 @@ tl::optional<GLint> bound_shader_program::get_uniform_location(std::string_view 
         log::error("uniform {} location not found", uniform_name);
         return tl::nullopt;
     }
-    LOG_DEBUG("glGetUniformLocation({}, {}): {}", sp_.internal(), uniform_name, uniform_location);
+    log::trace("glGetUniformLocation({}, {}): {}", sp_.internal(), uniform_name, uniform_location);
     return uniform_location;
 }
 
