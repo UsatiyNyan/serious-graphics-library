@@ -103,12 +103,13 @@ int main(int argc, char** argv) {
             const auto bound_sp = sp.bind();
             const auto bound_va = va.bind();
             {
-                auto mapped_ssbo = *ASSERT_VAL((ssbo.bind().map<gfx::buffer_access::write_only, 1024>()));
+                auto maybe_mapped_ssbo = ssbo.bind().map<gfx::buffer_access::write_only>();
+                auto mapped_ssbo = *ASSERT_VAL(std::move(maybe_mapped_ssbo));
                 auto mapped_ssbo_data = mapped_ssbo.data();
                 const float current_time = static_cast<float>(glfwGetTime());
                 for (std::size_t i = 0; i != mapped_ssbo_data.size(); ++i) {
-                    const float angle =
-                        (static_cast<float>(i) / mapped_ssbo_data.size()) * 2 * std::numbers::pi_v<float>;
+                    const float angle = (static_cast<float>(i) / static_cast<float>(mapped_ssbo_data.size())) * 2
+                                        * std::numbers::pi_v<float>;
                     mapped_ssbo_data[i] = std::sin(current_time - angle);
                 }
             }

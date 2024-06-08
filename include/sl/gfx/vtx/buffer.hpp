@@ -1,11 +1,12 @@
 //
-// Created by usatiynyan on 11/26/23.
+// Created by usatiynyan.
 //
 
 #pragma once
 
 #include "sl/gfx/common/log.hpp"
 #include "sl/gfx/common/vendors.hpp"
+#include "sl/gfx/detail/parameter.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
 #include <sl/meta/lifetime/unique.hpp>
@@ -61,7 +62,7 @@ enum class buffer_access : GLenum {
 template <typename T, buffer_type type, buffer_usage usage>
 class bound_buffer;
 
-template <typename T, buffer_type type, buffer_access access, std::size_t size>
+template <typename T, buffer_type type, buffer_access access>
 class mapped_buffer;
 
 template <typename T, buffer_type type, buffer_usage usage>
@@ -88,6 +89,8 @@ public:
     [[nodiscard]] std::size_t data_size() const { return data_size_; }
     [[nodiscard]] GLuint internal() const { return internal_; }
 
+    // TODO: get_parameter, need to update bindings (glad)
+
 private:
     GLuint internal_;
     std::size_t data_size_ = 0;
@@ -105,14 +108,36 @@ public:
     template <std::size_t size>
     void initialize_data() {
         log::trace("glBufferData: size={}, data=nullptr", size);
-        glBufferData(static_cast<GLenum>(type), sizeof(T) * size, nullptr, static_cast<GLenum>(usage));
+        glBufferData( //
+            static_cast<GLenum>(type),
+            static_cast<GLsizeiptr>(sizeof(T) * size),
+            nullptr,
+            static_cast<GLenum>(usage)
+        );
         buffer_.data_size_ = size;
     }
     template <std::size_t extent>
     void set_data(std::span<const T, extent> data) {
         log::trace("glBufferData: size={}", data.size());
-        glBufferData(static_cast<GLenum>(type), sizeof(T) * data.size(), data.data(), static_cast<GLenum>(usage));
+        glBufferData(
+            static_cast<GLenum>(type),
+            static_cast<GLsizeiptr>(sizeof(T) * data.size()),
+            data.data(),
+            static_cast<GLenum>(usage)
+        );
         buffer_.data_size_ = data.size();
+    }
+    // TODO: add tests!
+    template <std::size_t extent>
+    void set_sub_data(std::span<const T, extent> data, std::size_t offset = 0) {
+        log::trace("glBufferSubData: size={} offset={}", data.size(), offset);
+        ASSERT(offset + data.size() <= buffer_.data_size());
+        glBufferSubData(
+            static_cast<GLenum>(type),
+            static_cast<GLintptr>(sizeof(T) * offset),
+            static_cast<GLsizeiptr>(sizeof(T) * data.size()),
+            data.data()
+        );
     }
 
     template <GLuint index>
@@ -122,37 +147,38 @@ public:
         glBindBufferBase(static_cast<GLenum>(type), index, buffer_.internal());
     }
 
-    template <buffer_access access, std::size_t size>
-    [[nodiscard]] tl::optional<mapped_buffer<T, type, access, size>> map();
-    template <std::size_t size>
-    [[nodiscard]] tl::optional<mapped_buffer<T, type, buffer_access::read_only, size>> map() const;
+    [[nodiscard]] GLint get_parameter(GLenum name) const {
+        return detail::get_parameter(glGetBufferParameteriv, static_cast<GLenum>(type), name);
+    }
+
+    template <buffer_access access>
+    [[nodiscard]] tl::optional<mapped_buffer<T, type, access>> map();
+    [[nodiscard]] tl::optional<mapped_buffer<T, type, buffer_access::read_only>> map() const;
 
 private:
     buffer<T, type, usage>& buffer_;
 };
 
-template <typename T, buffer_type type, buffer_access access, std::size_t size>
-class mapped_buffer : public meta::finalizer<mapped_buffer<T, type, access, size>> {
-    mapped_buffer(T* data)
-        : meta::finalizer<mapped_buffer<T, type, access, size>>{ [](mapped_buffer&) {
-              glUnmapBuffer(static_cast<GLenum>(type));
-          } },
+template <typename T, buffer_type type, buffer_access access>
+class mapped_buffer : public meta::finalizer<mapped_buffer<T, type, access>> {
+    mapped_buffer(T* data, std::size_t size)
+        : meta::finalizer<mapped_buffer>{ [](mapped_buffer&) { glUnmapBuffer(static_cast<GLenum>(type)); } },
           data_{ data, size } {}
 
 public:
-    static tl::optional<mapped_buffer> create() {
+    static tl::optional<mapped_buffer> create(std::size_t size) {
         void* data = glMapBuffer(static_cast<GLenum>(type), static_cast<GLenum>(access));
         if (data == nullptr) {
             return tl::nullopt;
         }
-        return mapped_buffer(static_cast<T*>(data));
+        return mapped_buffer{ static_cast<T*>(data), size };
     }
 
     [[nodiscard]] auto data() { return data_; }
     [[nodiscard]] auto data() const { return data_; }
 
 private:
-    std::span<T, size> data_;
+    std::span<T> data_;
 };
 
 template <typename T, buffer_type type, buffer_usage usage>
@@ -166,15 +192,14 @@ const bound_buffer<T, type, usage> buffer<T, type, usage>::bind() const {
 }
 
 template <typename T, buffer_type type, buffer_usage usage>
-template <buffer_access access, std::size_t size>
-tl::optional<mapped_buffer<T, type, access, size>> bound_buffer<T, type, usage>::map() {
-    return mapped_buffer<T, type, access, size>::create();
+template <buffer_access access>
+tl::optional<mapped_buffer<T, type, access>> bound_buffer<T, type, usage>::map() {
+    return mapped_buffer<T, type, access>::create(buffer_.data_size());
 }
 
 template <typename T, buffer_type type, buffer_usage usage>
-template <std::size_t size>
-tl::optional<mapped_buffer<T, type, buffer_access::read_only, size>> bound_buffer<T, type, usage>::map() const {
-    return mapped_buffer<T, type, buffer_access::read_only, size>::create();
+tl::optional<mapped_buffer<T, type, buffer_access::read_only>> bound_buffer<T, type, usage>::map() const {
+    return mapped_buffer<T, type, buffer_access::read_only>::create(buffer_.data_size());
 }
 
 } // namespace sl::gfx
