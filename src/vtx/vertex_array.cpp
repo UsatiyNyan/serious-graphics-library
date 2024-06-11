@@ -40,14 +40,14 @@ void enable_vertex_attrib_array(const vertex_array_attribute& attrib) {
 vertex_array::vertex_array()
     : finalizer{ [](vertex_array& self) {
           // TODO(@usatiynyan): more than one VAO?
-          glDeleteVertexArrays(1, &self.internal_);
           log::trace("glDeleteVertexArrays: {}", self.internal_);
+          glDeleteVertexArrays(1, &self.internal_);
       } },
       internal_{ [] {
           GLuint va_object = 0;
           // TODO(@usatiynyan): more than one VAO?
-          glGenVertexArrays(1, &va_object);
           log::trace("glGenVertexArrays: {}", va_object);
+          glGenVertexArrays(1, &va_object);
           return va_object;
       }() } {}
 

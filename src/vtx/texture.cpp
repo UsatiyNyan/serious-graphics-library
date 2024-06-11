@@ -11,13 +11,13 @@ namespace sl::gfx {
 texture::texture(texture_type type)
     : meta::finalizer<texture>{ [](texture& self) {
           // TODO(@usatiynyan): more than one texture?
-          glDeleteTextures(1, &self.internal_);
           log::trace("glDeleteTextures: {}", self.internal_);
+          glDeleteTextures(1, &self.internal_);
       } },
       type_{ type }, internal_{ [] {
           GLuint texture;
-          glGenTextures(1, &texture);
           log::trace("glGenTextures: {}", texture);
+          glGenTextures(1, &texture);
           return texture;
       }() } {}
 
@@ -37,13 +37,13 @@ bound_texture::bound_texture(const texture& texture)
     :
 #ifndef NDEBUG
       meta::finalizer<bound_texture>{ [](bound_texture& self) {
-          glBindTexture(static_cast<GLenum>(self.type_), 0);
           log::trace("glBindTexture({}): 0", static_cast<GLenum>(self.type_));
+          glBindTexture(static_cast<GLenum>(self.type_), 0);
       } },
 #endif
       type_{ texture.type() } {
-    glBindTexture(static_cast<GLenum>(type_), texture.internal());
     log::trace("glBindTexture({}): {}", static_cast<GLenum>(type_), texture.internal());
+    glBindTexture(static_cast<GLenum>(type_), texture.internal());
 }
 
 void bound_texture::set_parameter(GLenum key, GLint value) { glTexParameteri(static_cast<GLenum>(type_), key, value); }

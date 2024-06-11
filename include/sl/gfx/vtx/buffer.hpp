@@ -62,6 +62,15 @@ enum class buffer_access : GLenum {
 template <typename T, buffer_type type, buffer_usage usage>
 class bound_buffer;
 
+template <buffer_type type>
+concept buffer_base_bindable = type == buffer_type::atomic_counter || //
+                               type == buffer_type::transform_feedback || //
+                               type == buffer_type::uniform || //
+                               type == buffer_type::shader_storage;
+
+template <typename T, buffer_type type, buffer_usage usage>
+class bound_buffer_base;
+
 template <typename T, buffer_type type, buffer_access access>
 class mapped_buffer;
 
@@ -72,19 +81,23 @@ class buffer : public meta::finalizer<buffer<T, type, usage>> {
 public:
     buffer()
         : meta::finalizer<buffer>{ [](buffer& self) {
-              glDeleteBuffers(1, &self.internal_);
               log::trace("glDeleteBuffers: {}", self.internal_);
+              glDeleteBuffers(1, &self.internal_);
           } },
           internal_{ [] {
               GLuint buffer = 0;
               // TODO(@usatiynyan): more than one buffer?
-              glGenBuffers(1, &buffer);
               log::trace("glGenBuffers: {}", buffer);
+              glGenBuffers(1, &buffer);
               return buffer;
           }() } {}
 
     [[nodiscard]] bound_buffer<T, type, usage> bind();
     [[nodiscard]] const bound_buffer<T, type, usage> bind() const;
+
+    template <typename = void>
+        requires buffer_base_bindable<type>
+    [[nodiscard]] bound_buffer_base<T, type, usage> bind_base(GLuint index) const;
 
     [[nodiscard]] std::size_t data_size() const { return data_size_; }
     [[nodiscard]] GLuint internal() const { return internal_; }
@@ -105,8 +118,7 @@ public:
         glBindBuffer(static_cast<GLenum>(type), buffer_.internal());
     }
 
-    template <std::size_t size>
-    void initialize_data() {
+    void initialize_data(std::size_t size) {
         log::trace("glBufferData: size={}, data=nullptr", size);
         glBufferData( //
             static_cast<GLenum>(type),
@@ -140,13 +152,6 @@ public:
         );
     }
 
-    template <GLuint index>
-        requires(type == buffer_type::shader_storage)
-    void bind_base() {
-        log::trace("glBindBufferBase: {} index={}", buffer_.internal(), index);
-        glBindBufferBase(static_cast<GLenum>(type), index, buffer_.internal());
-    }
-
     [[nodiscard]] GLint get_parameter(GLenum name) const {
         return detail::get_parameter(glGetBufferParameteriv, static_cast<GLenum>(type), name);
     }
@@ -157,6 +162,34 @@ public:
 
 private:
     buffer<T, type, usage>& buffer_;
+};
+
+template <typename T, buffer_type type, buffer_usage usage>
+class bound_buffer_base
+    : public
+#ifdef NDEBUG
+      meta::unique
+#else
+      meta::finalizer<bound_buffer_base<T, type, usage>>
+#endif
+{
+public:
+    explicit bound_buffer_base(const buffer<T, type, usage>& buffer, GLuint index)
+#ifndef NDEBUG
+        : meta::finalizer<bound_buffer_base>{ [](bound_buffer_base& self) {
+              log::trace("glBindBufferBase: 0 index={}", self.index_);
+              glBindBufferBase(static_cast<GLenum>(type), self.index_, 0);
+          } }
+#endif
+    {
+        log::trace("glBindBufferBase: {} index={}", buffer.internal(), index);
+        glBindBufferBase(static_cast<GLenum>(type), index, buffer.internal());
+    }
+
+    [[nodiscard]] GLuint index() const { return index_; }
+
+private:
+    GLuint index_;
 };
 
 template <typename T, buffer_type type, buffer_access access>
@@ -189,6 +222,13 @@ bound_buffer<T, type, usage> buffer<T, type, usage>::bind() {
 template <typename T, buffer_type type, buffer_usage usage>
 const bound_buffer<T, type, usage> buffer<T, type, usage>::bind() const {
     return bound_buffer<T, type, usage>{ *this };
+}
+
+template <typename T, buffer_type type, buffer_usage usage>
+template <typename>
+    requires buffer_base_bindable<type>
+bound_buffer_base<T, type, usage> buffer<T, type, usage>::bind_base(GLuint index) const {
+    return bound_buffer_base<T, type, usage>{ *this, index };
 }
 
 template <typename T, buffer_type type, buffer_usage usage>

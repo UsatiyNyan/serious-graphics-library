@@ -48,8 +48,7 @@ auto create_buffers(std::span<const V, 4> vertices) {
 auto create_ssbo() {
     gfx::buffer<float, gfx::buffer_type::shader_storage, gfx::buffer_usage::dynamic_draw> ssbo;
     auto ssbo_bind = ssbo.bind();
-    ssbo_bind.bind_base<0>();
-    ssbo_bind.initialize_data<1024>();
+    ssbo_bind.initialize_data(1024);
     return ssbo;
 };
 
@@ -102,6 +101,7 @@ int main(int argc, char** argv) {
         {
             const auto bound_sp = sp.bind();
             const auto bound_va = va.bind();
+            const auto bound_ssbo_base = ssbo.bind_base(0);
             {
                 auto maybe_mapped_ssbo = ssbo.bind().map<gfx::buffer_access::write_only>();
                 auto mapped_ssbo = *ASSERT_VAL(std::move(maybe_mapped_ssbo));
