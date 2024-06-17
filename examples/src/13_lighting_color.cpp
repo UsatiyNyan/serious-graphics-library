@@ -158,17 +158,15 @@ int main(int argc, char** argv) {
     constexpr gfx::basis world{};
 
     gfx::camera camera{
-        .tf =
-            gfx::transform{
-                .tr = glm::vec3{ 0.0f, 0.0f, 3.0f },
-                .rot = glm::angleAxis(glm::radians(-180.0f), world.up()),
-            },
-        .proj =
-            gfx::perspective_projection{
-                .fov = glm::radians(45.0f),
-                .near = 0.1f,
-                .far = 100.0f,
-            },
+        .tf{
+            .tr = glm::vec3{ 0.0f, 0.0f, 3.0f },
+            .rot = glm::angleAxis(glm::radians(-180.0f), world.up()),
+        },
+        .proj{ gfx::perspective_projection{
+            .fov = glm::radians(45.0f),
+            .near = 0.1f,
+            .far = 100.0f,
+        } },
     };
 
     const auto transform_from_keyboard = [&world](const gfx::current_window& cw) {

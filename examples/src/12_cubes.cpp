@@ -140,17 +140,15 @@ int main(int argc, char** argv) {
     constexpr gfx::basis world{};
 
     gfx::camera camera{
-        .tf =
-            gfx::transform{
-                .tr = glm::vec3{ 0.0f, 0.0f, 3.0f },
-                .rot = glm::angleAxis(glm::radians(-180.0f), world.up()),
-            },
-        .proj =
-            gfx::perspective_projection{
-                .fov = glm::radians(45.0f),
-                .near = 0.1f,
-                .far = 100.0f,
-            },
+        .tf{
+            .tr = glm::vec3{ 0.0f, 0.0f, 3.0f },
+            .rot = glm::angleAxis(glm::radians(-180.0f), world.up()),
+        },
+        .proj{ gfx::perspective_projection{
+            .fov = glm::radians(45.0f),
+            .near = 0.1f,
+            .far = 100.0f,
+        } },
     };
 
     const auto transform_from_keyboard = [&world](const gfx::current_window& cw) {
@@ -200,7 +198,7 @@ int main(int argc, char** argv) {
     });
 
     (void)window->scroll_cb.connect([&](glm::dvec2 scroll_offset) {
-        camera.proj
+        camera.proj.value
             | sl::meta::pmatch{
                   [yoffset = static_cast<float>(scroll_offset.y)](gfx::perspective_projection& x) {
                       constexpr float zoom_sensitivity = 0.1f;

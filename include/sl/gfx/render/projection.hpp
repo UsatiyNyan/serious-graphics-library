@@ -26,6 +26,12 @@ struct orthographic_projection {
     }
 };
 
-using projection = std::variant<perspective_projection, orthographic_projection>;
+struct projection {
+    std::variant<perspective_projection, orthographic_projection> value;
+
+    glm::mat4 calculate(glm::ivec2 window_size) const {
+        return std::visit([window_size](const auto& x) { return x.matrix(window_size); }, value);
+    }
+};
 
 } // namespace sl::gfx
