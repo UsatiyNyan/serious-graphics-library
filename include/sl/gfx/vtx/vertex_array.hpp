@@ -5,7 +5,7 @@
 #pragma once
 
 #include "sl/gfx/common/vendors.hpp"
-#include "sl/gfx/primitives/gl_type_map.hpp"
+#include "sl/gfx/detail/gl_type_map.hpp"
 #include "sl/gfx/vtx/buffer.hpp"
 #include "sl/gfx/vtx/vertex_array_attribute.hpp"
 

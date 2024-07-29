@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "sl/gfx/primitives/transform.hpp"
+#include "sl_example/transform.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "sl/gfx/common/vendors.hpp"
-#include "sl/gfx/primitives/gl_type_map.hpp"
+#include "sl/gfx/detail/gl_type_map.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
 #include <sl/meta/lifetime/lazy_eval.hpp>

@@ -3,6 +3,7 @@
 //
 
 #include "sl/gfx.hpp"
+#include "sl_example.hpp"
 
 #include <sl/meta/match/pmatch.hpp>
 #include <sl/rt.hpp>

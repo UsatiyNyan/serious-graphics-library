@@ -6,6 +6,7 @@ cpmaddpackage(
 sl_target_link_system_libraries(${PROJECT_NAME}
         PUBLIC
         serious-runtime-library)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 sl_target_attach_directory(${PROJECT_NAME} shaders)
 sl_target_attach_directory(${PROJECT_NAME} textures)

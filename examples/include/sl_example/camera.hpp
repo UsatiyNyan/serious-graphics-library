@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "sl/gfx/render/projection.hpp"
-
-#include "sl/gfx/primitives/basis.hpp"
-#include "sl/gfx/primitives/transform.hpp"
+#include "sl_example/basis.hpp"
+#include "sl_example/projection.hpp"
+#include "sl_example/transform.hpp"
 
 namespace sl::gfx {
 
