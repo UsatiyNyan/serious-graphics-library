@@ -32,6 +32,7 @@ add_library(${PROJECT_NAME}
         src/shader/program.cpp
         src/vtx/vertex_array.cpp
         src/vtx/texture.cpp)
+add_library(sl::gfx ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 

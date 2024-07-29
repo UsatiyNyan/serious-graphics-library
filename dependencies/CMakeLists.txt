@@ -18,11 +18,6 @@ cpmaddpackage(
         GIT_REPOSITORY "git@github.com:fmtlib/fmt.git"
         GIT_TAG 10.1.1)
 
-cpmaddpackage(
-        NAME libassert
-        GIT_REPOSITORY "git@github.com:jeremy-rifkin/libassert.git"
-        GIT_TAG v2.0.1)
-
 include("${CMAKE_CURRENT_SOURCE_DIR}/boost.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/spdlog.cmake")
 
@@ -47,11 +42,10 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         spdlog::spdlog
 
         # fp components
-        serious-meta-library
+        sl::meta
         range-v3::range-v3
 
         # utils
-        libassert::assert
         Boost::container
 
         # image
