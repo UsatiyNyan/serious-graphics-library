@@ -3,10 +3,9 @@
 //
 
 #include "sl/gfx/shader/shader.hpp"
-#include "sl/gfx/common/log.hpp"
 
+#include "sl/gfx/detail/get.hpp"
 #include "sl/gfx/detail/log.hpp"
-#include "sl/gfx/detail/parameter.hpp"
 
 #include <fstream>
 

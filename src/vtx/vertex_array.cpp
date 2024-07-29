@@ -3,7 +3,8 @@
 //
 
 #include "sl/gfx/vtx/vertex_array.hpp"
-#include "sl/gfx/common/log.hpp"
+
+#include "sl/gfx/detail/log.hpp"
 
 #include <libassert/assert.hpp>
 

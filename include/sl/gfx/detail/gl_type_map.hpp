@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "sl/gfx/common/vendors.hpp"
+#include "sl/gfx/detail/vendors.hpp"
 
 #include <sl/meta/match/overloaded.hpp>
 

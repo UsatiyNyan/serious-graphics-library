@@ -23,11 +23,11 @@ project(
 
 add_library(${PROJECT_NAME}
         STATIC
-        src/common/log.cpp
         src/ctx/context.cpp
         src/ctx/window.cpp
         src/ctx/imgui.cpp
         src/ctx/implot.cpp
+        src/detail/log.cpp
         src/shader/shader.cpp
         src/shader/program.cpp
         src/vtx/vertex_array.cpp

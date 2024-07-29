@@ -3,7 +3,8 @@
 //
 
 #include "sl/gfx/vtx/texture.hpp"
-#include "sl/gfx/common/log.hpp"
+
+#include "sl/gfx/detail/log.hpp"
 
 #include <libassert/assert.hpp>
 

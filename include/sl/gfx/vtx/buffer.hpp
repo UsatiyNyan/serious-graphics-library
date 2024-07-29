@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "sl/gfx/common/log.hpp"
-#include "sl/gfx/common/vendors.hpp"
-#include "sl/gfx/detail/parameter.hpp"
+#include "sl/gfx/detail/get.hpp"
+#include "sl/gfx/detail/log.hpp"
+#include "sl/gfx/detail/vendors.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
 #include <sl/meta/lifetime/unique.hpp>

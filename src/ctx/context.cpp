@@ -3,8 +3,9 @@
 //
 
 #include "sl/gfx/ctx/context.hpp"
-#include "sl/gfx/common/log.hpp"
-#include "sl/gfx/common/vendors.hpp"
+
+#include "sl/gfx/detail/log.hpp"
+#include "sl/gfx/detail/vendors.hpp"
 
 #include <libassert/assert.hpp>
 #include <tl/optional.hpp>

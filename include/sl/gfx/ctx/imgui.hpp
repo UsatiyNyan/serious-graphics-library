@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/ctx/context.hpp"
 #include "sl/gfx/ctx/window.hpp"
+
+#include "sl/gfx/detail/vendors.hpp"
 
 #include <imgui.h>
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM

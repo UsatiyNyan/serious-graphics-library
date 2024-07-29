@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/ctx/context.hpp"
+
+#include "sl/gfx/detail/vendors.hpp"
 
 #include <sl/meta/conn/signal.hpp>
 #include <sl/meta/lifetime/unique.hpp>

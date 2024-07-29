@@ -4,19 +4,46 @@
 
 #pragma once
 
-#include <string>
+#include <spdlog/spdlog.h>
 
-#include "sl/gfx/common/vendors.hpp"
+namespace sl::gfx {
 
-namespace sl::gfx::detail {
-template <typename LogRetriever>
-std::string get_log(LogRetriever log_retriever, GLuint object) {
-    constexpr size_t MAX_LOG_LENGTH = 1024;
-    std::string log_text(MAX_LOG_LENGTH, 0);
-    GLsizei log_length = 0;
-    log_retriever(object, MAX_LOG_LENGTH, &log_length, log_text.data());
-    log_text.resize(log_length);
-    return log_text;
+// this is the only place I am willing to have global state
+// cuz it's good enough
+spdlog::logger& logger();
+
+namespace log {
+
+template <typename... Args>
+void trace(spdlog::format_string_t<Args...> fmt, Args&&... args) {
+    logger().trace(fmt, std::forward<Args>(args)...);
 }
-}  // namespace SL::graphics::log
 
+template <typename... Args>
+void debug(spdlog::format_string_t<Args...> fmt, Args&&... args) {
+    logger().debug(fmt, std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+void info(spdlog::format_string_t<Args...> fmt, Args&&... args) {
+    logger().info(fmt, std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+void warn(spdlog::format_string_t<Args...> fmt, Args&&... args) {
+    logger().warn(fmt, std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+void error(spdlog::format_string_t<Args...> fmt, Args&&... args) {
+    logger().error(fmt, std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+void critical(spdlog::format_string_t<Args...> fmt, Args&&... args) {
+    logger().critical(fmt, std::forward<Args>(args)...);
+}
+
+} // namespace log
+
+} // namespace sl::gfx

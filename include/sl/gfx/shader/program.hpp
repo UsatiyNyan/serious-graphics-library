@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "sl/gfx/common/vendors.hpp"
 #include "sl/gfx/shader/shader.hpp"
+
+#include "sl/gfx/detail/vendors.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
 #include <sl/meta/lifetime/unique.hpp>

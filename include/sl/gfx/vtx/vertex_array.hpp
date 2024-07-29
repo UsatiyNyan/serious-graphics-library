@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "sl/gfx/common/vendors.hpp"
-#include "sl/gfx/detail/gl_type_map.hpp"
 #include "sl/gfx/vtx/buffer.hpp"
 #include "sl/gfx/vtx/vertex_array_attribute.hpp"
+
+#include "sl/gfx/detail/gl_type_map.hpp"
+#include "sl/gfx/detail/vendors.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
 #include <sl/meta/lifetime/unique.hpp>

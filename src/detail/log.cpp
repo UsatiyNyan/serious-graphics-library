@@ -2,7 +2,7 @@
 // Created by usatiynyan.
 //
 
-#include "sl/gfx/common/log.hpp"
+#include "sl/gfx/detail/log.hpp"
 
 namespace sl::gfx {
 

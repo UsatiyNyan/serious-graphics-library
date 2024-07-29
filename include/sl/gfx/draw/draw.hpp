@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "sl/gfx/common/vendors.hpp"
+#include "sl/gfx/detail/vendors.hpp"
 #include "sl/gfx/detail/gl_type_map.hpp"
 #include "sl/gfx/shader/program.hpp"
 #include "sl/gfx/vtx/texture.hpp"
