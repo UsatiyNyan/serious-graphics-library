@@ -33,21 +33,22 @@ const bound_texture texture::activate(std::size_t unit) const {
     return bind();
 }
 
-
 bound_texture::bound_texture(const texture& texture)
     :
 #ifndef NDEBUG
       meta::finalizer<bound_texture>{ [](bound_texture& self) {
-          log::trace("glBindTexture({}): 0", static_cast<GLenum>(self.type_));
-          glBindTexture(static_cast<GLenum>(self.type_), 0);
+          log::trace("glBindTexture({}): 0", static_cast<GLenum>(self.texture_.type()));
+          glBindTexture(static_cast<GLenum>(self.texture_.type()), 0);
       } },
 #endif
-      type_{ texture.type() } {
-    log::trace("glBindTexture({}): {}", static_cast<GLenum>(type_), texture.internal());
-    glBindTexture(static_cast<GLenum>(type_), texture.internal());
+      texture_{ texture } {
+    log::trace("glBindTexture({}): {}", static_cast<GLenum>(texture_.type()), texture_.internal());
+    glBindTexture(static_cast<GLenum>(texture_.type()), texture_.internal());
 }
 
-void bound_texture::set_parameter(GLenum key, GLint value) { glTexParameteri(static_cast<GLenum>(type_), key, value); }
+void bound_texture::set_parameter(GLenum key, GLint value) {
+    glTexParameteri(static_cast<GLenum>(texture_.type()), key, value);
+}
 
 texture_builder::texture_builder(texture_type type) : tex_{ texture{ type } }, bound_{ tl::in_place, *tex_ } {}
 

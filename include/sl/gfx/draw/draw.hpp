@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include "sl/gfx/detail/vendors.hpp"
-#include "sl/gfx/detail/gl_type_map.hpp"
 #include "sl/gfx/shader/program.hpp"
 #include "sl/gfx/vtx/texture.hpp"
 #include "sl/gfx/vtx/vertex_array.hpp"
+
+#include "sl/gfx/detail/gl_type_map.hpp"
+#include "sl/gfx/detail/vendors.hpp"
 
 namespace sl::gfx {
 

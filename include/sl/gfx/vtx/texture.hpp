@@ -87,11 +87,8 @@ private:
 };
 
 class bound_texture
-    : public
-#ifdef NDEBUG
-      meta::unique
-#else
-      meta::finalizer<bound_texture>
+#ifndef NDEBUG
+    : public meta::finalizer<bound_texture>
 #endif
 {
 public:
@@ -99,8 +96,10 @@ public:
 
     void set_parameter(GLenum key, GLint value);
 
+    [[nodiscard]] const texture* operator->() const { return &texture_; }
+
 private:
-    texture_type type_;
+    const texture& texture_;
 };
 
 class texture_builder : public meta::unique {
