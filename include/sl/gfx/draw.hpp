@@ -5,3 +5,4 @@
 #pragma once
 
 #include "sl/gfx/draw/draw.hpp"
+#include "sl/gfx/draw/framebuffer.hpp"
