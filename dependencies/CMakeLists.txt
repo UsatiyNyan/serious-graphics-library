@@ -26,11 +26,15 @@ add_subdirectory(glad)
 add_subdirectory(stb)
 add_subdirectory(imgui)
 
-sl_target_link_system_libraries(${PROJECT_NAME}
+if (UNIX)
+    sl_target_link_system_libraries(${PROJECT_NAME}
         PRIVATE
         # dynamic graphics API loading
         dl
+    )
+endif()
 
+sl_target_link_system_libraries(${PROJECT_NAME}
         PUBLIC
         # graphics
         glfw
