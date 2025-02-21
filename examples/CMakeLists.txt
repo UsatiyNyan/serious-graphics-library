@@ -5,7 +5,9 @@ cpmaddpackage(
 
 sl_target_link_system_libraries(${PROJECT_NAME}
         PUBLIC
-        serious-runtime-library)
+        serious-runtime-library
+        implot_demo
+        )
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 sl_target_attach_directory(${PROJECT_NAME} shaders)
