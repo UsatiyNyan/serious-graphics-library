@@ -26,14 +26,6 @@ add_subdirectory(glad)
 add_subdirectory(stb)
 add_subdirectory(imgui)
 
-if (UNIX)
-    sl_target_link_system_libraries(${PROJECT_NAME}
-        PRIVATE
-        # dynamic graphics API loading
-        dl
-    )
-endif()
-
 sl_target_link_system_libraries(${PROJECT_NAME}
         PUBLIC
         # utils
@@ -52,4 +44,8 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         # ui
         imgui
         implot
+
+        PRIVATE
+        # dynamic graphics API loading
+        ${CMAKE_DL_LIBS}
 )
