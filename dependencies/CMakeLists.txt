@@ -4,13 +4,12 @@ cpmaddpackage(
         NAME serious-meta-library
         GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-meta-library.git"
         GIT_TAG main)
+# provides spdlog
 cpmaddpackage(
-        NAME spdlog
-        GIT_REPOSITORY "git@github.com:gabime/spdlog.git"
-        GIT_TAG v1.12.0
-        OPTIONS
-        "SPDLOG_FMT_EXTERNAL ON"
-        )
+        NAME serious-runtime-library
+        GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-runtime-library.git"
+        GIT_TAG main)
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/boost.cmake")
 
 cpmaddpackage(
@@ -39,7 +38,7 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         PUBLIC
         # utils
         sl::meta
-        spdlog::spdlog
+        sl::rt
         Boost::container
 
         # graphics
