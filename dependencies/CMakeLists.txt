@@ -1,8 +1,17 @@
 # CMake packages
+# provides fmt
 cpmaddpackage(
         NAME serious-meta-library
         GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-meta-library.git"
         GIT_TAG main)
+cpmaddpackage(
+        NAME spdlog
+        GIT_REPOSITORY "git@github.com:gabime/spdlog.git"
+        GIT_TAG v1.12.0
+        OPTIONS
+        "SPDLOG_FMT_EXTERNAL ON"
+        )
+include("${CMAKE_CURRENT_SOURCE_DIR}/boost.cmake")
 
 cpmaddpackage(
         NAME glfw
@@ -12,14 +21,6 @@ cpmaddpackage(
         NAME glm
         GIT_REPOSITORY "git@github.com:g-truc/glm.git"
         GIT_TAG 0.9.9.8)
-
-cpmaddpackage(
-        NAME fmt
-        GIT_REPOSITORY "git@github.com:fmtlib/fmt.git"
-        GIT_TAG 10.1.1)
-
-include("${CMAKE_CURRENT_SOURCE_DIR}/boost.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/spdlog.cmake")
 
 # Manually compiled
 add_subdirectory(glad)
@@ -36,21 +37,15 @@ endif()
 
 sl_target_link_system_libraries(${PROJECT_NAME}
         PUBLIC
+        # utils
+        sl::meta
+        spdlog::spdlog
+        Boost::container
+
         # graphics
         glfw
         glad
         glm
-
-        # fmt/log
-        fmt::fmt
-        spdlog::spdlog
-
-        # fp components
-        sl::meta
-        range-v3::range-v3
-
-        # utils
-        Boost::container
 
         # image
         stb_image
