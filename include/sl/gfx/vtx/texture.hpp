@@ -66,7 +66,7 @@ public:
 
 class texture_builder;
 
-class bound_texture;
+struct bound_texture;
 
 class texture : public meta::finalizer<texture> {
     friend class texture_builder;
@@ -75,8 +75,8 @@ class texture : public meta::finalizer<texture> {
 
 public:
     [[nodiscard]] bound_texture bind();
-    [[nodiscard]] const bound_texture bind() const;
-    [[nodiscard]] const bound_texture activate(std::size_t unit) const;
+    [[nodiscard]] bound_texture bind() const;
+    [[nodiscard]] bound_texture activate(std::size_t unit) const;
 
     [[nodiscard]] texture_type type() const { return type_; }
     [[nodiscard]] GLuint internal() const { return internal_; }
@@ -86,12 +86,7 @@ private:
     GLuint internal_;
 };
 
-class bound_texture
-#ifndef NDEBUG
-    : public meta::finalizer<bound_texture>
-#endif
-{
-public:
+struct bound_texture : public meta::finalizer<bound_texture> {
     explicit bound_texture(const texture& texture);
 
     void set_parameter(GLenum key, GLint value);

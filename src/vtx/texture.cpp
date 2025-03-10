@@ -24,9 +24,9 @@ texture::texture(texture_type type)
 
 bound_texture texture::bind() { return bound_texture{ *this }; }
 
-const bound_texture texture::bind() const { return bound_texture{ *this }; }
+bound_texture texture::bind() const { return bound_texture{ *this }; }
 
-const bound_texture texture::activate(std::size_t unit) const {
+bound_texture texture::activate(std::size_t unit) const {
     // TODO(@usatiynyan): GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
     ASSERT(unit < max_texture_units);
     glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(unit));
@@ -34,13 +34,10 @@ const bound_texture texture::activate(std::size_t unit) const {
 }
 
 bound_texture::bound_texture(const texture& texture)
-    :
-#ifndef NDEBUG
-      meta::finalizer<bound_texture>{ [](bound_texture& self) {
+    : meta::finalizer<bound_texture>{ [](bound_texture& self) {
           log::trace("glBindTexture({}): 0", static_cast<GLenum>(self.texture_.type()));
           glBindTexture(static_cast<GLenum>(self.texture_.type()), 0);
       } },
-#endif
       texture_{ texture } {
     log::trace("glBindTexture({}): {}", static_cast<GLenum>(texture_.type()), texture_.internal());
     glBindTexture(static_cast<GLenum>(texture_.type()), texture_.internal());
