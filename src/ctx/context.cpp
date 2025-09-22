@@ -23,6 +23,11 @@ void apply_options(const context::options& options) {
 } // namespace
 
 std::unique_ptr<context> context::create(const context::options& options) {
+    constexpr auto error_callback = [](int error_code, const char* description) {
+        log::error("[gflw] ec={}, descr={}", error_code, description);
+    };
+    glfwSetErrorCallback(error_callback);
+
     if (glfwInit() != GLFW_TRUE) {
         log::error("glfwInit");
         return nullptr;

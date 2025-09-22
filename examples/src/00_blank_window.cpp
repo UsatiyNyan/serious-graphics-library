@@ -5,12 +5,14 @@
 #include "sl/gfx.hpp"
 
 #include <libassert/assert.hpp>
+#include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
 
 namespace gfx = sl::gfx;
 
 int main() {
     spdlog::set_level(spdlog::level::debug);
+    gfx::logger().sinks().push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
 
     auto ctx = ASSERT_VAL(gfx::context::create(gfx::context::options{ 4, 6, GLFW_OPENGL_CORE_PROFILE }));
 
