@@ -11,9 +11,10 @@
 #include "sl/gfx/detail/vendors.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
-#include <sl/meta/lifetime/unique.hpp>
+#include <sl/meta/traits/unique.hpp>
 #include <sl/meta/tuple/decay.hpp>
 #include <sl/meta/tuple/tie_as_tuple.hpp>
+#include <sl/meta/memory/aggregate.hpp>
 
 #include <boost/container/static_vector.hpp>
 #include <tl/optional.hpp>

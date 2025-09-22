@@ -9,7 +9,7 @@
 #include "sl/gfx/detail/vendors.hpp"
 
 #include <sl/meta/lifetime/finalizer.hpp>
-#include <sl/meta/lifetime/unique.hpp>
+#include <sl/meta/traits/unique.hpp>
 
 #include <range/v3/view/enumerate.hpp>
 #include <span>

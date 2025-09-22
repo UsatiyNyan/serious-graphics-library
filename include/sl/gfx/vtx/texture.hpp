@@ -7,9 +7,9 @@
 #include "sl/gfx/detail/gl_type_map.hpp"
 #include "sl/gfx/detail/vendors.hpp"
 
+#include <sl/meta/func/lazy_eval.hpp>
 #include <sl/meta/lifetime/finalizer.hpp>
-#include <sl/meta/lifetime/lazy_eval.hpp>
-#include <sl/meta/lifetime/unique.hpp>
+#include <sl/meta/traits/unique.hpp>
 
 #include <boost/container/small_vector.hpp>
 #include <range/v3/view/enumerate.hpp>

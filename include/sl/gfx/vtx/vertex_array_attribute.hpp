@@ -6,7 +6,7 @@
 
 #include "sl/gfx/detail/vendors.hpp"
 
-#include <sl/meta/field/alignment.hpp>
+#include <sl/meta/memory/aligned.hpp>
 
 namespace sl::gfx {
 
@@ -28,6 +28,6 @@ constexpr bool is_allowed_component_count = (1 <= component_count && component_c
 
 template <GLint component_count_, typename T, typename AlignAsT = T, bool normalized_ = false>
     requires is_allowed_component_count<component_count_>
-struct va_attrib_field : meta::aligned_field<T[component_count_], AlignAsT> {};
+struct va_attrib_field : meta::aligned<T[component_count_], AlignAsT> {};
 
 } // namespace sl::gfx
