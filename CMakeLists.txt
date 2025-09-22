@@ -21,6 +21,8 @@ project(
         HOMEPAGE_URL "TODO"
         LANGUAGES C CXX)
 
+option(${PROJECT_NAME}_USE_WAYLAND "proxy into GLFW_USE_WAYLAND" OFF)
+
 add_library(${PROJECT_NAME}
         STATIC
         src/ctx/context.cpp

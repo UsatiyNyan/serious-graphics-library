@@ -15,7 +15,10 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/boost.cmake")
 cpmaddpackage(
         NAME glfw
         GIT_REPOSITORY "git@github.com:glfw/glfw.git"
-        GIT_TAG 3.3.8)
+        GIT_TAG 3.3.8
+        OPTIONS "GLFW_USE_WAYLAND ${${PROJECT_NAME}_USE_WAYLAND}"
+)
+
 cpmaddpackage(
         NAME glm
         GIT_REPOSITORY "git@github.com:g-truc/glm.git"
@@ -49,3 +52,12 @@ sl_target_link_system_libraries(${PROJECT_NAME}
         # dynamic graphics API loading
         ${CMAKE_DL_LIBS}
 )
+
+if (${${PROJECT_NAME}_USE_WAYLAND})
+    find_package(OpenGL REQUIRED COMPONENTS EGL)
+    sl_target_link_system_libraries(${PROJECT_NAME}
+        PUBLIC
+        xkbcommon
+        OpenGL::EGL
+        )
+endif ()

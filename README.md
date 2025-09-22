@@ -4,7 +4,7 @@ For serious programmers.
 
 # dependencies
 
-# X11
+## X11
 
 Example for debian-based systems:
 
@@ -16,6 +16,30 @@ sudo apt install \
   libxcursor-dev \
   libxi-dev
 ```
+
+## Wayland
+
+Example devShell for NixOS:
+```nix
+{pkgs, ...}: {
+  buildInputs = with pkgs; [
+    extra-cmake-modules
+
+    wayland
+    wayland-scanner
+    wayland-protocols
+    libxkbcommon
+    libffi
+    libglvnd
+  ];
+}
+```
+
+> [!NOTE] 
+> shell.nix is provided
+
+> [!IMPORTANT] 
+> generate cmake with `-Dserious-graphics-library_USE_WAYLAND=ON`
 
 # credits
 
