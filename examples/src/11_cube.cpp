@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
                 glm::rotate(glm::mat4(1.0f), time * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
             const glm::mat4 transform = projection * view * model; // leaning osaker
-            set_transform(bound_sp, glm::value_ptr(transform));
+            set_transform(bound_sp, transform);
 
             gfx::draw{ bound_sp, bound_va, bound_texs }.elements(eb);
         }

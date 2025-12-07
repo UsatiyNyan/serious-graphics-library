@@ -7,8 +7,6 @@
 #include "sl/gfx/detail/get.hpp"
 #include "sl/gfx/detail/log.hpp"
 
-#include <libassert/assert.hpp>
-
 namespace sl::gfx {
 shader_program::shader_program()
     : finalizer{ [](shader_program& self) {
@@ -53,11 +51,9 @@ tl::optional<GLint> bound_shader_program::get_uniform_location(std::string_view 
     return uniform_location;
 }
 
-void bound_shader_program::verify(GLuint internal) const { ASSERT(sp_.internal() == internal); }
-
 void bound_shader_program::initialize_tex_unit(std::string_view tex_uniform_name, std::size_t tex_unit) {
     const auto set_texture_unit = *ASSERT_VAL(make_uniform_setter(glUniform1i, tex_uniform_name));
-    set_texture_unit(*this, tex_unit);
+    set_texture_unit(*this, static_cast<int>(tex_unit));
 }
 
 } // namespace sl::gfx

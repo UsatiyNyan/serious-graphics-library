@@ -306,7 +306,7 @@ int main(int argc, char** argv) {
 
             for (const auto& pos : cube_positions) {
                 const glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
-                set_model(bound_sp, glm::value_ptr(model));
+                set_model(bound_sp, model);
                 const glm::mat4 transform = projection * view * model;
                 set_transform(bound_sp, glm::value_ptr(transform));
                 draw.elements(eb);
