@@ -21,7 +21,7 @@ project(
         HOMEPAGE_URL "TODO"
         LANGUAGES C CXX)
 
-option(${PROJECT_NAME}_USE_WAYLAND "proxy into GLFW_USE_WAYLAND" OFF)
+option(${PROJECT_NAME}_PROTOCOL "one of WAYLAND,X11,ALL" "WAYLAND")
 
 add_library(${PROJECT_NAME}
         STATIC

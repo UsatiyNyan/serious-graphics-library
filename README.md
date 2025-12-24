@@ -39,7 +39,7 @@ Example devShell for NixOS:
 > shell.nix is provided
 
 > [!IMPORTANT] 
-> generate cmake with `-Dserious-graphics-library_USE_WAYLAND=ON`
+> generate cmake with `-Dserious-graphics-library_PROTOCOL=WAYLAND`
 
 # credits
 
