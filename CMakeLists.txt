@@ -16,7 +16,7 @@ sl_project_prologue(
 
 project(
         serious-graphics-library
-        VERSION 0.0.0
+        VERSION 0.0.2
         DESCRIPTION "graphics library"
         HOMEPAGE_URL "TODO"
         LANGUAGES C CXX)

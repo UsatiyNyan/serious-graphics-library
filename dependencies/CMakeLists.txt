@@ -3,12 +3,12 @@
 cpmaddpackage(
         NAME serious-meta-library
         GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-meta-library.git"
-        GIT_TAG 1.0.1)
+        GIT_TAG 1.0.2)
 # provides spdlog
 cpmaddpackage(
         NAME serious-runtime-library
         GIT_REPOSITORY "git@github.com:UsatiyNyan/serious-runtime-library.git"
-        GIT_TAG main)
+        GIT_TAG 0.0.0)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/boost.cmake")
 
